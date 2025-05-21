@@ -1,4 +1,4 @@
-package frc.robot.Subsystems.Arm;
+package frc.robot.subsystems.arm;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
@@ -9,9 +9,6 @@ public interface ArmIO {
         public Rotation2d angle = Rotation2d.kZero;
     }
 
-    /**
-     * Update the set of loggable inputs.
-     */
     public default void updateInputs(ArmIOInputs inputs) {
     }
 
