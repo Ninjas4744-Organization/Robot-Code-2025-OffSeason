@@ -10,10 +10,10 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value="simulateJava" />
+            <option value="simulateJavaRelease"/>
         </list>
       </option>
-      <option name="vmOptions" />
+        <option name="vmOptions" value="-Dorg.gradle.java.home=C:\Users\Public\wpilib\2025\jdk "/>
     </ExternalSystemSettings>
     <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
     <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
