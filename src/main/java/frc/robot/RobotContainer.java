@@ -10,7 +10,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.ArmIO;
+import frc.robot.subsystems.arm.ArmIOController;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOController;
 
 public class RobotContainer {
     private SendableChooser<Command> autoChooser;
@@ -19,8 +23,20 @@ public class RobotContainer {
 
     public RobotContainer() {
 //        autoChooser = AutoBuilder.buildAutoChooser();
-        Arm.createInstance(true);
-        Elevator.createInstance(false);
+
+        switch (Constants.kCurrentMode) {
+            case REAL, SIM:
+                Arm.createInstance(new Arm(true, new ArmIOController()));
+                Elevator.createInstance(new Elevator(false, new ElevatorIOController()));
+                break;
+
+            case REPLAY:
+                Arm.createInstance(new Arm(true, new ArmIO() {
+                }));
+                Elevator.createInstance(new Elevator(false, new ElevatorIO() {
+                }));
+                break;
+        }
 
         driverController = new CommandPS5Controller(Constants.kDriverControllerPort);
         operatorController = new CommandPS5Controller(Constants.kOperatorControllerPort);
@@ -31,15 +47,15 @@ public class RobotContainer {
     private void configureBindings() {
         driverController.cross().toggleOnTrue(
             Commands.startEnd(
-                () -> Arm.getInstance().setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Open.get())),
-                () -> Arm.getInstance().setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Close.get()))
+                () -> Arm.getInstance().getIO().setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Open.get())),
+                () -> Arm.getInstance().getIO().setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Close.get()))
             )
         );
 
         driverController.circle().toggleOnTrue(
             Commands.startEnd(
-                () -> Arm.getInstance().setPercent(1),
-                () -> Arm.getInstance().setPercent(0)
+                () -> Arm.getInstance().getIO().setPercent(1),
+                () -> Arm.getInstance().getIO().setPercent(0)
             )
         );
     }

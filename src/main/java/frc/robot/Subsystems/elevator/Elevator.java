@@ -1,13 +1,10 @@
 package frc.robot.subsystems.elevator;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.NinjasLib.controllers.Controller;
-import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
-    //    private final ElevatorIO io;
-    private Controller controller;
+    private ElevatorIO io;
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
     private static Elevator instance;
     private boolean enabled;
@@ -16,23 +13,22 @@ public class Elevator extends SubsystemBase {
         return instance;
     }
 
-    public static void createInstance(boolean enabled) {
-        instance = new Elevator(enabled);
+    public static void createInstance(Elevator elevator) {
+        instance = elevator;
     }
 
-    private Elevator(boolean enabled) {
-        if (enabled) {
-            //        io = new ElevatorIOController();
-            controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.kElevatorControllerConstants);
-        }
+    public Elevator(boolean enabled, ElevatorIO io) {
+        if (enabled)
+            this.io = io;
         this.enabled = enabled;
     }
 
-    public void setHeight(double height) {
-        if (enabled) {
-            //        io.setAngle(angle);
-            controller.setPosition(height);
-        }
+    public ElevatorIO getIO() {
+        if (enabled)
+            return io;
+        else
+            return new ElevatorIO() {
+            };
     }
 
     @Override
@@ -40,11 +36,9 @@ public class Elevator extends SubsystemBase {
         if (!enabled)
             return;
 
-//        io.periodic();
-        controller.periodic();
+        io.periodic();
 
-//        io.updateInputs(inputs);
-        controller.updateInputs(inputs);
+        io.updateInputs(inputs);
         Logger.processInputs("Elevator", inputs);
     }
 }

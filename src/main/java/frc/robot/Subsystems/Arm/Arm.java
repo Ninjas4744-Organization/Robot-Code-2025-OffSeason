@@ -1,14 +1,10 @@
 package frc.robot.subsystems.arm;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.NinjasLib.controllers.Controller;
-import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 public class Arm extends SubsystemBase {
-    //    private final ArmIO io;
-    private Controller controller;
+    private ArmIO io;
     private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
     private static Arm instance;
     private boolean enabled;
@@ -17,30 +13,22 @@ public class Arm extends SubsystemBase {
         return instance;
     }
 
-    public static void createInstance(boolean enabled) {
-        instance = new Arm(enabled);
+    public static void createInstance(Arm arm) {
+        instance = arm;
     }
 
-    public Arm(boolean enabled) {
-        if (enabled) {
-            //        io = new ArmIOController();
-            controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.kArmControllerConstants);
-        }
+    public Arm(boolean enabled, ArmIO io) {
+        if (enabled)
+            this.io = io;
         this.enabled = enabled;
     }
 
-    public void setAngle(Rotation2d angle) {
-        if (enabled) {
-            //        io.setAngle(angle);
-            controller.setPosition(angle.getRadians());
-        }
-    }
-
-    public void setPercent(double percent) {
-        if (enabled) {
-            //        io.setPercent(percent);
-            controller.setPercent(percent);
-        }
+    public ArmIO getIO() {
+        if (enabled)
+            return io;
+        else
+            return new ArmIO() {
+            };
     }
 
     @Override
@@ -48,11 +36,9 @@ public class Arm extends SubsystemBase {
         if (!enabled)
             return;
 
-//        io.periodic();
-        controller.periodic();
+        io.periodic();
 
-//        io.updateInputs(inputs);
-        controller.updateInputs(inputs);
+        io.updateInputs(inputs);
         Logger.processInputs("Arm", inputs);
     }
 }

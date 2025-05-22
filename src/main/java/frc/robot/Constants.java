@@ -7,7 +7,7 @@ import frc.lib.NinjasLib.dataclasses.ControllerConstants;
 import frc.lib.NinjasLib.dataclasses.RealControllerConstants.SimpleControllerConstants;
 
 public class Constants {
-    public static enum RobotMode {
+    public enum RobotMode {
         /**
          * Running on a real robot
          */

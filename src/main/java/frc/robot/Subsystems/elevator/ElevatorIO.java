@@ -5,6 +5,15 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface ElevatorIO {
     @AutoLog
-    public static class ElevatorIOInputs extends Controller.ControllerIOInputs {
+    class ElevatorIOInputs extends Controller.ControllerIOInputs {
+    }
+
+    default void setHeight(double height) {
+    }
+
+    default void updateInputs(ElevatorIOInputsAutoLogged inputs) {
+    }
+
+    default void periodic() {
     }
 }
