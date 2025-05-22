@@ -28,7 +28,6 @@ public class Constants {
 
     /* Subsystems */
     public static final ControllerConstants kArmControllerConstants = new ControllerConstants();
-
     static {
         /* Base */
         kArmControllerConstants.real.main.id = 20;
@@ -50,7 +49,6 @@ public class Constants {
         kArmControllerConstants.real.positionGoalTolerance = Units.degreesToRadians(1.5);
 
         /* Soft Limits */
-        kArmControllerConstants.real.minSoftLimit = Units.degreesToRadians(-60);
         kArmControllerConstants.real.maxSoftLimit = Units.degreesToRadians(240);
 
         /* Hard Limit */
@@ -62,6 +60,42 @@ public class Constants {
 
         /* Simulation */
         kArmControllerConstants.motorType = DCMotor.getKrakenX60(2);
+    }
+
+    public static final ControllerConstants kElevatorControllerConstants = new ControllerConstants();
+
+    static {
+        /* Base */
+        kElevatorControllerConstants.real.main.id = 30;
+        kElevatorControllerConstants.real.main.inverted = false;
+        kElevatorControllerConstants.real.currentLimit = 60;
+        kElevatorControllerConstants.real.isBrakeMode = true;
+
+        /* Followers */
+        kElevatorControllerConstants.real.followers = new SimpleControllerConstants[1];
+        kElevatorControllerConstants.real.followers[0] = new SimpleControllerConstants();
+        kElevatorControllerConstants.real.followers[0].id = 31;
+        kElevatorControllerConstants.real.followers[0].inverted = true;
+
+        /* Control */
+        kElevatorControllerConstants.real.controlConstants = ControlConstants.createPID(1, 0, 0, 0);
+        kElevatorControllerConstants.real.gearRatio = 5;
+        kElevatorControllerConstants.real.conversionFactor = Math.PI * 0.05;
+        kElevatorControllerConstants.real.homePosition = 0;
+        kElevatorControllerConstants.real.positionGoalTolerance = 0.01;
+
+        /* Soft Limits */
+        kElevatorControllerConstants.real.maxSoftLimit = 1.6;
+
+        /* Hard Limit */
+        kElevatorControllerConstants.real.isLimitSwitch = true;
+        kElevatorControllerConstants.real.limitSwitchID = 3;
+        kElevatorControllerConstants.real.limitSwitchDirection = -1;
+        kElevatorControllerConstants.real.limitSwitchAutoStopReset = true;
+        kElevatorControllerConstants.real.limitSwitchInverted = true;
+
+        /* Simulation */
+        kElevatorControllerConstants.motorType = DCMotor.getKrakenX60(2);
     }
 
     /* Positions */
