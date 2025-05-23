@@ -5,16 +5,21 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import frc.lib.NinjasLib.RobotStateWithSwerve;
+import frc.lib.NinjasLib.swerve.Swerve;
+import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOController;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOController;
+import org.ironmaple.simulation.SimulatedArena;
 
 public class RobotContainer {
     private SendableChooser<Command> autoChooser;
@@ -23,6 +28,11 @@ public class RobotContainer {
 
     public RobotContainer() {
 //        autoChooser = AutoBuilder.buildAutoChooser();
+
+        RobotStateWithSwerve.setInstance(new RobotState(Constants.kSwerveConstants.kinematics, Constants.kInvertGyro, v -> new double[3], 0));
+        RobotState.getInstance().setRobotState(States.SIGMA);
+
+        SwerveSubsystem.createInstance(new SwerveSubsystem(true));
 
         switch (Constants.kCurrentMode) {
             case REAL, SIM:
@@ -58,6 +68,14 @@ public class RobotContainer {
                 () -> Arm.getInstance().getIO().setPercent(0)
             )
         );
+
+        SwerveSubsystem.getInstance().setDefaultCommand(Commands.run(() -> {
+            Swerve.getInstance().drive(new ChassisSpeeds(-driverController.getLeftY() * 5, -driverController.getLeftX() * 5, -driverController.getRightX() * 10), true);
+        }, SwerveSubsystem.getInstance()));
+    }
+
+    public void periodic() {
+        SimulatedArena.getInstance().simulationPeriodic();
     }
 
     public Command getAutonomousCommand() {

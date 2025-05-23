@@ -1,10 +1,20 @@
 package frc.robot;
 
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.controllers.PathFollowingController;
+import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import frc.lib.NinjasLib.dataclasses.ControlConstants;
-import frc.lib.NinjasLib.dataclasses.ControllerConstants;
+import frc.lib.NinjasLib.controllers.Controller;
+import frc.lib.NinjasLib.dataclasses.*;
 import frc.lib.NinjasLib.dataclasses.RealControllerConstants.SimpleControllerConstants;
+import org.json.simple.parser.ParseException;
+
+import java.io.IOException;
 
 public class Constants {
     public enum RobotMode {
@@ -129,4 +139,98 @@ public class Constants {
             return height;
         }
     }
+
+    /* Swerve */
+    public static final double kDriverSpeedFactor = 1;
+    public static final double kDriverRotationSpeedFactor = 1;
+
+    public static final double kJoystickDeadband = 0.05;
+    public static final boolean kInvertGyro = false;
+    public static final boolean kDriverFieldRelative = true;
+
+    public static final SwerveConstants kSwerveConstants = new SwerveConstants();
+
+    static {
+        kSwerveConstants.openLoop = true;
+        kSwerveConstants.trackWidth = 0.685;
+        kSwerveConstants.wheelBase = 0.685;
+        kSwerveConstants.bumperLength = 0.846;
+        kSwerveConstants.bumperWidth = 0.846;
+        kSwerveConstants.kinematics = new SwerveDriveKinematics(
+            new Translation2d(kSwerveConstants.wheelBase / 2.0, kSwerveConstants.trackWidth / 2.0),
+            new Translation2d(kSwerveConstants.wheelBase / 2.0, -kSwerveConstants.trackWidth / 2.0),
+            new Translation2d(-kSwerveConstants.wheelBase / 2.0, kSwerveConstants.trackWidth / 2.0),
+            new Translation2d(-kSwerveConstants.wheelBase / 2.0, -kSwerveConstants.trackWidth / 2.0)
+        );
+
+        kSwerveConstants.maxSpeed = 4.5;
+        kSwerveConstants.maxAngularVelocity = 9.2;
+//        kSwerveConstants.maxAcceleration = Double.MAX_VALUE;
+//        kSwerveConstants.maxSkidAcceleration = Double.MAX_VALUE;
+        kSwerveConstants.speedLimit = 4.5;
+        ;
+        kSwerveConstants.rotationSpeedLimit = 9.2;
+        kSwerveConstants.accelerationLimit = Double.MAX_VALUE;//11.8;
+        kSwerveConstants.rotationAccelerationLimit = Double.MAX_VALUE;//63.79;
+
+        kSwerveConstants.moduleConstants = new SwerveModuleConstants[4];
+
+        double wheelRadius = 0.049806;//0.048;
+
+        for (int i = 0; i < 4; i++) {
+            kSwerveConstants.moduleConstants[i] = new SwerveModuleConstants(i,
+                new RealControllerConstants(),
+                new RealControllerConstants(),
+                kSwerveConstants.maxSpeed,
+                6 + i,
+                Controller.ControllerType.TalonFX,
+                Controller.ControllerType.TalonFX,
+                false,
+                0);
+
+            kSwerveConstants.moduleConstants[i].driveMotorConstants.main.id = 10 + i * 2;
+            kSwerveConstants.moduleConstants[i].driveMotorConstants.currentLimit = 72;
+            kSwerveConstants.moduleConstants[i].driveMotorConstants.gearRatio = 5.360;
+            kSwerveConstants.moduleConstants[i].driveMotorConstants.conversionFactor = wheelRadius * 2 * Math.PI;
+            kSwerveConstants.moduleConstants[i].driveMotorConstants.controlConstants = ControlConstants.createTorqueCurrent(5 / 0.056267331109070916, 0.19);
+
+            kSwerveConstants.moduleConstants[i].angleMotorConstants.main.id = 11 + i * 2;
+            kSwerveConstants.moduleConstants[i].angleMotorConstants.currentLimit = 60;
+            kSwerveConstants.moduleConstants[i].angleMotorConstants.gearRatio = 18.75;
+            kSwerveConstants.moduleConstants[i].angleMotorConstants.conversionFactor = 2 * Math.PI;
+            kSwerveConstants.moduleConstants[i].angleMotorConstants.controlConstants = ControlConstants.createPID(4 / 0.335093, 0, 0, 0);
+            kSwerveConstants.moduleConstants[i].angleMotorConstants.controlConstants.S = 0.19;
+        }
+
+        kSwerveConstants.moduleConstants[0].CANCoderOffset = -0.295654;
+        kSwerveConstants.moduleConstants[1].CANCoderOffset = 0.230713;
+        kSwerveConstants.moduleConstants[2].CANCoderOffset = 0.238037;
+        kSwerveConstants.moduleConstants[3].CANCoderOffset = 0.273438;
+
+        try {
+            kSwerveConstants.robotConfig = RobotConfig.fromGUISettings();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+        kSwerveConstants.driveMotorType = DCMotor.getKrakenX60Foc(1);
+        kSwerveConstants.steerMotorType = DCMotor.getKrakenX60Foc(1);
+    }
+
+    public static final SwerveControllerConstants kSwerveControllerConstants = new SwerveControllerConstants();
+
+    static {
+        kSwerveControllerConstants.swerveConstants = kSwerveConstants;
+        kSwerveControllerConstants.drivePIDConstants = ControlConstants.createPID(6, 0, 0.2, 0);
+        kSwerveControllerConstants.rotationPIDConstants = ControlConstants.createPID(0.2, 0, 0, 0);
+        kSwerveControllerConstants.rotationPIDContinuousConnections = Pair.of(-180.0, 180.0);
+    }
+
+    public static final PathFollowingController kAutonomyConfig =
+        new PPHolonomicDriveController(
+            new PIDConstants(kSwerveControllerConstants.drivePIDConstants.P, kSwerveControllerConstants.drivePIDConstants.I, kSwerveControllerConstants.drivePIDConstants.D),
+            new PIDConstants(kSwerveControllerConstants.rotationPIDConstants.P, kSwerveControllerConstants.rotationPIDConstants.I, kSwerveControllerConstants.rotationPIDConstants.D)
+        );
 }
