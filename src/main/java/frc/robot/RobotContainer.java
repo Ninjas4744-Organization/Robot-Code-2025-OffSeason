@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -20,6 +21,8 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOController;
 import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnField;
+import org.littletonrobotics.junction.Logger;
 
 public class RobotContainer {
     private SendableChooser<Command> autoChooser;
@@ -51,6 +54,11 @@ public class RobotContainer {
         driverController = new CommandPS5Controller(Constants.kDriverControllerPort);
         operatorController = new CommandPS5Controller(Constants.kOperatorControllerPort);
 
+        if (Robot.isSimulation()) {
+            for (int i = 0; i < 10; i++)
+                SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralOnField(new Pose2d(1.5, 4, Rotation2d.kZero)));
+        }
+
         configureBindings();
     }
 
@@ -75,7 +83,11 @@ public class RobotContainer {
     }
 
     public void periodic() {
-        SimulatedArena.getInstance().simulationPeriodic();
+        if (Robot.isSimulation()) {
+            Logger.recordOutput("Simulation Field/Corals", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
+
+            SimulatedArena.getInstance().simulationPeriodic();
+        }
     }
 
     public Command getAutonomousCommand() {
