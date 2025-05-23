@@ -63,7 +63,6 @@ public class Constants {
     }
 
     public static final ControllerConstants kElevatorControllerConstants = new ControllerConstants();
-
     static {
         /* Base */
         kElevatorControllerConstants.real.main.id = 30;
