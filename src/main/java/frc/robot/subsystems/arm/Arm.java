@@ -18,8 +18,10 @@ public class Arm extends SubsystemBase {
     }
 
     public Arm(boolean enabled, ArmIO io) {
-        if (enabled)
+        if (enabled) {
             this.io = io;
+            io.setup();
+        }
         this.enabled = enabled;
     }
 

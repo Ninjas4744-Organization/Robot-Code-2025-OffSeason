@@ -7,7 +7,8 @@ import frc.robot.Constants;
 public class ArmIOController implements ArmIO {
     private Controller controller;
 
-    public ArmIOController() {
+    @Override
+    public void setup() {
         controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.kArmControllerConstants);
     }
 

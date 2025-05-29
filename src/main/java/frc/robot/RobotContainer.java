@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -13,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import frc.lib.NinjasLib.RobotStateWithSwerve;
 import frc.lib.NinjasLib.swerve.Swerve;
+import frc.lib.NinjasLib.swerve.SwerveController;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIO;
@@ -32,19 +34,19 @@ public class RobotContainer {
     public RobotContainer() {
 //        autoChooser = AutoBuilder.buildAutoChooser();
 
-        RobotStateWithSwerve.setInstance(new RobotState(Constants.kSwerveConstants.kinematics, Constants.kInvertGyro, v -> new double[3], 0));
-        RobotState.getInstance().setRobotState(States.SIGMA);
-
         SwerveSubsystem.createInstance(new SwerveSubsystem(true));
+
+        RobotStateWithSwerve.setInstance(new RobotState(Constants.kSwerveConstants.kinematics, Constants.kInvertGyro, v -> new double[3], 45));
+        RobotState.getInstance().setRobotState(States.SIGMA);
 
         switch (Constants.kCurrentMode) {
             case REAL, SIM:
-                Arm.createInstance(new Arm(true, new ArmIOController()));
+                Arm.createInstance(new Arm(false, new ArmIOController()));
                 Elevator.createInstance(new Elevator(false, new ElevatorIOController()));
                 break;
 
             case REPLAY:
-                Arm.createInstance(new Arm(true, new ArmIO() {
+                Arm.createInstance(new Arm(false, new ArmIO() {
                 }));
                 Elevator.createInstance(new Elevator(false, new ElevatorIO() {
                 }));
@@ -78,7 +80,11 @@ public class RobotContainer {
         );
 
         SwerveSubsystem.getInstance().setDefaultCommand(Commands.run(() -> {
-            Swerve.getInstance().drive(new ChassisSpeeds(-driverController.getLeftY() * 5, -driverController.getLeftX() * 5, -driverController.getRightX() * 10), true);
+            SwerveController.getInstance().setControl(SwerveController.getInstance().fromPercent(
+                    new ChassisSpeeds(-MathUtil.applyDeadband(driverController.getLeftY(), Constants.kJoystickDeadband),
+                            -MathUtil.applyDeadband(driverController.getLeftX(), Constants.kJoystickDeadband),
+                            -MathUtil.applyDeadband(driverController.getRightX(), Constants.kJoystickDeadband)
+                    )), false, "Driver");
         }, SwerveSubsystem.getInstance()));
     }
 
@@ -93,5 +99,9 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return Commands.none();
 //        return autoChooser.getSelected();
+    }
+
+    public void reset() {
+        Swerve.getInstance().resetModulesToAbsolute();
     }
 }

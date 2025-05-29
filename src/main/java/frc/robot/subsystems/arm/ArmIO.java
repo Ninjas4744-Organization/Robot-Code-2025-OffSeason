@@ -9,6 +9,9 @@ public interface ArmIO {
     class ArmIOInputs extends Controller.ControllerIOInputs {
     }
 
+    default void setup() {
+    }
+
     default void setAngle(Rotation2d angle) {
     }
 

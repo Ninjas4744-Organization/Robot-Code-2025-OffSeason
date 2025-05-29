@@ -8,6 +8,9 @@ public interface ElevatorIO {
     class ElevatorIOInputs extends Controller.ControllerIOInputs {
     }
 
+    default void setup() {
+    }
+
     default void setHeight(double height) {
     }
 

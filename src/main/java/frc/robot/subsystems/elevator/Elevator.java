@@ -18,8 +18,10 @@ public class Elevator extends SubsystemBase {
     }
 
     public Elevator(boolean enabled, ElevatorIO io) {
-        if (enabled)
+        if (enabled) {
             this.io = io;
+            io.setup();
+        }
         this.enabled = enabled;
     }
 

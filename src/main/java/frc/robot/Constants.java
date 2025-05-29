@@ -179,8 +179,8 @@ public class Constants {
 
         for (int i = 0; i < 4; i++) {
             kSwerveConstants.moduleConstants[i] = new SwerveModuleConstants(i,
-                new RealControllerConstants(),
-                new RealControllerConstants(),
+                    new ControllerConstants(),
+                    new ControllerConstants(),
                 kSwerveConstants.maxSpeed,
                 6 + i,
                 Controller.ControllerType.TalonFX,
@@ -188,18 +188,18 @@ public class Constants {
                 false,
                 0);
 
-            kSwerveConstants.moduleConstants[i].driveMotorConstants.main.id = 10 + i * 2;
-            kSwerveConstants.moduleConstants[i].driveMotorConstants.currentLimit = 72;
-            kSwerveConstants.moduleConstants[i].driveMotorConstants.gearRatio = 5.360;
-            kSwerveConstants.moduleConstants[i].driveMotorConstants.conversionFactor = wheelRadius * 2 * Math.PI;
-            kSwerveConstants.moduleConstants[i].driveMotorConstants.controlConstants = ControlConstants.createTorqueCurrent(5 / 0.056267331109070916, 0.19);
+            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.main.id = 10 + i * 2;
+//            kSwerveConstants.moduleConstants[i].driveMotorConstants.main.inverted = i % 2 == 0;
+            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.currentLimit = 72;
+            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.gearRatio = 5.360;
+            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.conversionFactor = wheelRadius * 2 * Math.PI;
+            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.controlConstants = ControlConstants.createTorqueCurrent(5 / 0.056267331109070916, 0.19);
 
-            kSwerveConstants.moduleConstants[i].angleMotorConstants.main.id = 11 + i * 2;
-            kSwerveConstants.moduleConstants[i].angleMotorConstants.currentLimit = 60;
-            kSwerveConstants.moduleConstants[i].angleMotorConstants.gearRatio = 18.75;
-            kSwerveConstants.moduleConstants[i].angleMotorConstants.conversionFactor = 2 * Math.PI;
-            kSwerveConstants.moduleConstants[i].angleMotorConstants.controlConstants = ControlConstants.createPID(4 / 0.335093, 0, 0, 0);
-            kSwerveConstants.moduleConstants[i].angleMotorConstants.controlConstants.S = 0.19;
+            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.main.id = 11 + i * 2;
+            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.currentLimit = 60;
+            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.gearRatio = 18.75;
+            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.conversionFactor = 2 * Math.PI;
+            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.controlConstants = ControlConstants.createPID(5, 0, 0, 0);
         }
 
         kSwerveConstants.moduleConstants[0].CANCoderOffset = -0.295654;

@@ -6,7 +6,8 @@ import frc.robot.Constants;
 public class ElevatorIOController implements ElevatorIO {
     private Controller controller;
 
-    public ElevatorIOController() {
+    @Override
+    public void setup() {
         controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.kElevatorControllerConstants);
     }
 
