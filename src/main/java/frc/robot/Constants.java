@@ -166,7 +166,7 @@ public class Constants {
         kSwerveConstants.maxSpeed = 4.5;
         kSwerveConstants.maxAngularVelocity = 9.2;
 //        kSwerveConstants.maxAcceleration = Double.MAX_VALUE;
-//        kSwerveConstants.maxSkidAcceleration = Double.MAX_VALUE;
+        kSwerveConstants.maxSkidAcceleration = 60;
         kSwerveConstants.speedLimit = 4.5;
         ;
         kSwerveConstants.rotationSpeedLimit = 9.2;
@@ -225,7 +225,7 @@ public class Constants {
         kSwerveControllerConstants.swerveConstants = kSwerveConstants;
         kSwerveControllerConstants.drivePIDConstants = ControlConstants.createPID(6, 0, 0.2, 0);
         kSwerveControllerConstants.rotationPIDConstants = ControlConstants.createPID(0.2, 0, 0, 0);
-        kSwerveControllerConstants.rotationPIDContinuousConnections = Pair.of(-180.0, 180.0);
+        kSwerveControllerConstants.rotationPIDContinuousConnections = Pair.of(-Math.PI, Math.PI);
     }
 
     public static final PathFollowingController kAutonomyConfig =
@@ -233,4 +233,9 @@ public class Constants {
             new PIDConstants(kSwerveControllerConstants.drivePIDConstants.P, kSwerveControllerConstants.drivePIDConstants.I, kSwerveControllerConstants.drivePIDConstants.D),
             new PIDConstants(kSwerveControllerConstants.rotationPIDConstants.P, kSwerveControllerConstants.rotationPIDConstants.I, kSwerveControllerConstants.rotationPIDConstants.D)
         );
+
+    /* Vision */
+    public static final double kResetOdometryFOMThreshold = 3;
+
+    /* Field */
 }

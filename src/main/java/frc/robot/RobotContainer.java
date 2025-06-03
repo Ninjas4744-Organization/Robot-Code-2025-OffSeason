@@ -79,19 +79,20 @@ public class RobotContainer {
             )
         );
 
+        driverController.L2().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(Rotation2d.kZero)));
+
         SwerveSubsystem.getInstance().setDefaultCommand(Commands.run(() -> {
             SwerveController.getInstance().setControl(SwerveController.getInstance().fromPercent(
-                    new ChassisSpeeds(-MathUtil.applyDeadband(driverController.getLeftY(), Constants.kJoystickDeadband),
-                            -MathUtil.applyDeadband(driverController.getLeftX(), Constants.kJoystickDeadband),
-                            -MathUtil.applyDeadband(driverController.getRightX(), Constants.kJoystickDeadband)
-                    )), false, "Driver");
+                    new ChassisSpeeds(-MathUtil.applyDeadband(driverController.getLeftY(), Constants.kJoystickDeadband) * Constants.kDriverSpeedFactor,
+                            -MathUtil.applyDeadband(driverController.getLeftX(), Constants.kJoystickDeadband) * Constants.kDriverSpeedFactor,
+                            -MathUtil.applyDeadband(driverController.getRightX(), Constants.kJoystickDeadband) * Constants.kDriverRotationSpeedFactor
+                    )), Constants.kDriverFieldRelative, "Driver");
         }, SwerveSubsystem.getInstance()));
     }
 
     public void periodic() {
         if (Robot.isSimulation()) {
             Logger.recordOutput("Simulation Field/Corals", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
-
             SimulatedArena.getInstance().simulationPeriodic();
         }
     }
