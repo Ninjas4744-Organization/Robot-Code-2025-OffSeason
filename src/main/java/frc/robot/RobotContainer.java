@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import frc.lib.NinjasLib.RobotStateWithSwerve;
 import frc.lib.NinjasLib.swerve.Swerve;
 import frc.lib.NinjasLib.swerve.SwerveController;
+import frc.lib.commands.nRepeatingSequenceCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIO;
@@ -65,21 +66,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        driverController.cross().toggleOnTrue(
-            Commands.startEnd(
-                () -> Arm.getInstance().getIO().setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Open.get())),
-                () -> Arm.getInstance().getIO().setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Close.get()))
-            )
-        );
-
-        driverController.circle().toggleOnTrue(
-            Commands.startEnd(
-                () -> Arm.getInstance().getIO().setPercent(1),
-                () -> Arm.getInstance().getIO().setPercent(0)
-            )
-        );
-
-        driverController.L2().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(Rotation2d.kZero)));
+        driverController.cross().onTrue(new nRepeatingSequenceCommand(() -> 5, Commands.print("a"), Commands.print("b")));
 
         SwerveSubsystem.getInstance().setDefaultCommand(Commands.run(() -> {
             SwerveController.getInstance().setControl(SwerveController.getInstance().fromPercent(

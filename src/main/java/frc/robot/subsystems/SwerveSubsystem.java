@@ -23,7 +23,7 @@ public class SwerveSubsystem extends SubsystemBase {
         if (enabled) {
             Swerve.setInstance(new Swerve(Constants.kSwerveConstants));
             SwerveController.setInstance(new SwerveController(Constants.kSwerveControllerConstants));
-            SwerveController.getInstance().setState("Driver");
+            SwerveController.getInstance().setChannel("Driver");
         }
     }
 
