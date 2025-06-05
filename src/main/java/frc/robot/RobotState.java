@@ -2,11 +2,10 @@ package frc.robot;
 
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import frc.lib.NinjasLib.RobotStateWithSwerve;
-import frc.lib.NinjasLib.dataclasses.FOMCalculator;
 
 public class RobotState extends RobotStateWithSwerve<States> {
-    public RobotState(SwerveDriveKinematics kinematics, boolean gyroInverted, FOMCalculator fomCalculator, int pigeonID) {
-        super(kinematics, gyroInverted, fomCalculator, pigeonID);
+    public RobotState(SwerveDriveKinematics kinematics, boolean gyroInverted, int pigeonID) {
+        super(kinematics, gyroInverted, pigeonID);
 
         robotState = States.IDLE;
     }

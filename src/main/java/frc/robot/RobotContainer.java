@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
@@ -13,9 +9,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import frc.lib.NinjasLib.RobotStateWithSwerve;
+import frc.lib.NinjasLib.dataclasses.VisionOutput;
 import frc.lib.NinjasLib.swerve.Swerve;
 import frc.lib.NinjasLib.swerve.SwerveController;
-import frc.lib.commands.nRepeatingSequenceCommand;
+import frc.lib.NinjasLib.vision.Vision;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIO;
@@ -31,14 +28,17 @@ public class RobotContainer {
     private SendableChooser<Command> autoChooser;
     private CommandPS5Controller driverController;
     private CommandPS5Controller operatorController;
+    private FOMCalculator fomCalculator;
 
     public RobotContainer() {
 //        autoChooser = AutoBuilder.buildAutoChooser();
 
         SwerveSubsystem.createInstance(new SwerveSubsystem(true));
-
-        RobotStateWithSwerve.setInstance(new RobotState(Constants.kSwerveConstants.kinematics, Constants.kInvertGyro, v -> new double[3], 45));
+        RobotStateWithSwerve.setInstance(new RobotState(Constants.kSwerveConstants.kinematics, Constants.kInvertGyro, 45));
         RobotState.getInstance().setRobotState(States.SIGMA);
+
+        Vision.setConstants(Constants.kVisionConstants);
+        fomCalculator = new FOMCalculator();
 
         switch (Constants.kCurrentMode) {
             case REAL, SIM:
@@ -66,8 +66,6 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        driverController.cross().onTrue(new nRepeatingSequenceCommand(() -> 5, Commands.print("a"), Commands.print("b")));
-
         SwerveSubsystem.getInstance().setDefaultCommand(Commands.run(() -> {
             SwerveController.getInstance().setControl(SwerveController.getInstance().fromPercent(
                     new ChassisSpeeds(-MathUtil.applyDeadband(driverController.getLeftY(), Constants.kJoystickDeadband) * Constants.kDriverSpeedFactor,
@@ -75,6 +73,8 @@ public class RobotContainer {
                             -MathUtil.applyDeadband(driverController.getRightX(), Constants.kJoystickDeadband) * Constants.kDriverRotationSpeedFactor
                     )), Constants.kDriverFieldRelative, "Driver");
         }, SwerveSubsystem.getInstance()));
+
+        driverController.L2().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(Rotation2d.kZero)));
     }
 
     public void periodic() {
@@ -82,6 +82,11 @@ public class RobotContainer {
             Logger.recordOutput("Simulation Field/Corals", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
             SimulatedArena.getInstance().simulationPeriodic();
         }
+
+        VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
+        fomCalculator.update(estimations);
+        for (int i = 0; i < estimations.length; i++)
+            RobotState.getInstance().updateRobotPose(estimations[i], fomCalculator.getOdometryFOM(), fomCalculator.getVisionFOM()[i]);
     }
 
     public Command getAutonomousCommand() {

@@ -4,17 +4,26 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.controllers.PathFollowingController;
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.lib.NinjasLib.controllers.Controller;
 import frc.lib.NinjasLib.dataclasses.*;
 import frc.lib.NinjasLib.dataclasses.RealControllerConstants.SimpleControllerConstants;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class Constants {
     public enum RobotMode {
@@ -235,7 +244,68 @@ public class Constants {
         );
 
     /* Vision */
-    public static final double kResetOdometryFOMThreshold = 3;
+    public static final double kResetOdometryFOMThreshold = 1.5;
+    public static final VisionConstants kVisionConstants = new VisionConstants();
+
+    static {
+        kVisionConstants.cameras = Map.of(
+                "FrontRight", Pair.of(new Transform3d(0.0815 + 0.1054, -0.0745, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(-7.5 - 1.5))), VisionConstants.CameraType.PhotonVision),
+                "FrontLeft", Pair.of(new Transform3d(0.0815 + 0.1054, 0.0755, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(7.5 - 1.5))), VisionConstants.CameraType.PhotonVision)
+        );
+
+        kVisionConstants.maxAmbiguity = 0.2;
+        kVisionConstants.maxDistance = 3;
+        kVisionConstants.fieldLayoutGetter = Constants::getFieldLayoutWithIgnored;
+    }
 
     /* Field */
+    public static AprilTagFieldLayout kBlueFieldLayout;
+    public static AprilTagFieldLayout kRedFieldLayout;
+
+    static {
+        try {
+            kBlueFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025ReefscapeWelded.m_resourceFile);
+            kBlueFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
+
+            kRedFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025ReefscapeWelded.m_resourceFile);
+            kRedFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to load field layout");
+        }
+    }
+
+    public static AprilTagFieldLayout getFieldLayoutWithIgnored(List<Integer> ignoredTags) {
+        AprilTagFieldLayout layout;
+
+        layout = RobotState.getAlliance() == DriverStation.Alliance.Blue
+                ? kBlueFieldLayout
+                : kRedFieldLayout;
+
+        if (!ignoredTags.isEmpty()) {
+            List<AprilTag> tags = layout.getTags();
+            tags.removeIf(tag -> ignoredTags.contains(tag.ID));
+            layout = new AprilTagFieldLayout(tags, layout.getFieldLength(), layout.getFieldWidth());
+        }
+
+        return layout;
+    }
+
+    public static AprilTagFieldLayout getFieldLayoutWithAllowed(List<Integer> allowedTags) {
+        AprilTagFieldLayout layout = getFieldLayout();
+        if (!allowedTags.isEmpty()) {
+            List<AprilTag> tags = layout.getTags();
+            tags.removeIf(tag -> !allowedTags.contains(tag.ID));
+            layout = new AprilTagFieldLayout(tags, layout.getFieldLength(), layout.getFieldWidth());
+        }
+
+        return layout;
+    }
+
+    public static AprilTagFieldLayout getFieldLayout() {
+        return getFieldLayoutWithIgnored(List.of());
+    }
+
+    public static Pose3d getTagPose(int id) {
+        return getFieldLayout().getTagPose(id).get();
+    }
 }
