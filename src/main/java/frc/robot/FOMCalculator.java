@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.lib.NinjasLib.dataclasses.VisionOutput;
 import frc.lib.NinjasLib.swerve.Swerve;
 import org.littletonrobotics.junction.Logger;
@@ -16,7 +17,7 @@ public class FOMCalculator {
         if (visionFOM == null)
             visionFOM = new double[estimations.length];
 
-        odometryFOM += Swerve.getInstance().getOdometryTwist().getNorm() * 0.01;
+        odometryFOM += Swerve.getInstance().getOdometryTwist().getNorm() * 0.05;
         lastRobotPose = RobotState.getInstance().getRobotPose();
 
         Logger.recordOutput("FOMs/Acc", RobotState.getInstance().getAcceleration().getNorm());
@@ -31,11 +32,15 @@ public class FOMCalculator {
         ChassisSpeeds chassisSpeeds = Swerve.getInstance().getChassisSpeeds(false);
         double robotSpeed = Math.hypot(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
         for (int i = 0; i < estimations.length; i++) {
-            visionFOM[i] = estimations[i].closestTagDist * 3 + robotSpeed * 3;
-//            visionFOM[i] = estimations[i].closestTagDist * 0.5 + robotSpeed * 0.5;
+            if (!estimations[i].hasTargets)
+                continue;
 
-            if (visionFOM[i] < Constants.kResetOdometryFOMThreshold)
-                odometryFOM = visionFOM[i];
+            visionFOM[i] = estimations[i].closestTagDist * 3.5 + robotSpeed;
+
+            if (visionFOM[i] < Constants.kResetOdometryFOMThreshold) {
+                if (visionFOM[i] / 2 < odometryFOM)
+                    odometryFOM = visionFOM[i] / 2;
+            }
         }
 
         Logger.recordOutput("FOMs/Odometry FOM", odometryFOM);
@@ -43,10 +48,14 @@ public class FOMCalculator {
     }
 
     public double getOdometryFOM() {
+        if (DriverStation.isDisabled())
+            return 1;
         return odometryFOM;
     }
 
     public double[] getVisionFOM() {
+        if (DriverStation.isDisabled())
+            return new double[]{0.1, 0.1};
         return visionFOM;
     }
 }

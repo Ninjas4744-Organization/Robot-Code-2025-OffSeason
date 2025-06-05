@@ -244,7 +244,7 @@ public class Constants {
         );
 
     /* Vision */
-    public static final double kResetOdometryFOMThreshold = 1.5;
+    public static final double kResetOdometryFOMThreshold = 2.5;
     public static final VisionConstants kVisionConstants = new VisionConstants();
 
     static {
@@ -254,7 +254,7 @@ public class Constants {
         );
 
         kVisionConstants.maxAmbiguity = 0.2;
-        kVisionConstants.maxDistance = 3;
+        kVisionConstants.maxDistance = 2;
         kVisionConstants.fieldLayoutGetter = Constants::getFieldLayoutWithIgnored;
     }
 
