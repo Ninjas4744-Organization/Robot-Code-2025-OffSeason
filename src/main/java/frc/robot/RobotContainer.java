@@ -3,7 +3,9 @@ package frc.robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -29,9 +31,12 @@ public class RobotContainer {
     private CommandPS5Controller driverController;
     private CommandPS5Controller operatorController;
     private FOMCalculator fomCalculator;
+    private BuiltInAccelerometer roborioAccelerometer;
 
     public RobotContainer() {
 //        autoChooser = AutoBuilder.buildAutoChooser();
+
+        roborioAccelerometer = new BuiltInAccelerometer();
 
         SwerveSubsystem.createInstance(new SwerveSubsystem(true));
         RobotStateWithSwerve.setInstance(new RobotState(Constants.kSwerveConstants.kinematics, Constants.kInvertGyro, 45));
@@ -87,6 +92,8 @@ public class RobotContainer {
         fomCalculator.update(estimations);
         for (int i = 0; i < estimations.length; i++)
             RobotState.getInstance().updateRobotPose(estimations[i], fomCalculator.getOdometryFOM(), fomCalculator.getVisionFOM()[i]);
+
+        Logger.recordOutput("Robot Acceleration", new Translation2d(roborioAccelerometer.getX() * 9.81, roborioAccelerometer.getY() * 9.81).getNorm());
     }
 
     public Command getAutonomousCommand() {
@@ -96,5 +103,7 @@ public class RobotContainer {
 
     public void reset() {
         Swerve.getInstance().resetModulesToAbsolute();
+        SwerveController.getInstance().setChannel("Driver");
+        SwerveController.getInstance().setControl(new ChassisSpeeds(), false, "Driver");
     }
 }

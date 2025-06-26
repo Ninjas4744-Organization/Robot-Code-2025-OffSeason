@@ -175,9 +175,8 @@ public class Constants {
         kSwerveConstants.maxSpeed = 4.5;
         kSwerveConstants.maxAngularVelocity = 9.2;
 //        kSwerveConstants.maxAcceleration = Double.MAX_VALUE;
-        kSwerveConstants.maxSkidAcceleration = 60;
+        kSwerveConstants.maxSkidAcceleration = 100;
         kSwerveConstants.speedLimit = 4.5;
-        ;
         kSwerveConstants.rotationSpeedLimit = 9.2;
         kSwerveConstants.accelerationLimit = Double.MAX_VALUE;//11.8;
         kSwerveConstants.rotationAccelerationLimit = Double.MAX_VALUE;//63.79;
@@ -229,12 +228,12 @@ public class Constants {
     }
 
     public static final SwerveControllerConstants kSwerveControllerConstants = new SwerveControllerConstants();
-
     static {
         kSwerveControllerConstants.swerveConstants = kSwerveConstants;
         kSwerveControllerConstants.drivePIDConstants = ControlConstants.createPID(6, 0, 0.2, 0);
-        kSwerveControllerConstants.rotationPIDConstants = ControlConstants.createPID(0.2, 0, 0, 0);
+        kSwerveControllerConstants.rotationPIDConstants = ControlConstants.createPID(3, 0.5, 0.2, Units.degreesToRadians(15));
         kSwerveControllerConstants.rotationPIDContinuousConnections = Pair.of(-Math.PI, Math.PI);
+        kSwerveControllerConstants.enableRotationPIDCorrection = true;
     }
 
     public static final PathFollowingController kAutonomyConfig =
