@@ -44,6 +44,7 @@ public class Constants {
     public static final RobotMode kCurrentMode = Robot.isReal() ? RobotMode.REAL : kSimMode;
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
+    public static final String kCANBusName = "";
 
     /* Subsystems */
     public static final ControllerConstants kArmControllerConstants = new ControllerConstants();
@@ -225,6 +226,9 @@ public class Constants {
 
         kSwerveConstants.driveMotorType = DCMotor.getKrakenX60Foc(1);
         kSwerveConstants.steerMotorType = DCMotor.getKrakenX60Foc(1);
+
+        kSwerveConstants.enableOdometryThread = true;
+        kSwerveConstants.odometryThreadFrequency = 250;
     }
 
     public static final SwerveControllerConstants kSwerveControllerConstants = new SwerveControllerConstants();

@@ -2,44 +2,47 @@ package frc.lib.commands;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 import java.util.function.IntSupplier;
 
-public class nRepeatingSequenceCommand extends Command {
-    private SequentialCommandGroup sequence;
+public class commandLoop extends Command {
+    private Command command;
     private int repeat;
+    private boolean commandEnded;
     private boolean ended;
     private IntSupplier n;
 
-    public nRepeatingSequenceCommand(IntSupplier n, Command... commands) {
-        sequence = new SequentialCommandGroup(commands);
+    public commandLoop(Command command, IntSupplier n) {
+        this.command = command;
         this.n = n;
     }
 
     @Override
     public final void initialize() {
-        sequence.initialize();
+        command.initialize();
         repeat = 0;
-        ended = false;
+        commandEnded = false;
     }
 
     @Override
     public final void execute() {
-        if (ended) {
-            ended = false;
+        if (ended)
+            return;
+
+        if (commandEnded) {
+            commandEnded = false;
             repeat++;
 
             if (repeat == n.getAsInt())
                 return;
 
-            sequence.initialize();
+            command.initialize();
         }
-        sequence.execute();
-        if (sequence.isFinished()) {
+        command.execute();
+        if (command.isFinished()) {
             // restart command
-            sequence.end(false);
-            ended = true;
+            command.end(false);
+            commandEnded = true;
         }
     }
 
@@ -48,24 +51,25 @@ public class nRepeatingSequenceCommand extends Command {
         // Make sure we didn't already call end() (which would happen if the command finished in the
         // last call to our execute())
         if (!ended) {
-            sequence.end(interrupted);
+            command.end(interrupted);
+            commandEnded = true;
             ended = true;
         }
     }
 
     @Override
     public final boolean isFinished() {
-        return repeat == n.getAsInt();
+        return repeat == n.getAsInt() || ended;
     }
 
     @Override
     public boolean runsWhenDisabled() {
-        return sequence.runsWhenDisabled();
+        return command.runsWhenDisabled();
     }
 
     @Override
     public InterruptionBehavior getInterruptionBehavior() {
-        return sequence.getInterruptionBehavior();
+        return command.getInterruptionBehavior();
     }
 
     @Override
