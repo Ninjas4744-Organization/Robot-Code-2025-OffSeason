@@ -1,6 +1,5 @@
 package frc.robot.subsystems.arm;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.NinjasLib.controllers.Controller;
 import frc.robot.Constants;
 
@@ -13,13 +12,8 @@ public class ArmIOController implements ArmIO {
     }
 
     @Override
-    public void setAngle(Rotation2d angle) {
-        controller.setPosition(angle.getRadians());
-    }
-
-    @Override
-    public void setPercent(double percent) {
-        controller.setPercent(percent);
+    public Controller getController() {
+        return controller;
     }
 
     @Override

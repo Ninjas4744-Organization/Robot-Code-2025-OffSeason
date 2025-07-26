@@ -17,8 +17,13 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.lib.NinjasLib.controllers.Controller;
-import frc.lib.NinjasLib.dataclasses.*;
-import frc.lib.NinjasLib.dataclasses.RealControllerConstants.SimpleControllerConstants;
+import frc.lib.NinjasLib.controllers.constants.ControlConstants;
+import frc.lib.NinjasLib.controllers.constants.ControllerConstants;
+import frc.lib.NinjasLib.controllers.constants.RealControllerConstants.SimpleControllerConstants;
+import frc.lib.NinjasLib.localization.vision.VisionConstants;
+import frc.lib.NinjasLib.swerve.constants.SwerveConstants;
+import frc.lib.NinjasLib.swerve.constants.SwerveControllerConstants;
+import frc.lib.NinjasLib.swerve.constants.SwerveModuleConstants;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
@@ -45,6 +50,7 @@ public class Constants {
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
     public static final String kCANBusName = "";
+    public static final int kPigeonID = 45;
 
     /* Subsystems */
     public static final ControllerConstants kArmControllerConstants = new ControllerConstants();
@@ -247,9 +253,7 @@ public class Constants {
         );
 
     /* Vision */
-    public static final double kResetOdometryFOMThreshold = 2.5;
     public static final VisionConstants kVisionConstants = new VisionConstants();
-
     static {
         kVisionConstants.cameras = Map.of(
                 "FrontRight", Pair.of(new Transform3d(0.0815 + 0.1054, -0.0745, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(-7.5 - 1.5))), VisionConstants.CameraType.PhotonVision),
@@ -311,4 +315,16 @@ public class Constants {
     public static Pose3d getTagPose(int id) {
         return getFieldLayout().getTagPose(id).get();
     }
+
+    /* FOM */
+    public static final double kOdometryFOMPerMeter = 0.05;
+    public static final double kCrashedAccelerationThreshold = 15;
+    public static final double kCrashedOdometryFOMBonus = 4;
+    public static final double kResetOdometryFOMThreshold = 2.5;
+    public static final double kOdometryFOMResetValue = 1;
+
+    public static final double kVisionFOMDistMultiplier = 1;
+    public static final double kVisionFOMSpeedMultiplier = 1;
+    public static final double kVisionFOMAngularSpeedMultiplier = 1;
+    public static final double kVisionFOMAngleTransformMultiplier = 1;
 }

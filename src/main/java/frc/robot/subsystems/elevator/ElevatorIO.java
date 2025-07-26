@@ -11,7 +11,8 @@ public interface ElevatorIO {
     default void setup() {
     }
 
-    default void setHeight(double height) {
+    default Controller getController() {
+        return null;
     }
 
     default void updateInputs(ElevatorIOInputsAutoLogged inputs) {

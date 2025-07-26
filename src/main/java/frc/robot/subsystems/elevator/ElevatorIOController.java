@@ -12,8 +12,8 @@ public class ElevatorIOController implements ElevatorIO {
     }
 
     @Override
-    public void setHeight(double height) {
-        controller.setPosition(height);
+    public Controller getController() {
+        return controller;
     }
 
     @Override

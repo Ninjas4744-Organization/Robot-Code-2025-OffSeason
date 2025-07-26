@@ -7,9 +7,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
-import frc.lib.NinjasLib.RobotStateWithSwerve;
-import frc.lib.NinjasLib.dataclasses.VisionOutput;
 import frc.lib.NinjasLib.localization.vision.Vision;
+import frc.lib.NinjasLib.localization.vision.VisionOutput;
+import frc.lib.NinjasLib.statemachine.RobotStateBase;
 import frc.lib.NinjasLib.swerve.Swerve;
 import frc.lib.NinjasLib.swerve.SwerveController;
 import frc.lib.NinjasLib.swerve.SwerveInput;
@@ -25,34 +25,38 @@ import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFie
 import org.littletonrobotics.junction.Logger;
 
 public class RobotContainer {
-    private SendableChooser<Command> autoChooser;
     private CommandPS5Controller driverController;
     private CommandPS5Controller operatorController;
+
+    private static Elevator elevator;
+    private static Arm arm;
+    private static SwerveSubsystem swerveSubsystem;
+
+    private SendableChooser<Command> autoChooser;
     private FOMCalculator fomCalculator;
 
     public RobotContainer() {
-//        autoChooser = AutoBuilder.buildAutoChooser();
+        switch (Constants.kCurrentMode) {
+            case REAL, SIM:
+                arm = new Arm(false, new ArmIOController());
+                elevator = new Elevator(false, new ElevatorIOController());
+                swerveSubsystem = new SwerveSubsystem(true);
+                break;
 
-        SwerveSubsystem.createInstance(new SwerveSubsystem(true));
-        RobotStateWithSwerve.setInstance(new RobotState(Constants.kSwerveConstants.kinematics, Constants.kInvertGyro, 45, Constants.kSwerveConstants.enableOdometryThread));
-        RobotState.getInstance().setRobotState(States.SIGMA);
+            case REPLAY:
+                arm = new Arm(false, new ArmIO() {
+                });
+                elevator = new Elevator(false, new ElevatorIO() {
+                });
+                break;
+        }
+
+        RobotStateBase.setInstance(new RobotState(Constants.kSwerveConstants.kinematics, Constants.kInvertGyro, Constants.kPigeonID, Constants.kSwerveConstants.enableOdometryThread));
 
         Vision.setConstants(Constants.kVisionConstants);
         fomCalculator = new FOMCalculator();
 
-        switch (Constants.kCurrentMode) {
-            case REAL, SIM:
-                Arm.createInstance(new Arm(false, new ArmIOController()));
-                Elevator.createInstance(new Elevator(false, new ElevatorIOController()));
-                break;
-
-            case REPLAY:
-                Arm.createInstance(new Arm(false, new ArmIO() {
-                }));
-                Elevator.createInstance(new Elevator(false, new ElevatorIO() {
-                }));
-                break;
-        }
+//        autoChooser = AutoBuilder.buildAutoChooser();
 
         driverController = new CommandPS5Controller(Constants.kDriverControllerPort);
         operatorController = new CommandPS5Controller(Constants.kOperatorControllerPort);
@@ -68,6 +72,14 @@ public class RobotContainer {
     private void configureBindings() {
         driverController.L2().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(Rotation2d.kZero)));
         driverController.L1().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(RobotState.getInstance().getRobotPose().getRotation())));
+    }
+
+    public static Elevator getElevator() {
+        return elevator;
+    }
+
+    public static Arm getArm() {
+        return arm;
     }
 
     private void swerveDrive() {

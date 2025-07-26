@@ -6,16 +6,7 @@ import org.littletonrobotics.junction.Logger;
 public class Elevator extends SubsystemBase {
     private ElevatorIO io;
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
-    private static Elevator instance;
     private boolean enabled;
-
-    public static Elevator getInstance() {
-        return instance;
-    }
-
-    public static void createInstance(Elevator elevator) {
-        instance = elevator;
-    }
 
     public Elevator(boolean enabled, ElevatorIO io) {
         if (enabled) {
@@ -23,14 +14,6 @@ public class Elevator extends SubsystemBase {
             io.setup();
         }
         this.enabled = enabled;
-    }
-
-    public ElevatorIO getIO() {
-        if (enabled)
-            return io;
-        else
-            return new ElevatorIO() {
-            };
     }
 
     @Override

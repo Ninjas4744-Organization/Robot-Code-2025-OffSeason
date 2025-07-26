@@ -6,16 +6,7 @@ import org.littletonrobotics.junction.Logger;
 public class Arm extends SubsystemBase {
     private ArmIO io;
     private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
-    private static Arm instance;
     private boolean enabled;
-
-    public static Arm getInstance() {
-        return instance;
-    }
-
-    public static void createInstance(Arm arm) {
-        instance = arm;
-    }
 
     public Arm(boolean enabled, ArmIO io) {
         if (enabled) {
@@ -23,14 +14,6 @@ public class Arm extends SubsystemBase {
             io.setup();
         }
         this.enabled = enabled;
-    }
-
-    public ArmIO getIO() {
-        if (enabled)
-            return io;
-        else
-            return new ArmIO() {
-            };
     }
 
     @Override

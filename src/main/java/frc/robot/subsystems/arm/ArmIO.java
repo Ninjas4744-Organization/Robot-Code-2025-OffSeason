@@ -1,6 +1,5 @@
 package frc.robot.subsystems.arm;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.NinjasLib.controllers.Controller;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -12,10 +11,8 @@ public interface ArmIO {
     default void setup() {
     }
 
-    default void setAngle(Rotation2d angle) {
-    }
-
-    default void setPercent(double percent) {
+    default Controller getController() {
+        return null;
     }
 
     default void updateInputs(ArmIOInputsAutoLogged inputs) {
