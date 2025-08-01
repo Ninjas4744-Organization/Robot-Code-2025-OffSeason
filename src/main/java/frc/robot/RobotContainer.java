@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -82,27 +81,18 @@ public class RobotContainer {
         return arm;
     }
 
-    private void swerveDrive() {
-        SwerveController.getInstance().setControl(SwerveController.getInstance().fromPercent(
-            new SwerveInput(-MathUtil.applyDeadband(driverController.getLeftY(), Constants.kJoystickDeadband) * Constants.kDriverSpeedFactor,
-                -MathUtil.applyDeadband(driverController.getLeftX(), Constants.kJoystickDeadband) * Constants.kDriverSpeedFactor,
-                -MathUtil.applyDeadband(driverController.getRightX(), Constants.kJoystickDeadband) * Constants.kDriverRotationSpeedFactor,
-                Constants.kDriverFieldRelative
-            )), "Driver");
-    }
-
     public void periodic() {
-        swerveDrive();
-
-        if (Robot.isSimulation()) {
-            Logger.recordOutput("Simulation Field/Corals", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
-            SimulatedArena.getInstance().simulationPeriodic();
-        }
+        swerveSubsystem.swerveDrive(driverController);
 
         VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
         fomCalculator.update(estimations);
         for (int i = 0; i < estimations.length; i++)
             RobotState.getInstance().updateRobotPose(estimations[i], fomCalculator.getOdometryFOM(), fomCalculator.getVisionFOM()[i]);
+
+        if (Robot.isSimulation()) {
+            Logger.recordOutput("Simulation Field/Corals", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
+            SimulatedArena.getInstance().simulationPeriodic();
+        }
     }
 
     public Command getAutonomousCommand() {
