@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -51,6 +52,10 @@ public class Constants {
     public static final int kOperatorControllerPort = 1;
     public static final String kCANBusName = "";
     public static final int kPigeonID = 45;
+
+    /* arm */
+    public static final int armCanCoderID = 0;
+    public static final double armCanCoderOffset = 0;
 
     /* Subsystems */
     public static final ControllerConstants kArmControllerConstants = new ControllerConstants();
@@ -123,11 +128,21 @@ public class Constants {
         kElevatorControllerConstants.motorType = DCMotor.getKrakenX60(2);
     }
 
+    public static final ControllerConstants kOuttakeControllerConstants = new ControllerConstants();
+    static {
+
+    }
+
     /* Positions */
     public enum ArmPositions {
-        Close(0),
-        Open(180),
-        Mid(90);
+        Close(-90),
+        L2(0),
+        L3(0),
+        L4(0),
+        LowAlgaeOut(0),
+        HighAlgaeOut(0),
+        Net(0),
+        Processor(0);
 
         final double angle;
 
@@ -141,9 +156,7 @@ public class Constants {
     }
 
     public enum ElevatorPositions {
-        Close(0),
-        Open(1.5),
-        Mid(0.75);
+        Close(0);
 
         final double height;
 
@@ -153,6 +166,23 @@ public class Constants {
 
         public double get() {
             return height;
+        }
+    }
+
+    public enum OuttakeSpeeds {
+        Intake(-1),
+        OuttakeCoral(1),
+        OuttakeAlgae(1);
+
+
+        final double speed;
+
+        OuttakeSpeeds(double speed) {
+            this.speed = speed;
+        }
+
+        public double get() {
+            return speed;
         }
     }
 
