@@ -16,9 +16,18 @@ import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOController;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.ClimberIOController;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOController;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOController;
+import frc.robot.subsystems.intake_angle.IntakeAngle;
+import frc.robot.subsystems.intake_angle.IntakeAngleIO;
+import frc.robot.subsystems.intake_angle.IntakeAngleIOController;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnField;
 import org.littletonrobotics.junction.Logger;
@@ -29,6 +38,9 @@ public class RobotContainer {
 
     private static Elevator elevator;
     private static Arm arm;
+    private static Intake intake;
+    private static IntakeAngle intake_angle;
+    private static Climber climber;
     private static SwerveSubsystem swerveSubsystem;
 
     private SendableChooser<Command> autoChooser;
@@ -39,6 +51,9 @@ public class RobotContainer {
             case REAL, SIM:
                 arm = new Arm(false, new ArmIOController());
                 elevator = new Elevator(false, new ElevatorIOController());
+                intake = new Intake(false, new IntakeIOController());
+                intake_angle = new IntakeAngle(false, new IntakeAngleIOController());
+                climber = new Climber(false,new ClimberIOController());
                 swerveSubsystem = new SwerveSubsystem(true);
                 break;
 
@@ -46,6 +61,12 @@ public class RobotContainer {
                 arm = new Arm(false, new ArmIO() {
                 });
                 elevator = new Elevator(false, new ElevatorIO() {
+                });
+                intake = new Intake(false, new IntakeIO() {
+                });
+                intake_angle = new IntakeAngle(false, new IntakeAngleIO() {
+                });
+                climber = new Climber(false, new ClimberIO() {
                 });
                 break;
         }
@@ -80,6 +101,12 @@ public class RobotContainer {
     public static Arm getArm() {
         return arm;
     }
+
+    public static Intake getIntake() {return intake;}
+
+    public static IntakeAngle getIntakeAngle() {return intake_angle;}
+
+    public static Climber getClimber() {return climber;}
 
     public void periodic() {
         swerveSubsystem.swerveDrive(driverController);
