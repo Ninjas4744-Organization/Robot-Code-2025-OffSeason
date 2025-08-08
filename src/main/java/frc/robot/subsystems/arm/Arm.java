@@ -63,27 +63,21 @@ public class Arm extends SubsystemBase {
         return io.getController().atGoal();
     }
 
-    public double getCanCoderPositionRadians(){
-        double positionRotations = canCoder.getAbsolutePosition().getValueAsDouble();
-        return positionRotations * 2 * Math.PI;
-    }
-
-    public double getCanCoderPositionDegrees(){
-        double positionRotations = canCoder.getAbsolutePosition().getValueAsDouble();
-        return positionRotations * 360;
+    public Rotation2d getCanCoderRotation(){
+        return Rotation2d.fromRotations(canCoder.getAbsolutePosition().getValueAsDouble());
     }
 
     public Command reset(){
-        if (!enabled || getCanCoderPositionDegrees() == -90){
+        if (!enabled || getCanCoderRotation().getDegrees() == -90){
             return Commands.none();
         }
-        return Commands.runOnce(() -> {io.getController().setEncoder(getCanCoderPositionRadians());});
+        return Commands.runOnce(() -> {io.getController().setEncoder(getCanCoderRotation().getRadians());});
     }
 
     public boolean isReset(){
        if (!enabled){
             return true;
        }
-       return getCanCoderPositionDegrees() == -90;
+       return getCanCoderRotation().getDegrees() == -90;
     }
 }
