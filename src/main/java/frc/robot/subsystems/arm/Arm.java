@@ -1,6 +1,7 @@
 package frc.robot.subsystems.arm;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotState;
 import org.littletonrobotics.junction.Logger;
 
 public class Arm extends SubsystemBase {
@@ -25,5 +26,9 @@ public class Arm extends SubsystemBase {
 
         io.updateInputs(inputs);
         Logger.processInputs("Arm", inputs);
+    }
+
+    public boolean isCoralInside() {
+        return RobotState.isCoralInArm();
     }
 }

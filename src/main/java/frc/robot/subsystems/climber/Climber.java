@@ -32,10 +32,4 @@ public class Climber extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("Climber", inputs);
     }
-
-    public Command setPercent(DoubleSupplier percent) {
-        return Commands.runOnce(
-            () -> io.getController().setPercent(percent.getAsDouble())
-        );
-    }
 }
