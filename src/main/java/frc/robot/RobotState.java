@@ -6,12 +6,11 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import frc.lib.NinjasLib.statemachine.RobotStateWithSwerve;
 
 public class RobotState extends RobotStateWithSwerve<States> {
-    //TODO: give id to intake beambreaker
     private static final DigitalInput armBeamBreaker = new DigitalInput(1);
-    private static final DigitalInput intakeBeambreaker = new DigitalInput(2);
+    private static final DigitalInput intakeBeamBreaker = new DigitalInput(2);
 
     public static boolean isCoralInIntake() {
-        return intakeBeambreaker.get();
+        return intakeBeamBreaker.get();
     }
 
     public static boolean isCoralInArm() {
