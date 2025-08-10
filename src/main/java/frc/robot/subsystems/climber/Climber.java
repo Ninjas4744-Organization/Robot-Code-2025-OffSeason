@@ -7,6 +7,8 @@ import frc.robot.Constants;
 import frc.robot.subsystems.elevator.ElevatorIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.function.DoubleSupplier;
+
 public class Climber extends SubsystemBase {
     private ClimberIO io;
     private final ClimberIOInputsAutoLogged inputs = new ClimberIOInputsAutoLogged();
@@ -31,16 +33,9 @@ public class Climber extends SubsystemBase {
         Logger.processInputs("Climber", inputs);
     }
 
-    public Command setPercent(double percent) {
+    public Command setPercent(DoubleSupplier percent) {
         return Commands.runOnce(
-            () -> io.getController().setPercent(percent)
+            () -> io.getController().setPercent(percent.getAsDouble())
         );
     }
-
-    //fixme: needs review
-    public boolean isAttachedToCage() {
-        return Constants.kClimberControllerConstants.real.currentLimit - io.getController().getCurrent() <= 0.02 ;
-    }
-
-
 }

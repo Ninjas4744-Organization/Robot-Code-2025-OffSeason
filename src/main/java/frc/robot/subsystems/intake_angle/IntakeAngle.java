@@ -7,6 +7,8 @@ import frc.robot.RobotState;
 //import frc.robot.subsystems.intake.IntakeAngleIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.function.DoubleSupplier;
+
 public class IntakeAngle extends SubsystemBase {
     private IntakeAngleIO io;
     private final IntakeAngleIOInputsAutoLogged inputs = new IntakeAngleIOInputsAutoLogged();
@@ -31,9 +33,9 @@ public class IntakeAngle extends SubsystemBase {
         Logger.processInputs("Intake Angle", inputs);
     }
 
-    public Command setPercent(double percent) {
+    public Command setPercent(DoubleSupplier percent) {
         return Commands.runOnce(
-            () -> io.getController().setPercent(percent)
+            () -> io.getController().setPercent(percent.getAsDouble())
         );
     }
 }

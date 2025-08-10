@@ -7,10 +7,11 @@ import frc.lib.NinjasLib.statemachine.RobotStateWithSwerve;
 
 public class RobotState extends RobotStateWithSwerve<States> {
     //TODO: give id to intake beambreaker
-    private static final DigitalInput beamBreaker = new DigitalInput(1);
+    private static final DigitalInput beamBreakerA = new DigitalInput(1);
+    private static final DigitalInput beamBreakerB = new DigitalInput(2);
 
     public static boolean isCoralInIntake() {
-        return beamBreaker.get();
+        return beamBreakerA.get() && beamBreakerB.get();
     }
 
 
