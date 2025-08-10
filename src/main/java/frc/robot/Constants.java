@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.lib.NinjasLib.controllers.Controller;
 import frc.lib.NinjasLib.controllers.constants.ControlConstants;
@@ -140,6 +141,84 @@ public class Constants {
 
         /* Simulation */
         kOuttakeControllerConstants.motorType = DCMotor.getKrakenX60(1);
+    }
+
+    public static final ControllerConstants kIntakeControllerConstants = new ControllerConstants();
+    static {
+        /* Base */
+        kIntakeControllerConstants.real.main.id = 50;
+        kIntakeControllerConstants.real.main.inverted = false;
+        kIntakeControllerConstants.real.currentLimit = 80;
+        kIntakeControllerConstants.real.isBrakeMode = true;
+
+        /* Followers */
+        kIntakeControllerConstants.real.followers = new SimpleControllerConstants[1];
+        kIntakeControllerConstants.real.followers[0] = new SimpleControllerConstants();
+        kIntakeControllerConstants.real.followers[0].id = 41;
+        kIntakeControllerConstants.real.followers[0].inverted = true;
+
+        /* Simulation */
+        kIntakeControllerConstants.motorType = DCMotor.getKrakenX60(2);
+    }
+
+    public static final ControllerConstants kIntakeAngleControllerConstants = new ControllerConstants();
+    static {
+        /* Base */
+        kIntakeAngleControllerConstants.real.main.id = 60;
+        kIntakeAngleControllerConstants.real.main.inverted = false;
+        kIntakeAngleControllerConstants.real.currentLimit = 80;
+        kIntakeAngleControllerConstants.real.isBrakeMode = true;
+
+        /* Followers */
+        kIntakeAngleControllerConstants.real.followers = new SimpleControllerConstants[1];
+        kIntakeAngleControllerConstants.real.followers[0] = new SimpleControllerConstants();
+        kIntakeAngleControllerConstants.real.followers[0].id = 51;
+        kIntakeAngleControllerConstants.real.followers[0].inverted = true;
+
+        /* Control */
+        kIntakeAngleControllerConstants.real.controlConstants = ControlConstants.createPID(1, 0, 0, 0);
+        kIntakeAngleControllerConstants.real.gearRatio = 50;
+        kIntakeAngleControllerConstants.real.conversionFactor = 2 * Math.PI;
+        kIntakeAngleControllerConstants.real.homePosition = Units.degreesToRadians(-60);
+        kIntakeAngleControllerConstants.real.positionGoalTolerance = Units.degreesToRadians(1.5);
+
+        /* Soft Limits */
+        kIntakeAngleControllerConstants.real.maxSoftLimit = Units.degreesToRadians(60);
+
+        /* Hard Limit */
+        kIntakeAngleControllerConstants.real.isLimitSwitch = true;
+        kIntakeAngleControllerConstants.real.limitSwitchID = 2;
+        kIntakeAngleControllerConstants.real.limitSwitchDirection = -1;
+        kIntakeAngleControllerConstants.real.limitSwitchAutoStopReset = true;
+        kIntakeAngleControllerConstants.real.limitSwitchInverted = true;
+
+        /* Simulation */
+        kIntakeAngleControllerConstants.motorType = DCMotor.getKrakenX60(2);
+    }
+
+    public static final ControllerConstants kClimberControllerConstants = new ControllerConstants();
+    static {
+        /* Base */
+        kClimberControllerConstants.real.main.id = 70;
+        kClimberControllerConstants.real.main.inverted = false;
+        kClimberControllerConstants.real.currentLimit = 80;
+        kClimberControllerConstants.real.isBrakeMode = true;
+
+        /* Followers */
+        kClimberControllerConstants.real.followers = new SimpleControllerConstants[1];
+        kClimberControllerConstants.real.followers[0] = new SimpleControllerConstants();
+        kClimberControllerConstants.real.followers[0].id = 61;
+        kClimberControllerConstants.real.followers[0].inverted = true;
+
+        /* Hard Limit */
+        kClimberControllerConstants.real.isLimitSwitch = true;
+        kClimberControllerConstants.real.limitSwitchID = 2;
+        kClimberControllerConstants.real.limitSwitchDirection = -1;
+        kClimberControllerConstants.real.limitSwitchAutoStopReset = true;
+        kClimberControllerConstants.real.limitSwitchInverted = true;
+
+        /* Simulation */
+        kClimberControllerConstants.motorType = DCMotor.getKrakenX60(2);
     }
 
     /* Positions */
