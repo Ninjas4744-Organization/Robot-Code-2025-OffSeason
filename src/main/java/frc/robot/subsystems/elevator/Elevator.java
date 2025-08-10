@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.function.DoubleSupplier;
+
 public class Elevator extends SubsystemBase {
     private ElevatorIO io;
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
@@ -29,12 +31,12 @@ public class Elevator extends SubsystemBase {
         Logger.processInputs("Elevator", inputs);
     }
 
-    public Command setHeight(double wantedHeight) {
+    public Command setHeight(DoubleSupplier wantedHeight) {
         if (!enabled) {
             return Commands.none();
         }
         return Commands.runOnce(() -> {
-            io.getController().setPosition(wantedHeight);
+            io.getController().setPosition(wantedHeight.getAsDouble());
         });
     }
 
