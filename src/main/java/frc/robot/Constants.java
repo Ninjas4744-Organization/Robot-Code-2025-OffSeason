@@ -1,6 +1,6 @@
 package frc.robot;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -54,8 +54,10 @@ public class Constants {
     public static final int kPigeonID = 45;
 
     /* arm */
-    public static final int armCanCoderID = 0;
-    public static final double armCanCoderOffset = 0;
+    public static final int kArmCanCoderID = 0;
+    public static final double kArmCanCoderOffset = 0;
+    public static final SensorDirectionValue kArmCanCoderReversed = SensorDirectionValue.Clockwise_Positive;
+    public static final double kArmResetTolerance = 0.05;
 
     /* Subsystems */
     public static final ControllerConstants kArmControllerConstants = new ControllerConstants();
@@ -130,7 +132,14 @@ public class Constants {
 
     public static final ControllerConstants kOuttakeControllerConstants = new ControllerConstants();
     static {
+        /* Base */
+        kOuttakeControllerConstants.real.main.id = 40;
+        kElevatorControllerConstants.real.main.inverted = false;
+        kElevatorControllerConstants.real.currentLimit = 60;
+        kElevatorControllerConstants.real.isBrakeMode = false;
 
+        /* Simulation */
+        kElevatorControllerConstants.motorType = DCMotor.getKrakenX60(1);
     }
 
     /* Positions */

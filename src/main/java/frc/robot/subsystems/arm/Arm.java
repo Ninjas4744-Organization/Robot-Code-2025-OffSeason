@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
+import static frc.robot.Constants.kArmCanCoderReversed;
+
 public class Arm extends SubsystemBase {
     private ArmIO io;
     private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
@@ -23,9 +25,10 @@ public class Arm extends SubsystemBase {
         }
         this.enabled = enabled;
 
-        canCoder = new CANcoder(Constants.armCanCoderID);
+        canCoder = new CANcoder(Constants.kArmCanCoderID);
         CANcoderConfiguration config = new CANcoderConfiguration();
-        config.MagnetSensor.MagnetOffset = Constants.armCanCoderOffset;
+        config.MagnetSensor.MagnetOffset = Constants.kArmCanCoderOffset;
+        config.MagnetSensor.SensorDirection = kArmCanCoderReversed;
         canCoder.getConfigurator().apply(config);
     }
 
@@ -46,7 +49,7 @@ public class Arm extends SubsystemBase {
         if (!enabled) {
             return Commands.none();
         }
-        return Commands.runOnce(() -> {io.getController().setPosition(angle.getDegrees());});
+        return Commands.runOnce(() -> {io.getController().setPosition(angle.getRadians());});
     }
 
     public Rotation2d getAngle(){
@@ -63,21 +66,21 @@ public class Arm extends SubsystemBase {
         return io.getController().atGoal();
     }
 
-    public Rotation2d getCanCoderRotation(){
+    public Rotation2d getCANCoder(){
         return Rotation2d.fromRotations(canCoder.getAbsolutePosition().getValueAsDouble());
     }
 
     public Command reset(){
-        if (!enabled || getCanCoderRotation().getDegrees() == -90){
+        if (!enabled){
             return Commands.none();
         }
-        return Commands.runOnce(() -> {io.getController().setEncoder(getCanCoderRotation().getRadians());});
+        return Commands.runOnce(() -> {io.getController().setEncoder(getCANCoder().getRadians());}).andThen(setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Close.get())));
     }
 
     public boolean isReset(){
        if (!enabled){
             return true;
        }
-       return getCanCoderRotation().getDegrees() == -90;
+       return Math.abs(getCANCoder().getDegrees()) < (Constants.ArmPositions.Close.get() + Constants.kArmResetTolerance);
     }
 }
