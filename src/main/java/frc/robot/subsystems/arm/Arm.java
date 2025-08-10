@@ -81,6 +81,6 @@ public class Arm extends SubsystemBase {
        if (!enabled){
             return true;
        }
-       return Math.abs(getCANCoder().getDegrees()) < (Constants.ArmPositions.Close.get() + Constants.kArmResetTolerance);
+       return Math.abs(getCANCoder().getDegrees() - Constants.ArmPositions.Close.get()) < Constants.kArmControllerConstants.real.positionGoalTolerance;
     }
 }

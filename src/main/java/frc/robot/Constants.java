@@ -57,7 +57,6 @@ public class Constants {
     public static final int kArmCanCoderID = 0;
     public static final double kArmCanCoderOffset = 0;
     public static final SensorDirectionValue kArmCanCoderReversed = SensorDirectionValue.Clockwise_Positive;
-    public static final double kArmResetTolerance = 0.05;
 
     /* Subsystems */
     public static final ControllerConstants kArmControllerConstants = new ControllerConstants();
@@ -65,7 +64,7 @@ public class Constants {
         /* Base */
         kArmControllerConstants.real.main.id = 20;
         kArmControllerConstants.real.main.inverted = false;
-        kArmControllerConstants.real.currentLimit = 80;
+        kArmControllerConstants.real.currentLimit = 60;
         kArmControllerConstants.real.isBrakeMode = true;
 
         /* Followers */
@@ -78,11 +77,12 @@ public class Constants {
         kArmControllerConstants.real.controlConstants = ControlConstants.createPID(1, 0, 0, 0);
         kArmControllerConstants.real.gearRatio = 50;
         kArmControllerConstants.real.conversionFactor = 2 * Math.PI;
-        kArmControllerConstants.real.homePosition = Units.degreesToRadians(-60);
-        kArmControllerConstants.real.positionGoalTolerance = Units.degreesToRadians(1.5);
+        kArmControllerConstants.real.homePosition = Units.degreesToRadians(-90);
+        kArmControllerConstants.real.positionGoalTolerance = Units.degreesToRadians(3);
 
         /* Soft Limits */
-        kArmControllerConstants.real.maxSoftLimit = Units.degreesToRadians(240);
+        kArmControllerConstants.real.maxSoftLimit = Units.degreesToRadians(360);
+        kArmControllerConstants.real.minSoftLimit = Units.degreesToRadians(-360);
 
         /* Hard Limit */
         kArmControllerConstants.real.isLimitSwitch = true;
@@ -134,12 +134,12 @@ public class Constants {
     static {
         /* Base */
         kOuttakeControllerConstants.real.main.id = 40;
-        kElevatorControllerConstants.real.main.inverted = false;
-        kElevatorControllerConstants.real.currentLimit = 60;
-        kElevatorControllerConstants.real.isBrakeMode = false;
+        kOuttakeControllerConstants.real.main.inverted = false;
+        kOuttakeControllerConstants.real.currentLimit = 60;
+        kOuttakeControllerConstants.real.isBrakeMode = false;
 
         /* Simulation */
-        kElevatorControllerConstants.motorType = DCMotor.getKrakenX60(1);
+        kOuttakeControllerConstants.motorType = DCMotor.getKrakenX60(1);
     }
 
     /* Positions */
