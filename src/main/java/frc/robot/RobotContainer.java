@@ -28,6 +28,9 @@ import frc.robot.subsystems.intake.IntakeIOController;
 import frc.robot.subsystems.intake_angle.IntakeAngle;
 import frc.robot.subsystems.intake_angle.IntakeAngleIO;
 import frc.robot.subsystems.intake_angle.IntakeAngleIOController;
+import frc.robot.subsystems.outtake.Outtake;
+import frc.robot.subsystems.outtake.OuttakeIO;
+import frc.robot.subsystems.outtake.OuttakeIOController;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnField;
 import org.littletonrobotics.junction.Logger;
@@ -40,6 +43,7 @@ public class RobotContainer {
     private static Arm arm;
     private static Intake intake;
     private static IntakeAngle intake_angle;
+    private static Outtake outtake;
     private static Climber climber;
     private static SwerveSubsystem swerveSubsystem;
 
@@ -53,6 +57,7 @@ public class RobotContainer {
                 elevator = new Elevator(false, new ElevatorIOController());
                 intake = new Intake(false, new IntakeIOController());
                 intake_angle = new IntakeAngle(false, new IntakeAngleIOController());
+                outtake = new Outtake(false, new OuttakeIOController());
                 climber = new Climber(false,new ClimberIOController());
                 swerveSubsystem = new SwerveSubsystem(true);
                 break;
@@ -65,6 +70,8 @@ public class RobotContainer {
                 intake = new Intake(false, new IntakeIO() {
                 });
                 intake_angle = new IntakeAngle(false, new IntakeAngleIO() {
+                });
+                outtake = new Outtake(false, new OuttakeIO() {
                 });
                 climber = new Climber(false, new ClimberIO() {
                 });
@@ -105,6 +112,8 @@ public class RobotContainer {
     public static Intake getIntake() {return intake;}
 
     public static IntakeAngle getIntakeAngle() {return intake_angle;}
+
+    public static Outtake getOuttake() {return outtake;}
 
     public static Climber getClimber() {return climber;}
 
