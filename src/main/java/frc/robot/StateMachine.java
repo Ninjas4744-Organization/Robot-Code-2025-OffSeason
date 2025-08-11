@@ -1,8 +1,8 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.lib.NinjasLib.controllers.Controller;
 import frc.lib.NinjasLib.statemachine.StateMachineBase;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.climber.Climber;
@@ -125,7 +125,7 @@ public class StateMachine extends StateMachineBase<States> {
         ));
         addCommand(States.ARM_INTAKE, Commands.sequence(
                  //TODO: implement angle check,
-                outtake.intakeFromIntake(),
+                outtake.intakeCoral(),
                 Commands.waitUntil(arm::isCoralInside),
                 Commands.runOnce(()-> changeRobotState(States.CORAL_IN_ARM))
         ));
@@ -150,19 +150,48 @@ public class StateMachine extends StateMachineBase<States> {
         //endregion
 
         //region intake algae
-        addCommand(States.INTAKE_ALGAE_LOW, Commands.none());
-        addCommand(States.INTAKE_ALGAE_HIGH, Commands.none());
+        addCommand(States.INTAKE_ALGAE_LOW, Commands.sequence(
+                arm.setAngle(Rotation2d.kZero),
+                Commands.waitUntil(arm::atGoal),
+                outtake.intakeCoral(),
+                Commands.waitUntil(arm::isCoralInside),
+                Commands.runOnce(()-> changeRobotState(States.ALGAE_IN_ARM))
+                // No need to stop the intaking because we want to keep ahold of the algae. we'll stop only when we outtake.
+        ));
+        addCommand(States.INTAKE_ALGAE_HIGH, Commands.sequence(
+                Commands.runOnce(()-> changeRobotState(States.ALGAE_IN_ARM))
+                // No need to stop the intaking because we want to keep ahold of the algae. we'll stop only when we outtake.
+        ));
         addCommand(States.ALGAE_IN_ARM, Commands.none());
         //endregion
 
         //region outtake algae
         addCommand(States.PREPARE_ALGAE_OUTTAKE, Commands.none());
-        addCommand(States.ALGAE_OUTTAKE, Commands.none());
+        addCommand(States.ALGAE_OUTTAKE, Commands.sequence(
+                outtake.outtakeAlgae(),
+                Commands.waitSeconds(0.2),
+                outtake.stop(),
+                Commands.runOnce(()-> changeRobotState(States.CLOSE))
+        ));
         //endregion
 
         //region close + reset
-        addCommand(States.CLOSE, Commands.none());
-        addCommand(States.RESET, Commands.none());
+        addCommand(States.CLOSE, Commands.sequence(
+                Commands.parallel(
+                        arm.setAngle(Rotation2d.kZero),
+                        elevator.setHeight(() -> 0),
+                        //TODO: implement angle check,
+                        intake.setPercent(()->0)
+                ),
+                Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal()),
+                Commands.runOnce(()-> changeRobotState(States.IDLE))
+        ));
+        addCommand(States.RESET, Commands.sequence(
+                elevator.reset(),
+                arm.reset(),
+                Commands.waitUntil(() -> elevator.isReset() && arm.isReset()),
+                Commands.runOnce(()-> changeRobotState(States.IDLE))
+        ));
         //endregion
     }
 }
