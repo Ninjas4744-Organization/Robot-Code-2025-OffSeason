@@ -12,9 +12,10 @@ public enum States {
     PREPARE_CORAL_OUTTAKE_HIGH, //For L2-L4
     CORAL_OUTTAKE_HIGH,
 
-    PREPARE_INTAKE_ALGAE_HIGH, //grabbing algae from the reef
-    PREPARE_INTAKE_ALGAE_LOW, //grabbing algae from the floor
-    INTAKE_ALGAE, //Grabbing algae from the floor or the reef
+
+    INTAKE_ALGAE_LOW, //moving the arm and grabbing algae from the floor
+    INTAKE_ALGAE_HIGH, //moving the arm and grabbing algae from the reef
+    ALGAE_IN_ARM, //Finished the initial grab of the algae
     PREPARE_ALGAE_OUTTAKE, //towards the barge
     ALGAE_OUTTAKE,
 
