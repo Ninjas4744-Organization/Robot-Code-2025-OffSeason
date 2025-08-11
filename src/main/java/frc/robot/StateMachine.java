@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.NinjasLib.statemachine.StateMachineBase;
 
 import java.util.Set;
@@ -76,6 +77,38 @@ public class StateMachine extends StateMachineBase<States> {
 
     @Override
     protected void setCommandMap() {
+        //region idle
+        addCommand(States.IDLE, Commands.none());
+        //endregion
 
+        //region intake coral
+        addCommand(States.INTAKE_CORAL,Commands.none() );
+        addCommand(States.CORAL_IN_INTAKE, Commands.none());
+        //endregion
+
+        //region outtake coral
+        addCommand(States.PREPARE_CORAL_OUTTAKE_LOW, Commands.none());
+        addCommand(States.CORAL_OUTTAKE_LOW, Commands.none());
+        addCommand(States.ARM_INTAKE, Commands.none());
+        addCommand(States.CORAL_IN_ARM, Commands.none());
+        addCommand(States.PREPARE_CORAL_OUTTAKE_HIGH, Commands.none());
+        addCommand(States.CORAL_OUTTAKE_HIGH, Commands.none());
+        //endregion
+
+        //region intake algae
+        addCommand(States.INTAKE_ALGAE_LOW, Commands.none());
+        addCommand(States.INTAKE_ALGAE_HIGH, Commands.none());
+        addCommand(States.ALGAE_IN_ARM, Commands.none());
+        //endregion
+
+        //region outtake algae
+        addCommand(States.PREPARE_ALGAE_OUTTAKE, Commands.none());
+        addCommand(States.ALGAE_OUTTAKE, Commands.none());
+        //endregion
+
+        //region close + reset
+        addCommand(States.CLOSE, Commands.none());
+        addCommand(States.RESET, Commands.none());
+        //endregion
     }
 }
