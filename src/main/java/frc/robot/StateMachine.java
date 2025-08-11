@@ -1,7 +1,15 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.lib.NinjasLib.controllers.Controller;
 import frc.lib.NinjasLib.statemachine.StateMachineBase;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake_angle.IntakeAngle;
+import frc.robot.subsystems.outtake.Outtake;
 
 import java.util.Set;
 
@@ -77,22 +85,68 @@ public class StateMachine extends StateMachineBase<States> {
 
     @Override
     protected void setCommandMap() {
+        Intake intake = RobotContainer.getIntake();
+        Outtake outtake = RobotContainer.getOuttake();
+        Arm arm = RobotContainer.getArm();
+        IntakeAngle intakeAngle = RobotContainer.getIntakeAngle();
+        Elevator elevator = RobotContainer.getElevator();
+        Climber climber = RobotContainer.getClimber();
+
+
         //region idle
         addCommand(States.IDLE, Commands.none());
         //endregion
 
         //region intake coral
-        addCommand(States.INTAKE_CORAL,Commands.none() );
+
+        addCommand(States.INTAKE_CORAL,Commands.sequence(
+                intake.setPercent(() -> 0.7),
+                Commands.waitUntil(intake::isCoralInside),
+                intake.setPercent(() -> 0),
+                Commands.runOnce(()-> changeRobotState(States.CORAL_IN_INTAKE))
+        ));
         addCommand(States.CORAL_IN_INTAKE, Commands.none());
         //endregion
 
         //region outtake coral
-        addCommand(States.PREPARE_CORAL_OUTTAKE_LOW, Commands.none());
-        addCommand(States.CORAL_OUTTAKE_LOW, Commands.none());
-        addCommand(States.ARM_INTAKE, Commands.none());
+        addCommand(States.PREPARE_CORAL_OUTTAKE_LOW, Commands.sequence(
+                intakeAngle.setPercent(() -> 0.5)
+                //TODO: implement angle check
+//                Commands.waitUntil(() -> {
+//                    RobotContainer.getIntakeAngle()
+//                }),
+        ));
+        addCommand(States.CORAL_OUTTAKE_LOW, Commands.sequence(
+                intake.outputCoral(),
+                Commands.waitSeconds(0.2),
+                intakeAngle.setPercent(() -> 0),
+                Commands.waitSeconds(0.2),
+                Commands.runOnce(()-> changeRobotState(States.CLOSE))
+        ));
+        addCommand(States.ARM_INTAKE, Commands.sequence(
+                 //TODO: implement angle check,
+                outtake.intakeFromIntake(),
+                Commands.waitUntil(arm::isCoralInside),
+                Commands.runOnce(()-> changeRobotState(States.CORAL_IN_ARM))
+        ));
         addCommand(States.CORAL_IN_ARM, Commands.none());
-        addCommand(States.PREPARE_CORAL_OUTTAKE_HIGH, Commands.none());
-        addCommand(States.CORAL_OUTTAKE_HIGH, Commands.none());
+
+        addCommand(States.PREPARE_CORAL_OUTTAKE_HIGH, Commands.sequence(
+                Commands.parallel(
+//                    elevator.setHeight(calculateElevatorHeight()),
+//                    arm.setAngle(calculateArmAngle())
+                ),
+                Commands.waitUntil(() ->
+                    elevator.atGoal() &&
+                    arm.atGoal()
+                )
+        ));
+        addCommand(States.CORAL_OUTTAKE_HIGH, Commands.sequence(
+                outtake.outtakeCoral(),
+                Commands.waitSeconds(0.2),
+                outtake.stop(),
+                Commands.runOnce(()-> changeRobotState(States.CLOSE))
+        ));
         //endregion
 
         //region intake algae

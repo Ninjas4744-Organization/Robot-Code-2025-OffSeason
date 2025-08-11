@@ -45,6 +45,10 @@ public class Arm extends SubsystemBase {
     }
 
     public boolean isCoralInside() {
+        if (!enabled) {
+            return true;
+        }
+
         return RobotState.isCoralInArm();
     }
 
