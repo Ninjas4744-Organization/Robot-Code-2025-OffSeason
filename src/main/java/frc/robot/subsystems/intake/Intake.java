@@ -35,16 +35,27 @@ public class Intake extends SubsystemBase {
     }
 
     public Command setPercent(DoubleSupplier percent) {
+        if (!enabled) {
+            return Commands.none();
+        }
+
         return Commands.runOnce(
             () -> io.getController().setPercent(percent.getAsDouble())
         );
     }
 
     public boolean isCoralInside() {
+        if (!enabled) {
+            return true;
+        }
         return RobotState.isCoralInIntake();
     }
 
     public Command outputCoral() {
+        if (!enabled) {
+            return Commands.none();
+        }
+
         return Commands.runOnce(
             () -> io.getController().setPercent(-0.8)
         );
