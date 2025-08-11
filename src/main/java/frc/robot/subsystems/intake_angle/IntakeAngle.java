@@ -34,8 +34,13 @@ public class IntakeAngle extends SubsystemBase {
     }
 
     public Command setPercent(DoubleSupplier percent) {
+        if (!enabled) {
+            return Commands.none();
+        }
         return Commands.runOnce(
             () -> io.getController().setPercent(percent.getAsDouble())
         );
     }
+
+    //public Command getAngle
 }
