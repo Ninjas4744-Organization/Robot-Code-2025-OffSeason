@@ -59,6 +59,12 @@ public class Constants {
     public static final int kArmCanCoderID = 0;
     public static final double kArmCanCoderOffset = 0;
     public static final SensorDirectionValue kArmCanCoderReversed = SensorDirectionValue.Clockwise_Positive;
+
+    public static final double[] armAngles = {0,20,45,90}; //for L levels
+
+    /* elevator - Heights*/
+    public static final double[] elevatorHeights = {0,0.2,0.6,1};
+
     //endregion
 
 
