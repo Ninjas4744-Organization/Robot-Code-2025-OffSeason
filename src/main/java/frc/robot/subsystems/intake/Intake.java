@@ -3,9 +3,7 @@ package frc.robot.subsystems.intake;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.RobotState;
-import frc.robot.subsystems.intake.IntakeIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.function.DoubleSupplier;
@@ -60,7 +58,7 @@ public class Intake extends SubsystemBase {
             () -> io.getController().setPercent(0.8)
         );
     }
-    public Command outputCoral() {
+    public Command outtakeCoral() {
         if (!enabled) {
             return Commands.none();
         }

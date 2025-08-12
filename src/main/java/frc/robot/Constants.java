@@ -9,10 +9,7 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -29,6 +26,7 @@ import frc.lib.NinjasLib.swerve.constants.SwerveModuleConstants;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,6 +62,16 @@ public class Constants {
 
     /* elevator - Heights*/
     public static final double[] elevatorHeights = {0,0.2,0.6,1};
+
+    /* intake angle */
+    public enum intakeAnglePositions {
+        LOOK_DOWN,LOOK_TO_L1,LOOK_TO_ARM
+    }
+    public static EnumMap<intakeAnglePositions, Rotation2d> anglesForIntakeAngle = new EnumMap<intakeAnglePositions, Rotation2d>(intakeAnglePositions.class) {{
+        put(intakeAnglePositions.LOOK_DOWN, Rotation2d.fromDegrees(-90.0));
+        put(intakeAnglePositions.LOOK_TO_L1, Rotation2d.fromDegrees(0.0));
+        put(intakeAnglePositions.LOOK_TO_ARM, Rotation2d.fromDegrees(45.0));
+    }};
 
     //endregion
 

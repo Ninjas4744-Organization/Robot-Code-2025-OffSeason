@@ -40,7 +40,7 @@ public class RobotContainer {
     private CommandPS5Controller operatorController;
 
 
-    //region Subsystems
+
     private static Elevator elevator;
     private static Arm arm;
     private static Intake intake;
@@ -48,7 +48,6 @@ public class RobotContainer {
     private static Outtake outtake;
     private static Climber climber;
     private static SwerveSubsystem swerveSubsystem;
-    //endregion
 
     private SendableChooser<Command> autoChooser;
     private FOMCalculator fomCalculator;
@@ -100,87 +99,84 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        driverController.L2().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(Rotation2d.kZero)));
-        driverController.L1().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(RobotState.getInstance().getRobotPose().getRotation())));
-
         StateMachine stateMachine = StateMachine.getInstance();
 
+        //region Driver Buttons
+        //region Gyro Reset
+        driverController.R1().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(Rotation2d.kZero)));
+        driverController.L1().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(RobotState.getInstance().getRobotPose().getRotation())));
+        //endregion
+
         //region Auto Drive to Right Reef and score Coral High
-        driverController.circle().onTrue( Commands.sequence(
-                Commands.runOnce(() ->
-                        stateMachine.canChangeRobotState(
-                                RobotState.getInstance().getRobotState(),
-                                States.DRIVE_TOWARDS_RIGHT_REEF
-                        )
-                )
+        driverController.R2().onTrue(Commands.runOnce(
+                () -> stateMachine.changeRobotState(States.DRIVE_TOWARDS_RIGHT_REEF)
         ));
         //endregion
 
         //region Auto Drive to Left Reef and score Coral High
-        driverController.cross().onTrue( Commands.sequence(
-                Commands.runOnce(() ->
-                        stateMachine.canChangeRobotState(
-                                RobotState.getInstance().getRobotState(),
-                                States.DRIVE_TOWARDS_LEFT_REEF
-                        )
-                )
+        driverController.L2().onTrue(Commands.runOnce(
+                () -> stateMachine.changeRobotState(States.DRIVE_TOWARDS_LEFT_REEF)
         ));
         //endregion
 
         //region Activating Coral Intake
-        driverController.R1().whileTrue(Commands.sequence(
-                intake.intakeCoral(),
-                Commands.waitUntil(intake::isCoralInside),
-                intake.stop()
+        driverController.cross().onTrue(Commands.runOnce(
+                () -> stateMachine.changeRobotState(States.INTAKE_CORAL)
         ));
         //endregion
 
         //region L1
         driverController.povRight().onTrue(Commands.sequence(
                 Commands.runOnce(() ->
-                        stateMachine.canChangeRobotState(
-                                RobotState.getInstance().getRobotState(),
-                                States.PREPARE_CORAL_OUTTAKE_LOW
-                        )
+                        stateMachine.changeRobotState(States.PREPARE_CORAL_OUTTAKE_LOW)
                 )
         ));
         //endregion
+
+        //region Intake Algae reef OR Output Algae to barge when ahold of it (depending on state)
+        driverController.square().onTrue(Commands.either(
+                Commands.runOnce(() ->  stateMachine.changeRobotState(States.PREPARE_ALGAE_OUTTAKE)),
+                Commands.runOnce(() -> stateMachine.changeRobotState(States.INTAKE_ALGAE_HIGH)) ,
+                () -> RobotState.getInstance().getRobotState() == States.ALGAE_IN_ARM
+        ));
+        //endregion
+        //endregion
+
+        //region Operator Buttons
 
         RobotState robotState = RobotState.getInstance();
         //region Increment/decrement the desired L level to output coral
-        driverController.povUp().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() + 1)));
+        operatorController.R1().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() + 1)));
 
-        driverController.povDown().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() - 1)));
+        operatorController.L1().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() - 1)));
         //endregion
-
 
         //region Intake Algae floor
-        driverController.circle().onTrue(Commands.runOnce(() ->
-                stateMachine.canChangeRobotState(
-                        RobotState.getInstance().getRobotState(),
-                        States.INTAKE_ALGAE_LOW
-                )
+        operatorController.circle().onTrue(Commands.runOnce(() ->
+                stateMachine.changeRobotState(States.INTAKE_ALGAE_LOW)
         ));
         //endregion
 
-        //region Intake Algae reef
-        driverController.square().onTrue(Commands.runOnce(() ->
-                stateMachine.canChangeRobotState(
-                        RobotState.getInstance().getRobotState(),
-                        States.INTAKE_ALGAE_HIGH
-                )
+        //region Close
+        operatorController.circle().onTrue(Commands.runOnce(
+                () -> stateMachine.changeRobotState(States.CLOSE)
         ));
         //endregion
 
-        //region Output Algae to barge when ahold of it
-        driverController.triangle().onTrue(Commands.sequence(
-                Commands.runOnce(() ->
-                        stateMachine.canChangeRobotState(
-                                RobotState.getInstance().getRobotState(),
-                                States.PREPARE_ALGAE_OUTTAKE
-                        )
-                )
+        //region Reset
+        operatorController.povDown().onTrue(Commands.runOnce(
+                () -> stateMachine.changeRobotState(States.RESET)
         ));
+        //endregion
+
+        //region Climb - prepare climbing for first click, and climb for second click.
+        operatorController.povUp().onTrue(Commands.either(
+                Commands.runOnce(() -> stateMachine.changeRobotState(States.CLIMB)),
+                Commands.runOnce(() -> stateMachine.changeRobotState(States.PREPARE_CLIMB)),
+                () -> RobotState.getInstance().getRobotState() == States.PREPARE_CLIMB
+        ));
+        //endregion
+
         //endregion
     }
 
@@ -200,6 +196,8 @@ public class RobotContainer {
     public static Outtake getOuttake() {return outtake;}
 
     public static Climber getClimber() {return climber;}
+
+    public static SwerveSubsystem getSwerve() {return swerveSubsystem;}
     //endregion
 
     public void periodic() {
