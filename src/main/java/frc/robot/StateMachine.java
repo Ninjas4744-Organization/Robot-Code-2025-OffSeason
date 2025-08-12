@@ -169,13 +169,8 @@ public class StateMachine extends StateMachineBase<States> {
                 elevator.setHeight(()->
                         Constants.elevatorHeights[RobotState.getInstance().getL() - 1]
                 ),
-                arm.setAngle(Rotation2d.fromDegrees(
-                        Constants.armAngles[RobotState.getInstance().getL() - 1]
-                )),
-                Commands.waitUntil(() ->
-                    elevator.atGoal() &&
-                    arm.atGoal()
-                ),
+                arm.lookAtCoralReef(RobotState.getInstance().getL()),
+                Commands.waitUntil(() -> elevator.atGoal() && arm.atGoal()),
                 Commands.runOnce(()-> changeRobotState(States.CORAL_OUTTAKE_HIGH))
         ));
         addCommand(States.CORAL_OUTTAKE_HIGH, Commands.sequence(
