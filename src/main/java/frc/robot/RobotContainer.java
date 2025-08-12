@@ -145,6 +145,43 @@ public class RobotContainer {
                 )
         ));
         //endregion
+
+        RobotState robotState = RobotState.getInstance();
+        //region Increment/decrement the desired L level to output coral
+        driverController.povUp().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() + 1)));
+
+        driverController.povDown().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() - 1)));
+        //endregion
+
+
+        //region Intake Algae floor
+        driverController.circle().onTrue(Commands.runOnce(() ->
+                stateMachine.canChangeRobotState(
+                        RobotState.getInstance().getRobotState(),
+                        States.INTAKE_ALGAE_LOW
+                )
+        ));
+        //endregion
+
+        //region Intake Algae reef
+        driverController.square().onTrue(Commands.runOnce(() ->
+                stateMachine.canChangeRobotState(
+                        RobotState.getInstance().getRobotState(),
+                        States.INTAKE_ALGAE_HIGH
+                )
+        ));
+        //endregion
+
+        //region Output Algae to barge when ahold of it
+        driverController.triangle().onTrue(Commands.sequence(
+                Commands.runOnce(() ->
+                        stateMachine.canChangeRobotState(
+                                RobotState.getInstance().getRobotState(),
+                                States.PREPARE_ALGAE_OUTTAKE
+                        )
+                )
+        ));
+        //endregion
     }
 
     //region Subsystem Instances

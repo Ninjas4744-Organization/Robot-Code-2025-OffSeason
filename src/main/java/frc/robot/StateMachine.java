@@ -151,12 +151,12 @@ public class StateMachine extends StateMachineBase<States> {
 
         addCommand(States.PREPARE_CORAL_OUTTAKE_HIGH, Commands.sequence(
                 Commands.parallel(
-                    //TODO: calculate elevator height and arm angle
-//                    elevator.setHeight(calculateElevatorHeight()),
-//                    arm.setAngle(calculateArmAngle())
-                        elevator.setHeight(()->1.0),
-                        arm.setAngle(Rotation2d.fromDegrees(90))
-
+                        elevator.setHeight(()->
+                                Constants.elevatorHeights[RobotState.getInstance().getL() - 1]
+                        ),
+                        arm.setAngle(Rotation2d.fromDegrees(
+                                Constants.armAngles[RobotState.getInstance().getL() - 1]
+                        ))
                 ),
                 Commands.waitUntil(() ->
                     elevator.atGoal() &&
