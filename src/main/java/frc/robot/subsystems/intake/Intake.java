@@ -51,6 +51,15 @@ public class Intake extends SubsystemBase {
         return RobotState.isCoralInIntake();
     }
 
+    public Command intakeCoral() {
+        if (!enabled) {
+            return Commands.none();
+        }
+
+        return Commands.runOnce(
+            () -> io.getController().setPercent(0.8)
+        );
+    }
     public Command outputCoral() {
         if (!enabled) {
             return Commands.none();
@@ -58,6 +67,16 @@ public class Intake extends SubsystemBase {
 
         return Commands.runOnce(
             () -> io.getController().setPercent(-0.8)
+        );
+    }
+
+    public Command stop() {
+        if (!enabled) {
+            return Commands.none();
+        }
+
+        return Commands.runOnce(
+            () -> io.getController().setPercent(0)
         );
     }
 }
