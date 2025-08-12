@@ -103,7 +103,7 @@ public class Constants {
         kElevatorControllerConstants.real.followers[0].inverted = true;
 
         /* Control */
-        kElevatorControllerConstants.real.controlConstants = ControlConstants.createPID(1, 0, 0, 0);
+        kElevatorControllerConstants.real.controlConstants = ControlConstants.createPID(10, 0, 0, 0);
         kElevatorControllerConstants.real.gearRatio = 5;
         kElevatorControllerConstants.real.conversionFactor = Math.PI * 0.05;
         kElevatorControllerConstants.real.homePosition = 0;
@@ -114,6 +114,8 @@ public class Constants {
 
         /* Hard Limit */
         kElevatorControllerConstants.real.isLimitSwitch = true;
+        kElevatorControllerConstants.real.isVirtualLimit = true;
+        kElevatorControllerConstants.real.virtualLimitStallThreshold = 30 / 12.0;
         kElevatorControllerConstants.real.limitSwitchID = 3;
         kElevatorControllerConstants.real.limitSwitchDirection = -1;
         kElevatorControllerConstants.real.limitSwitchAutoStopReset = true;
@@ -233,8 +235,10 @@ public class Constants {
         kSwerveConstants.driveMotorType = DCMotor.getKrakenX60Foc(1);
         kSwerveConstants.steerMotorType = DCMotor.getKrakenX60Foc(1);
 
-        kSwerveConstants.enableOdometryThread = true;
-        kSwerveConstants.odometryThreadFrequency = 250;
+//        kSwerveConstants.enableOdometryThread = true;
+//        kSwerveConstants.odometryThreadFrequency = 2;
+        kSwerveConstants.enableOdometryThread = false;
+        kSwerveConstants.odometryThreadFrequency = 50;
     }
 
     public static final SwerveControllerConstants kSwerveControllerConstants = new SwerveControllerConstants();

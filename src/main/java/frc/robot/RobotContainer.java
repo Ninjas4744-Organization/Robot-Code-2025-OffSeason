@@ -52,7 +52,7 @@ public class RobotContainer {
 
         RobotStateBase.setInstance(new RobotState(Constants.kSwerveConstants.kinematics, Constants.kInvertGyro, Constants.kPigeonID, Constants.kSwerveConstants.enableOdometryThread));
 
-        Vision.setConstants(Constants.kVisionConstants);
+        Vision.setInstance(new Vision(Constants.kVisionConstants));
         fomCalculator = new FOMCalculator();
 
 //        autoChooser = AutoBuilder.buildAutoChooser();
