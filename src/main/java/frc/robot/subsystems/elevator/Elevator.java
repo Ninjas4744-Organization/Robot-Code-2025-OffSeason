@@ -40,6 +40,10 @@ public class Elevator extends SubsystemBase {
         });
     }
 
+    public Command goToFloor() {
+        return setHeight(() -> 0);
+    }
+
     public boolean atGoal() {
         if (!enabled) {
             return true;

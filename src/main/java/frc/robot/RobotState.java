@@ -22,7 +22,7 @@ public class RobotState extends RobotStateWithSwerve<States> {
         return intakeBeamBreaker.get();
     }
 
-    public static boolean isCoralInArm() {
+    public static boolean isObjectInArm() {
         return armBeamBreaker.get();
     }
 

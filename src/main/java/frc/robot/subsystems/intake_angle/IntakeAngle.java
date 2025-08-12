@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.RobotState;
 //import frc.robot.subsystems.intake.IntakeAngleIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
@@ -58,6 +59,16 @@ public class IntakeAngle extends SubsystemBase {
             return Rotation2d.kZero;
         }
         return Rotation2d.fromRadians(io.getController().getPosition());
+    }
+
+    public Command lookDown() {
+        return setAngle(Constants.anglesForIntakeAngle.get(Constants.intakeAnglePositions.LOOK_DOWN));
+    }
+    public Command lookAtL1() {
+        return setAngle(Constants.anglesForIntakeAngle.get(Constants.intakeAnglePositions.LOOK_TO_L1));
+    }
+    public Command lookAtArm() {
+        return setAngle(Constants.anglesForIntakeAngle.get(Constants.intakeAnglePositions.LOOK_TO_ARM));
     }
 
     public boolean atGoal(){

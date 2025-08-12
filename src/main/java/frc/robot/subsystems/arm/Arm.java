@@ -36,6 +36,14 @@ public class Arm extends SubsystemBase {
         Logger.processInputs("Arm", inputs);
     }
 
+    public boolean isObjectInside() {
+        if (!enabled) {
+            return true;
+        }
+
+        return RobotState.isObjectInArm();
+    }
+
     //--Commands
 
     public Command setAngle(Rotation2d angle){
@@ -43,6 +51,34 @@ public class Arm extends SubsystemBase {
             return Commands.none();
         }
         return Commands.runOnce(() -> {io.getController().setPosition(angle.getRadians());});
+    }
+
+    public Command lookDown() {
+        return setAngle(Rotation2d.kZero);
+    }
+
+    public Command lookAtCoralReef(int L) {
+        return switch (L) {
+            case 2-> setAngle(Rotation2d.kZero);
+            case 3-> setAngle(Rotation2d.kZero);
+            case 4-> setAngle(Rotation2d.kZero);
+            default -> setAngle(Rotation2d.kZero);
+        };
+    }
+
+    public Command lookAtAlgaeReef() {
+        return setAngle(Rotation2d.kZero);
+    }
+
+    public Command lookAtBarge() {
+        return setAngle(Rotation2d.kZero);
+    }
+
+    public Rotation2d getAngle(){
+        if (!enabled) {
+            return Rotation2d.kZero;
+        }
+        return Rotation2d.fromRadians(io.getController().getPosition());
     }
 
     public boolean atGoal(){

@@ -39,7 +39,7 @@ public class Outtake extends SubsystemBase {
         return Commands.runOnce(() -> io.getController().setPercent(0));
     }
 
-    public Command intakeCoral(){
+    public Command intakeObject(){
         if (!enabled){
             return Commands.none();
         }
