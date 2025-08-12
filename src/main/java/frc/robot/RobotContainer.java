@@ -39,6 +39,8 @@ public class RobotContainer {
     private CommandPS5Controller driverController;
     private CommandPS5Controller operatorController;
 
+
+    //region Subsystems
     private static Elevator elevator;
     private static Arm arm;
     private static Intake intake;
@@ -46,6 +48,7 @@ public class RobotContainer {
     private static Outtake outtake;
     private static Climber climber;
     private static SwerveSubsystem swerveSubsystem;
+    //endregion
 
     private SendableChooser<Command> autoChooser;
     private FOMCalculator fomCalculator;
@@ -99,8 +102,52 @@ public class RobotContainer {
     private void configureBindings() {
         driverController.L2().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(Rotation2d.kZero)));
         driverController.L1().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(RobotState.getInstance().getRobotPose().getRotation())));
+
+        StateMachine stateMachine = StateMachine.getInstance();
+
+        //region Auto Drive to Right Reef and score Coral High
+        driverController.circle().onTrue( Commands.sequence(
+                Commands.runOnce(() ->
+                        stateMachine.canChangeRobotState(
+                                RobotState.getInstance().getRobotState(),
+                                States.DRIVE_TOWARDS_RIGHT_REEF
+                        )
+                )
+        ));
+        //endregion
+
+        //region Auto Drive to Left Reef and score Coral High
+        driverController.cross().onTrue( Commands.sequence(
+                Commands.runOnce(() ->
+                        stateMachine.canChangeRobotState(
+                                RobotState.getInstance().getRobotState(),
+                                States.DRIVE_TOWARDS_LEFT_REEF
+                        )
+                )
+        ));
+        //endregion
+
+        //region Activating Coral Intake
+        driverController.R1().whileTrue(Commands.sequence(
+                intake.intakeCoral(),
+                Commands.waitUntil(intake::isCoralInside),
+                intake.stop()
+        ));
+        //endregion
+
+        //region L1
+        driverController.povRight().onTrue(Commands.sequence(
+                Commands.runOnce(() ->
+                        stateMachine.canChangeRobotState(
+                                RobotState.getInstance().getRobotState(),
+                                States.PREPARE_CORAL_OUTTAKE_LOW
+                        )
+                )
+        ));
+        //endregion
     }
 
+    //region Subsystem Instances
     public static Elevator getElevator() {
         return elevator;
     }
@@ -116,6 +163,7 @@ public class RobotContainer {
     public static Outtake getOuttake() {return outtake;}
 
     public static Climber getClimber() {return climber;}
+    //endregion
 
     public void periodic() {
         swerveSubsystem.swerveDrive(driverController);
