@@ -59,10 +59,10 @@ public class Arm extends SubsystemBase {
 
     public Command lookAtCoralReef(int L) {
         return switch (L) {
-            case 2-> setAngle(Rotation2d.kZero);
-            case 3-> setAngle(Rotation2d.kZero);
-            case 4-> setAngle(Rotation2d.kZero);
-            default -> setAngle(Rotation2d.kZero);
+            case 2-> setAngle(Constants.armAngles[1]);
+            case 3-> setAngle(Constants.armAngles[2]);
+            case 4-> setAngle(Constants.armAngles[3]);
+            default -> setAngle(Constants.armAngles[0]);
         };
     }
 
