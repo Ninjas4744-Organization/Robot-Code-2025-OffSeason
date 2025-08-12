@@ -27,19 +27,21 @@ public class StateMachine extends StateMachineBase<States> {
                     States.INTAKE_ALGAE_LOW
             ).contains(wantedState);
 
-                
+
             case INTAKE_CORAL -> Set.of(
                     States.CORAL_IN_INTAKE
             ).contains(wantedState);
+
             case CORAL_IN_INTAKE -> Set.of(
-                    States.PREPARE_CORAL_OUTTAKE_LOW,
-                    States.ARM_INTAKE
+                    States.ARM_INTAKE,
+                    States.PREPARE_CORAL_OUTTAKE_LOW
             ).contains(wantedState);
 
             // LOW CORAL
             case PREPARE_CORAL_OUTTAKE_LOW -> Set.of(
                     States.CORAL_OUTTAKE_LOW
             ).contains(wantedState);
+
             case CORAL_OUTTAKE_LOW -> Set.of(
                     States.CLOSE,
                     States.RESET
@@ -49,12 +51,21 @@ public class StateMachine extends StateMachineBase<States> {
             case ARM_INTAKE -> Set.of(
                     States.CORAL_IN_ARM
             ).contains(wantedState);
+
             case CORAL_IN_ARM -> Set.of(
-                    States.PREPARE_CORAL_OUTTAKE_HIGH
+                    States.DRIVE_TOWARDS_LEFT_REEF,
+                    States.DRIVE_TOWARDS_RIGHT_REEF
             ).contains(wantedState);
+
+            case DRIVE_TOWARDS_LEFT_REEF,DRIVE_TOWARDS_RIGHT_REEF -> Set.of(
+                    States.PREPARE_CORAL_OUTTAKE_HIGH,
+                    States.IDLE
+            ).contains(wantedState);
+
             case PREPARE_CORAL_OUTTAKE_HIGH -> Set.of(
                     States.CORAL_OUTTAKE_HIGH
             ).contains(wantedState);
+
             case CORAL_OUTTAKE_HIGH -> Set.of(
                     States.CLOSE,
                     States.RESET
@@ -80,6 +91,18 @@ public class StateMachine extends StateMachineBase<States> {
             case CLOSE,RESET -> Set.of(
                     States.IDLE
             ).contains(wantedState);
+
+
+
+            case PREPARE_CLIMB -> Set.of(
+                    States.CLIMB
+            ).contains(wantedState);
+
+            case CLIMB -> Set.of(
+                    States.CLIMBED
+            ).contains(wantedState);
+
+            case CLIMBED -> false;
         };
     }
 
@@ -110,11 +133,8 @@ public class StateMachine extends StateMachineBase<States> {
 
         //region outtake coral
         addCommand(States.PREPARE_CORAL_OUTTAKE_LOW, Commands.sequence(
-                intakeAngle.setPercent(() -> 0.5)
-                //TODO: implement angle check
-//                Commands.waitUntil(() -> {
-//                    RobotContainer.getIntakeAngle()
-//                }),
+                intakeAngle.setAngle(Rotation2d.fromDegrees(45)),
+                Commands.waitUntil(intakeAngle::atGoal)
         ));
         addCommand(States.CORAL_OUTTAKE_LOW, Commands.sequence(
                 intake.outputCoral(),
@@ -124,12 +144,20 @@ public class StateMachine extends StateMachineBase<States> {
                 Commands.runOnce(()-> changeRobotState(States.CLOSE))
         ));
         addCommand(States.ARM_INTAKE, Commands.sequence(
-                 //TODO: implement angle check,
+                intakeAngle.setAngle(Rotation2d.fromDegrees(90)),
+                Commands.waitUntil(intakeAngle::atGoal),
                 outtake.intakeCoral(),
                 Commands.waitUntil(arm::isCoralInside),
                 Commands.runOnce(()-> changeRobotState(States.CORAL_IN_ARM))
         ));
         addCommand(States.CORAL_IN_ARM, Commands.none());
+
+        addCommand(States.DRIVE_TOWARDS_LEFT_REEF, Commands.sequence(
+                //TODO: add driving
+        ));
+        addCommand(States.DRIVE_TOWARDS_RIGHT_REEF, Commands.sequence(
+                //TODO: add driving
+        ));
 
         addCommand(States.PREPARE_CORAL_OUTTAKE_HIGH, Commands.sequence(
                 Commands.parallel(
@@ -180,10 +208,10 @@ public class StateMachine extends StateMachineBase<States> {
                 Commands.parallel(
                         arm.setAngle(Rotation2d.kZero),
                         elevator.setHeight(() -> 0),
-                        //TODO: implement angle check,
+                        intakeAngle.setAngle(Rotation2d.fromDegrees(0)),
                         intake.setPercent(()->0)
                 ),
-                Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal()),
+                Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal() && intakeAngle.atGoal()),
                 Commands.runOnce(()-> changeRobotState(States.IDLE))
         ));
         addCommand(States.RESET, Commands.sequence(
@@ -192,6 +220,18 @@ public class StateMachine extends StateMachineBase<States> {
                 Commands.waitUntil(() -> elevator.isReset() && arm.isReset()),
                 Commands.runOnce(()-> changeRobotState(States.IDLE))
         ));
+        //endregion
+
+
+        //region climb
+
+        //TODO: PREPARE CLIMB COMMAND
+        addCommand(States.PREPARE_CLIMB, Commands.none());
+        //TODO: CLIMB COMMAND
+        addCommand(States.CLIMB, Commands.sequence(
+        ));
+
+        addCommand(States.CLIMBED, Commands.none());
         //endregion
     }
 }
