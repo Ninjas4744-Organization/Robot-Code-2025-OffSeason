@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intake_angle;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -42,5 +43,27 @@ public class IntakeAngle extends SubsystemBase {
         );
     }
 
-    //public Command getAngle
+    public Command setAngle(Rotation2d angle) {
+        if (!enabled) {
+            return Commands.none();
+        }
+
+        return Commands.runOnce(
+            () -> io.getController().setPosition(angle.getRadians())
+        );
+    }
+
+    public Rotation2d getAngle(){
+        if (!enabled) {
+            return Rotation2d.kZero;
+        }
+        return Rotation2d.fromRadians(io.getController().getPosition());
+    }
+
+    public boolean atGoal(){
+        if (!enabled){
+            return true;
+        }
+        return io.getController().atGoal();
+    }
 }
