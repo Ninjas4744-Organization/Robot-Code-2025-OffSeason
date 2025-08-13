@@ -449,4 +449,11 @@ public class Constants {
     public static final double kVisionFOMSpeedMultiplier = 1;
     public static final double kVisionFOMAngularSpeedMultiplier = 1;
     public static final double kVisionFOMAngleTransformMultiplier = 1;
+
+    //region Auto Drive
+    public static final double kAutoDriveDistFromReef = 0.25;
+    public static final double kAutoDriveRightSideOffset = 0.25;
+    public static final double kAutoDriveLeftSideOffset = 0.25;
+    public static final double kAutoDriveDistThreshold = 0.05;
+    //endregion
 }
