@@ -32,4 +32,6 @@ public class Climber extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("Climber", inputs);
     }
+
+
 }

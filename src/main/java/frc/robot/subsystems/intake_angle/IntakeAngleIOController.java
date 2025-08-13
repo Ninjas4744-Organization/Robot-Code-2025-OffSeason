@@ -29,4 +29,5 @@ public class IntakeAngleIOController implements IntakeAngleIO {
     public void setPercent(double percent) {
         controller.setPercent(percent);
     }
+
 }

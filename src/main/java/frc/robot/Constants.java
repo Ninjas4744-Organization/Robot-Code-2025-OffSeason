@@ -9,10 +9,7 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -29,8 +26,11 @@ import frc.lib.NinjasLib.swerve.constants.SwerveModuleConstants;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+
+import static javax.swing.UIManager.put;
 
 public class Constants {
     public enum RobotMode {
@@ -46,7 +46,8 @@ public class Constants {
         REPLAY
     }
 
-    /* General */
+    //region General
+
     public static final RobotMode kSimMode = RobotMode.SIM;
     public static final RobotMode kCurrentMode = Robot.isReal() ? RobotMode.REAL : kSimMode;
     public static final int kDriverControllerPort = 0;
@@ -59,7 +60,11 @@ public class Constants {
     public static final double kArmCanCoderOffset = 0;
     public static final SensorDirectionValue kArmCanCoderReversed = SensorDirectionValue.Clockwise_Positive;
 
-    /* Subsystems */
+    //endregion
+
+
+    //region Subsystems
+    //region Arm
     public static final ControllerConstants kArmControllerConstants = new ControllerConstants();
     static {
         /* Base */
@@ -95,7 +100,9 @@ public class Constants {
         /* Simulation */
         kArmControllerConstants.motorType = DCMotor.getKrakenX60(2);
     }
+    //endregion
 
+    //region Elevator
     public static final ControllerConstants kElevatorControllerConstants = new ControllerConstants();
     static {
         /* Base */
@@ -132,7 +139,9 @@ public class Constants {
         /* Simulation */
         kElevatorControllerConstants.motorType = DCMotor.getKrakenX60(2);
     }
+    //endregion
 
+    //region Outtake
     public static final ControllerConstants kOuttakeControllerConstants = new ControllerConstants();
     static {
         /* Base */
@@ -144,7 +153,9 @@ public class Constants {
         /* Simulation */
         kOuttakeControllerConstants.motorType = DCMotor.getKrakenX60(1);
     }
+    //endregion
 
+    //region Intake
     public static final ControllerConstants kIntakeControllerConstants = new ControllerConstants();
     static {
         /* Base */
@@ -162,7 +173,9 @@ public class Constants {
         /* Simulation */
         kIntakeControllerConstants.motorType = DCMotor.getKrakenX60(2);
     }
+    //endregion
 
+    //region Intake Angle
     public static final ControllerConstants kIntakeAngleControllerConstants = new ControllerConstants();
     static {
         /* Base */
@@ -197,7 +210,9 @@ public class Constants {
         /* Simulation */
         kIntakeAngleControllerConstants.motorType = DCMotor.getKrakenX60(2);
     }
+    //endregion
 
+    //region Climber
     public static final ControllerConstants kClimberControllerConstants = new ControllerConstants();
     static {
         /* Base */
@@ -222,8 +237,11 @@ public class Constants {
         /* Simulation */
         kClimberControllerConstants.motorType = DCMotor.getKrakenX60(2);
     }
+    //endregion
+    //endregion
 
-    /* Positions */
+
+    //region Positions
     public enum ArmPositions {
         Close(-90),
         L2(0),
@@ -246,7 +264,12 @@ public class Constants {
     }
 
     public enum ElevatorPositions {
-        Close(0);
+        Close(0),
+        L2(0.2),
+        L3(0.6),
+        L4(1),
+        AlgaeReef(0.8),
+        Net(1.2);
 
         final double height;
 
@@ -259,6 +282,19 @@ public class Constants {
         }
     }
 
+    /* intake angle */
+    public enum intakeAnglePositions {
+        LOOK_DOWN,LOOK_TO_L1,LOOK_TO_ARM
+    }
+    public static EnumMap<intakeAnglePositions, Rotation2d> anglesForIntakeAngle = new EnumMap<>(Map.of(
+        intakeAnglePositions.LOOK_DOWN, Rotation2d.fromDegrees(-90.0),
+        intakeAnglePositions.LOOK_TO_L1, Rotation2d.fromDegrees(0.0),
+        intakeAnglePositions.LOOK_TO_ARM, Rotation2d.fromDegrees(45.0)
+    ));
+
+    //endregion
+
+    //region Outtake Speeds
     public enum OuttakeSpeeds {
         Intake(-1),
         OuttakeCoral(1),
@@ -275,8 +311,9 @@ public class Constants {
             return speed;
         }
     }
+    //endregion
 
-    /* Swerve */
+    //region Swerve
     public static final double kDriverSpeedFactor = 1;
     public static final double kDriverRotationSpeedFactor = 1;
 
@@ -373,8 +410,10 @@ public class Constants {
             new PIDConstants(kSwerveControllerConstants.drivePIDConstants.P, kSwerveControllerConstants.drivePIDConstants.I, kSwerveControllerConstants.drivePIDConstants.D),
             new PIDConstants(kSwerveControllerConstants.rotationPIDConstants.P, kSwerveControllerConstants.rotationPIDConstants.I, kSwerveControllerConstants.rotationPIDConstants.D)
         );
+    //endregion
 
-    /* Vision */
+
+    //region Vision
     public static final VisionConstants kVisionConstants = new VisionConstants();
     static {
         kVisionConstants.cameras = Map.of(
@@ -386,8 +425,9 @@ public class Constants {
         kVisionConstants.maxDistance = 2;
         kVisionConstants.fieldLayoutGetter = Constants::getFieldLayoutWithIgnored;
     }
+    //endregion
 
-    /* Field */
+    //region Field
     public static AprilTagFieldLayout kBlueFieldLayout;
     public static AprilTagFieldLayout kRedFieldLayout;
 
@@ -437,8 +477,9 @@ public class Constants {
     public static Pose3d getTagPose(int id) {
         return getFieldLayout().getTagPose(id).get();
     }
+    //endregion
 
-    /* FOM */
+    //region FOM
     public static final double kOdometryFOMPerMeter = 0.05;
     public static final double kCrashedAccelerationThreshold = 15;
     public static final double kCrashedOdometryFOMBonus = 4;
@@ -449,6 +490,7 @@ public class Constants {
     public static final double kVisionFOMSpeedMultiplier = 1;
     public static final double kVisionFOMAngularSpeedMultiplier = 1;
     public static final double kVisionFOMAngleTransformMultiplier = 1;
+    //endregion
 
     //region Auto Drive
     public static final double kAutoDriveDistFromReef = 0.25;

@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
-
 import static frc.robot.Constants.kArmCanCoderReversed;
 
 public class Arm extends SubsystemBase {
@@ -36,6 +35,14 @@ public class Arm extends SubsystemBase {
         Logger.processInputs("Arm", inputs);
     }
 
+    public boolean isObjectInside() {
+        if (!enabled) {
+            return true;
+        }
+
+        return RobotState.isObjectInArm();
+    }
+
     //--Commands
 
     public Command setAngle(Rotation2d angle){
@@ -43,6 +50,38 @@ public class Arm extends SubsystemBase {
             return Commands.none();
         }
         return Commands.runOnce(() -> {io.getController().setPosition(angle.getRadians());});
+    }
+
+    public Command lookDown() {
+        return setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Close.get()));
+    }
+
+    public Command lookAtCoralReef(int L) {
+        return switch (L) {
+            case 2-> setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.L4.get()));
+            case 3-> setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.L3.get()));
+            case 4-> setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.L2.get()));
+            default -> setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Close.get()));
+        };
+    }
+
+    public Command lookAtAlgaeReef() {
+        return setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.HighAlgaeOut.get()));
+    }
+
+    public Command lookAtAlgaeFloor() {
+        return setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.LowAlgaeOut.get()));
+    }
+
+    public Command lookAtBarge() {
+        return setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Net.get()));
+    }
+
+    public Rotation2d getAngle(){
+        if (!enabled) {
+            return Rotation2d.kZero;
+        }
+        return Rotation2d.fromRadians(io.getController().getPosition());
     }
 
     public boolean atGoal(){

@@ -28,6 +28,9 @@ import frc.robot.subsystems.intake.IntakeIOController;
 import frc.robot.subsystems.intake_angle.IntakeAngle;
 import frc.robot.subsystems.intake_angle.IntakeAngleIO;
 import frc.robot.subsystems.intake_angle.IntakeAngleIOController;
+import frc.robot.subsystems.outtake.Outtake;
+import frc.robot.subsystems.outtake.OuttakeIO;
+import frc.robot.subsystems.outtake.OuttakeIOController;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnField;
 import org.littletonrobotics.junction.Logger;
@@ -36,10 +39,13 @@ public class RobotContainer {
     private CommandPS5Controller driverController;
     private CommandPS5Controller operatorController;
 
+
+
     private static Elevator elevator;
     private static Arm arm;
     private static Intake intake;
     private static IntakeAngle intake_angle;
+    private static Outtake outtake;
     private static Climber climber;
     private static SwerveSubsystem swerveSubsystem;
 
@@ -53,6 +59,7 @@ public class RobotContainer {
                 elevator = new Elevator(false, new ElevatorIOController());
                 intake = new Intake(false, new IntakeIOController());
                 intake_angle = new IntakeAngle(false, new IntakeAngleIOController());
+                outtake = new Outtake(false, new OuttakeIOController());
                 climber = new Climber(false,new ClimberIOController());
                 swerveSubsystem = new SwerveSubsystem(true);
                 break;
@@ -65,6 +72,8 @@ public class RobotContainer {
                 intake = new Intake(false, new IntakeIO() {
                 });
                 intake_angle = new IntakeAngle(false, new IntakeAngleIO() {
+                });
+                outtake = new Outtake(false, new OuttakeIO() {
                 });
                 climber = new Climber(false, new ClimberIO() {
                 });
@@ -90,10 +99,88 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        driverController.L2().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(Rotation2d.kZero)));
+        StateMachine stateMachine = StateMachine.getInstance();
+
+        //region Driver Buttons
+        //region Gyro Reset
+        driverController.R1().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(Rotation2d.kZero)));
         driverController.L1().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(RobotState.getInstance().getRobotPose().getRotation())));
+        //endregion
+
+        //region Auto Drive to Right Reef and score Coral High
+        driverController.R2().onTrue(Commands.runOnce(
+                () -> stateMachine.changeRobotState(States.DRIVE_TOWARDS_RIGHT_REEF)
+        ));
+        //endregion
+
+        //region Auto Drive to Left Reef and score Coral High
+        driverController.L2().onTrue(Commands.runOnce(
+                () -> stateMachine.changeRobotState(States.DRIVE_TOWARDS_LEFT_REEF)
+        ));
+        //endregion
+
+        //region Activating Coral Intake
+        driverController.cross().onTrue(Commands.runOnce(
+                () -> stateMachine.changeRobotState(States.INTAKE_CORAL)
+        ));
+        //endregion
+
+        //region L1
+        driverController.povRight().onTrue(Commands.sequence(
+                Commands.runOnce(() ->
+                        stateMachine.changeRobotState(States.PREPARE_CORAL_OUTTAKE_LOW)
+                )
+        ));
+        //endregion
+
+        //region Intake Algae reef OR Output Algae to barge when ahold of it (depending on state)
+        driverController.square().onTrue(Commands.either(
+                Commands.runOnce(() ->  stateMachine.changeRobotState(States.PREPARE_ALGAE_OUTTAKE)),
+                Commands.runOnce(() -> stateMachine.changeRobotState(States.INTAKE_ALGAE_HIGH)) ,
+                () -> RobotState.getInstance().getRobotState() == States.ALGAE_IN_ARM
+        ));
+        //endregion
+        //endregion
+
+        //region Operator Buttons
+
+        RobotState robotState = RobotState.getInstance();
+        //region Increment/decrement the desired L level to output coral
+        operatorController.R1().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() + 1)));
+
+        operatorController.L1().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() - 1)));
+        //endregion
+
+        //region Intake Algae floor
+        operatorController.square().onTrue(Commands.runOnce(() ->
+                stateMachine.changeRobotState(States.INTAKE_ALGAE_LOW)
+        ));
+        //endregion
+
+        //region Close
+        operatorController.circle().onTrue(Commands.runOnce(
+                () -> stateMachine.changeRobotState(States.CLOSE)
+        ));
+        //endregion
+
+        //region Reset
+        operatorController.povDown().onTrue(Commands.runOnce(
+                () -> stateMachine.changeRobotState(States.RESET)
+        ));
+        //endregion
+
+        //region Climb - prepare climbing for first click, and climb for second click.
+        operatorController.povUp().onTrue(Commands.either(
+                Commands.runOnce(() -> stateMachine.changeRobotState(States.CLIMB)),
+                Commands.runOnce(() -> stateMachine.changeRobotState(States.PREPARE_CLIMB)),
+                () -> RobotState.getInstance().getRobotState() == States.PREPARE_CLIMB
+        ));
+        //endregion
+
+        //endregion
     }
 
+    //region Subsystem Instances
     public static Elevator getElevator() {
         return elevator;
     }
@@ -106,7 +193,12 @@ public class RobotContainer {
 
     public static IntakeAngle getIntakeAngle() {return intake_angle;}
 
+    public static Outtake getOuttake() {return outtake;}
+
     public static Climber getClimber() {return climber;}
+
+    public static SwerveSubsystem getSwerve() {return swerveSubsystem;}
+    //endregion
 
     public void periodic() {
         swerveSubsystem.swerveDrive(driverController);
