@@ -10,6 +10,7 @@ import frc.robot.RobotState;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
+import static frc.robot.Constants.anglesForArm;
 import static frc.robot.Constants.kArmCanCoderReversed;
 
 public class Arm extends SubsystemBase {
@@ -54,24 +55,24 @@ public class Arm extends SubsystemBase {
     }
 
     public Command lookDown() {
-        return setAngle(Rotation2d.kZero);
+        return setAngle(anglesForArm.get(Constants.armPositions.LOOK_DOWN));
     }
 
     public Command lookAtCoralReef(int L) {
         return switch (L) {
-            case 2-> setAngle(Constants.armAngles[1]);
-            case 3-> setAngle(Constants.armAngles[2]);
-            case 4-> setAngle(Constants.armAngles[3]);
-            default -> setAngle(Constants.armAngles[0]);
+            case 2-> setAngle(anglesForArm.get(Constants.armPositions.LOOK_TO_L2));
+            case 3-> setAngle(anglesForArm.get(Constants.armPositions.LOOK_TO_L3));
+            case 4-> setAngle(anglesForArm.get(Constants.armPositions.LOOK_TO_L4));
+            default -> setAngle(anglesForArm.get(Constants.armPositions.LOOK_DOWN));
         };
     }
 
     public Command lookAtAlgaeReef() {
-        return setAngle(Rotation2d.fromDegrees(90));
+        return setAngle(anglesForArm.get(Constants.armPositions.LOOK_TO_REEF_ALGAE));
     }
 
     public Command lookAtBarge() {
-        return setAngle(Rotation2d.k180deg);
+        return setAngle(anglesForArm.get(Constants.armPositions.LOOK_AT_BARGE));
     }
 
     public Rotation2d getAngle(){

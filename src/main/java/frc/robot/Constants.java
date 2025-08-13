@@ -58,12 +58,19 @@ public class Constants {
     public static final double kArmCanCoderOffset = 0;
     public static final SensorDirectionValue kArmCanCoderReversed = SensorDirectionValue.Clockwise_Positive;
 
-    public static final Rotation2d[] armAngles = {
-            Rotation2d.kZero,
-            Rotation2d.fromDegrees(20),
-            Rotation2d.fromDegrees(45),
-            Rotation2d.fromDegrees(90)
-    }; //for L levels
+
+    public enum armPositions {
+        LOOK_DOWN,LOOK_TO_L2,LOOK_TO_L3,LOOK_TO_L4,LOOK_TO_REEF_ALGAE,LOOK_AT_BARGE
+    }
+
+    public static EnumMap<armPositions, Rotation2d> anglesForArm = new EnumMap<armPositions, Rotation2d>(armPositions.class) {{
+        put(armPositions.LOOK_DOWN, Rotation2d.kZero);
+        put(armPositions.LOOK_TO_L2, Rotation2d.fromDegrees(20));
+        put(armPositions.LOOK_TO_L3, Rotation2d.fromDegrees(45));
+        put(armPositions.LOOK_TO_L4, Rotation2d.fromRadians(90));
+        put(armPositions.LOOK_TO_REEF_ALGAE, Rotation2d.fromDegrees(90));
+        put(armPositions.LOOK_AT_BARGE, Rotation2d.k180deg);
+    }};
 
     /* elevator - Heights*/
     public static final double[] elevatorHeights = {0,0.2,0.6,1};

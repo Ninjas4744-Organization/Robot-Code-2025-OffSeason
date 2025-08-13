@@ -182,7 +182,7 @@ public class StateMachine extends StateMachineBase<States> {
 
         //region intake algae
         addCommand(States.INTAKE_ALGAE_LOW, Commands.sequence(
-                arm.setAngle(Rotation2d.kZero),
+                arm.lookDown(),
                 elevator.goToFloor(),
                 Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal()),
                 outtake.intakeObject(),
@@ -222,7 +222,7 @@ public class StateMachine extends StateMachineBase<States> {
         //region close + reset
         addCommand(States.CLOSE, Commands.sequence(
                 Commands.parallel(
-                        arm.setAngle(Rotation2d.kZero),
+                        arm.lookDown(),
                         elevator.goToFloor(),
                         intakeAngle.lookDown(),
                         intake.stop(),
