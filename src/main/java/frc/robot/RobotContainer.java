@@ -152,7 +152,7 @@ public class RobotContainer {
         //endregion
 
         //region Intake Algae floor
-        operatorController.circle().onTrue(Commands.runOnce(() ->
+        operatorController.square().onTrue(Commands.runOnce(() ->
                 stateMachine.changeRobotState(States.INTAKE_ALGAE_LOW)
         ));
         //endregion
