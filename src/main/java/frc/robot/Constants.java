@@ -60,20 +60,6 @@ public class Constants {
     public static final double kArmCanCoderOffset = 0;
     public static final SensorDirectionValue kArmCanCoderReversed = SensorDirectionValue.Clockwise_Positive;
 
-
-    /* elevator - Heights*/
-    public static final double[] elevatorHeights = {0,0.2,0.6,1};
-
-    /* intake angle */
-    public enum intakeAnglePositions {
-        LOOK_DOWN,LOOK_TO_L1,LOOK_TO_ARM
-    }
-    public static EnumMap<intakeAnglePositions, Rotation2d> anglesForIntakeAngle = new EnumMap<>(Map.of(
-        intakeAnglePositions.LOOK_DOWN, Rotation2d.fromDegrees(-90.0),
-        intakeAnglePositions.LOOK_TO_L1, Rotation2d.fromDegrees(0.0),
-        intakeAnglePositions.LOOK_TO_ARM, Rotation2d.fromDegrees(45.0)
-    ));
-
     //endregion
 
 
@@ -278,7 +264,12 @@ public class Constants {
     }
 
     public enum ElevatorPositions {
-        Close(0);
+        Close(0),
+        L2(0.2),
+        L3(0.6),
+        L4(1),
+        AlgaeReef(0.8),
+        Net(1.2);
 
         final double height;
 
@@ -290,6 +281,17 @@ public class Constants {
             return height;
         }
     }
+
+    /* intake angle */
+    public enum intakeAnglePositions {
+        LOOK_DOWN,LOOK_TO_L1,LOOK_TO_ARM
+    }
+    public static EnumMap<intakeAnglePositions, Rotation2d> anglesForIntakeAngle = new EnumMap<>(Map.of(
+        intakeAnglePositions.LOOK_DOWN, Rotation2d.fromDegrees(-90.0),
+        intakeAnglePositions.LOOK_TO_L1, Rotation2d.fromDegrees(0.0),
+        intakeAnglePositions.LOOK_TO_ARM, Rotation2d.fromDegrees(45.0)
+    ));
+
     //endregion
 
     //region Outtake Speeds
