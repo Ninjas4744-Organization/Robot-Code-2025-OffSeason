@@ -1,14 +1,29 @@
 package frc.robot.subsystems.arm;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.NinjasLib.controllers.Controller;
 import frc.robot.Constants;
 
 public class ArmIOController implements ArmIO {
     private Controller controller;
+    private CANcoder canCoder;
 
     @Override
     public void setup() {
         controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.kArmControllerConstants);
+
+        canCoder = new CANcoder(Constants.kArmCanCoderID);
+        CANcoderConfiguration config = new CANcoderConfiguration();
+        config.MagnetSensor.MagnetOffset = Constants.kArmCanCoderOffset;
+        config.MagnetSensor.SensorDirection = Constants.kArmCanCoderReversed;
+        canCoder.getConfigurator().apply(config);
+    }
+
+    @Override
+    public Rotation2d getCANCoder(){
+        return Rotation2d.fromRotations(canCoder.getAbsolutePosition().getValueAsDouble());
     }
 
     @Override
@@ -19,6 +34,7 @@ public class ArmIOController implements ArmIO {
     @Override
     public void updateInputs(ArmIOInputsAutoLogged inputs) {
         controller.updateInputs(inputs);
+        inputs.AbsoluteAngle = getCANCoder();
     }
 
     @Override

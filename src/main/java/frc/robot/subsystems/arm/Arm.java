@@ -16,8 +16,6 @@ public class Arm extends SubsystemBase {
     private ArmIO io;
     private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
     private boolean enabled;
-    private CANcoder canCoder;
-
 
     public Arm(boolean enabled, ArmIO io) {
         if (enabled) {
@@ -25,12 +23,6 @@ public class Arm extends SubsystemBase {
             io.setup();
         }
         this.enabled = enabled;
-
-        canCoder = new CANcoder(Constants.kArmCanCoderID);
-        CANcoderConfiguration config = new CANcoderConfiguration();
-        config.MagnetSensor.MagnetOffset = Constants.kArmCanCoderOffset;
-        config.MagnetSensor.SensorDirection = kArmCanCoderReversed;
-        canCoder.getConfigurator().apply(config);
     }
 
     @Override
@@ -96,21 +88,17 @@ public class Arm extends SubsystemBase {
         return io.getController().atGoal();
     }
 
-    public Rotation2d getCANCoder(){
-        return Rotation2d.fromRotations(canCoder.getAbsolutePosition().getValueAsDouble());
-    }
-
     public Command reset(){
         if (!enabled){
             return Commands.none();
         }
-        return Commands.runOnce(() -> {io.getController().setEncoder(getCANCoder().getRadians());}).andThen(setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Close.get())));
+        return Commands.runOnce(() -> {io.getController().setEncoder(io.getCANCoder().getRadians());}).andThen(setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Close.get())));
     }
 
     public boolean isReset(){
        if (!enabled){
             return true;
        }
-       return Math.abs(getCANCoder().getDegrees() - Constants.ArmPositions.Close.get()) < Constants.kArmControllerConstants.real.positionGoalTolerance;
+       return Math.abs(io.getCANCoder().getDegrees() - Constants.ArmPositions.Close.get()) < Constants.kArmControllerConstants.real.positionGoalTolerance;
     }
 }
