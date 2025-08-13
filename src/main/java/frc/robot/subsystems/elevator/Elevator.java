@@ -3,6 +3,7 @@ package frc.robot.subsystems.elevator;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.function.DoubleSupplier;
@@ -41,7 +42,25 @@ public class Elevator extends SubsystemBase {
     }
 
     public Command goToFloor() {
-        return setHeight(() -> 0);
+        return setHeight(Constants.ElevatorPositions.Close::get);
+    }
+
+    public Command goToLHeight(int L) {
+        return switch (L) {
+            case 1 -> setHeight(Constants.ElevatorPositions.Close::get);
+            case 2 -> setHeight(Constants.ElevatorPositions.L2::get);
+            case 3 -> setHeight(Constants.ElevatorPositions.L3::get);
+            case 4-> setHeight(Constants.ElevatorPositions.L4::get);
+            default -> Commands.none();
+        };
+    }
+
+    public Command goToAlgaeReefHeight() {
+        return setHeight(Constants.ElevatorPositions.AlgaeReef::get);
+    }
+
+    public Command goToNetHeight() {
+        return setHeight(Constants.ElevatorPositions.Net::get);
     }
 
     public boolean atGoal() {
