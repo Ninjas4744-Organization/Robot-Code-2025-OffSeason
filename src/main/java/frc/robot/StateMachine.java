@@ -155,13 +155,13 @@ public class StateMachine extends StateMachineBase<States> {
         addCommand(States.CORAL_IN_ARM, Commands.none());
 
         addCommand(States.DRIVE_TOWARDS_LEFT_REEF, Commands.sequence(
-                //TODO: add driving
-
+                swerve.autoDriveToReef(() -> false),
+                Commands.waitUntil(swerve::atGoal),
                 Commands.runOnce(()-> changeRobotState(States.PREPARE_CORAL_OUTTAKE_HIGH))
         ));
         addCommand(States.DRIVE_TOWARDS_RIGHT_REEF, Commands.sequence(
-                //TODO: add driving
-
+                swerve.autoDriveToReef(() -> true),
+                Commands.waitUntil(swerve::atGoal),
                 Commands.runOnce(()-> changeRobotState(States.PREPARE_CORAL_OUTTAKE_HIGH))
         ));
 
@@ -226,8 +226,8 @@ public class StateMachine extends StateMachineBase<States> {
                         elevator.goToFloor(),
                         intakeAngle.lookDown(),
                         intake.stop(),
-                        outtake.stop()
-                        //TODO: stop swerve once i get elhay's code
+                        outtake.stop(),
+                        swerve.reset()
                 ),
                 Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal() && intakeAngle.atGoal()),
                 Commands.runOnce(()-> changeRobotState(States.IDLE))

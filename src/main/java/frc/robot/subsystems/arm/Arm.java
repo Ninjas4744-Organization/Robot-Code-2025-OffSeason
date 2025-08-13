@@ -67,11 +67,11 @@ public class Arm extends SubsystemBase {
     }
 
     public Command lookAtAlgaeReef() {
-        return setAngle(Rotation2d.kZero);
+        return setAngle(Rotation2d.fromDegrees(90));
     }
 
     public Command lookAtBarge() {
-        return setAngle(Rotation2d.kZero);
+        return setAngle(Rotation2d.k180deg);
     }
 
     public Rotation2d getAngle(){
