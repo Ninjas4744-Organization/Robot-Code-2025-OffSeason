@@ -182,7 +182,7 @@ public class StateMachine extends StateMachineBase<States> {
 
         //region intake algae
         addCommand(States.INTAKE_ALGAE_LOW, Commands.sequence(
-                arm.lookDown(),
+                arm.lookAtAlgaeFloor(),
                 elevator.goToFloor(),
                 Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal()),
                 outtake.intakeObject(),
