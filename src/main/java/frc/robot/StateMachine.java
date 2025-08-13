@@ -166,9 +166,7 @@ public class StateMachine extends StateMachineBase<States> {
         ));
 
         addCommand(States.PREPARE_CORAL_OUTTAKE_HIGH, Commands.sequence(
-                elevator.setHeight(()->
-                        Constants.elevatorHeights[RobotState.getInstance().getL() - 1]
-                ),
+                elevator.goToLHeight(RobotState.getInstance().getL()),
                 arm.lookAtCoralReef(RobotState.getInstance().getL()),
                 Commands.waitUntil(() -> elevator.atGoal() && arm.atGoal()),
                 Commands.runOnce(()-> changeRobotState(States.CORAL_OUTTAKE_HIGH))
@@ -193,7 +191,7 @@ public class StateMachine extends StateMachineBase<States> {
         addCommand(States.INTAKE_ALGAE_HIGH, Commands.sequence(
                 //TODO: - There's 2 different heights for Algae in reef, and we need to distinguish the 2 heights. thoughts Eitan?
                 arm.lookAtAlgaeReef(),
-                elevator.goToFloor(),
+                elevator.goToAlgaeReefHeight(),
                 Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal()),
                 outtake.intakeObject(),
                 Commands.waitUntil(arm::isObjectInside),
@@ -205,7 +203,7 @@ public class StateMachine extends StateMachineBase<States> {
 
         //region outtake algae
         addCommand(States.PREPARE_ALGAE_OUTTAKE, Commands.sequence(
-                elevator.setHeight(() -> 1.2),
+                elevator.goToNetHeight(),
                 arm.lookAtBarge(),
                 Commands.waitUntil(() -> elevator.atGoal() && arm.atGoal()),
                 Commands.runOnce(()-> changeRobotState(States.ALGAE_OUTTAKE))
