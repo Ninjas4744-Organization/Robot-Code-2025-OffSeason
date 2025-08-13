@@ -30,6 +30,8 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import static javax.swing.UIManager.put;
+
 public class Constants {
     public enum RobotMode {
         /**
@@ -59,19 +61,6 @@ public class Constants {
     public static final SensorDirectionValue kArmCanCoderReversed = SensorDirectionValue.Clockwise_Positive;
 
 
-    public enum armPositions {
-        LOOK_DOWN,LOOK_TO_L2,LOOK_TO_L3,LOOK_TO_L4,LOOK_TO_REEF_ALGAE,LOOK_AT_BARGE
-    }
-
-    public static EnumMap<armPositions, Rotation2d> anglesForArm = new EnumMap<armPositions, Rotation2d>(armPositions.class) {{
-        put(armPositions.LOOK_DOWN, Rotation2d.kZero);
-        put(armPositions.LOOK_TO_L2, Rotation2d.fromDegrees(20));
-        put(armPositions.LOOK_TO_L3, Rotation2d.fromDegrees(45));
-        put(armPositions.LOOK_TO_L4, Rotation2d.fromRadians(90));
-        put(armPositions.LOOK_TO_REEF_ALGAE, Rotation2d.fromDegrees(90));
-        put(armPositions.LOOK_AT_BARGE, Rotation2d.k180deg);
-    }};
-
     /* elevator - Heights*/
     public static final double[] elevatorHeights = {0,0.2,0.6,1};
 
@@ -79,11 +68,11 @@ public class Constants {
     public enum intakeAnglePositions {
         LOOK_DOWN,LOOK_TO_L1,LOOK_TO_ARM
     }
-    public static EnumMap<intakeAnglePositions, Rotation2d> anglesForIntakeAngle = new EnumMap<intakeAnglePositions, Rotation2d>(intakeAnglePositions.class) {{
-        put(intakeAnglePositions.LOOK_DOWN, Rotation2d.fromDegrees(-90.0));
-        put(intakeAnglePositions.LOOK_TO_L1, Rotation2d.fromDegrees(0.0));
-        put(intakeAnglePositions.LOOK_TO_ARM, Rotation2d.fromDegrees(45.0));
-    }};
+    public static EnumMap<intakeAnglePositions, Rotation2d> anglesForIntakeAngle = new EnumMap<>(Map.of(
+        intakeAnglePositions.LOOK_DOWN, Rotation2d.fromDegrees(-90.0),
+        intakeAnglePositions.LOOK_TO_L1, Rotation2d.fromDegrees(0.0),
+        intakeAnglePositions.LOOK_TO_ARM, Rotation2d.fromDegrees(45.0)
+    ));
 
     //endregion
 
