@@ -142,7 +142,9 @@ public class StateMachine extends StateMachineBase<States> {
                 Commands.runOnce(()-> changeRobotState(States.CORAL_IN_INTAKE))
         ));
 
-        addCommand(States.CORAL_IN_INTAKE, Commands.none());
+        addCommand(States.CORAL_IN_INTAKE, Commands.runOnce(() -> {
+            if (RobotState.getInstance().getL() > 1) changeRobotState(States.TRANSFER_CORAL_FROM_INTAKE_TO_ARM);
+        }));
         //endregion
 
         //region outtake coral
