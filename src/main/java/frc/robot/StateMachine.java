@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.NinjasLib.statemachine.StateMachineBase;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -24,7 +23,8 @@ public class StateMachine extends StateMachineBase<States> {
             case IDLE -> Set.of(
                     States.INTAKE_CORAL,
                     States.INTAKE_ALGAE_HIGH,
-                    States.INTAKE_ALGAE_LOW
+                    States.INTAKE_ALGAE_LOW,
+                    States.PREPARE_CLIMB
             ).contains(wantedState);
 
 
@@ -33,8 +33,11 @@ public class StateMachine extends StateMachineBase<States> {
             ).contains(wantedState);
 
             case CORAL_IN_INTAKE -> Set.of(
-                    States.ARM_INTAKE,
-                    States.PREPARE_CORAL_OUTTAKE_LOW
+                    States.TRANSFER_CORAL_FROM_INTAKE_TO_ARM,
+                    States.PREPARE_CORAL_OUTTAKE_LOW,
+                    States.PREPARE_CORAL_OUTTAKE_HIGH,
+                    States.DRIVE_TOWARDS_LEFT_REEF,
+                    States.DRIVE_TOWARDS_RIGHT_REEF
             ).contains(wantedState);
 
             // LOW CORAL
@@ -48,18 +51,26 @@ public class StateMachine extends StateMachineBase<States> {
             ).contains(wantedState);
 
             // HIGH CORAL
-            case ARM_INTAKE -> Set.of(
+            case TRANSFER_CORAL_FROM_INTAKE_TO_ARM -> Set.of(
                     States.CORAL_IN_ARM
             ).contains(wantedState);
 
             case CORAL_IN_ARM -> Set.of(
                     States.DRIVE_TOWARDS_LEFT_REEF,
-                    States.DRIVE_TOWARDS_RIGHT_REEF
+                    States.DRIVE_TOWARDS_RIGHT_REEF,
+                    States.TRANSFER_CORAL_FROM_ARM_TO_INTAKE,
+                    States.PREPARE_CORAL_OUTTAKE_HIGH
             ).contains(wantedState);
 
-            case DRIVE_TOWARDS_LEFT_REEF,DRIVE_TOWARDS_RIGHT_REEF -> Set.of(
+            case TRANSFER_CORAL_FROM_ARM_TO_INTAKE -> Set.of(
+                    States.CORAL_IN_INTAKE
+            ).contains(wantedState);
+
+
+            case DRIVE_TOWARDS_LEFT_REEF, DRIVE_TOWARDS_RIGHT_REEF -> Set.of(
                     States.PREPARE_CORAL_OUTTAKE_HIGH,
-                    States.IDLE
+                    States.PREPARE_CORAL_OUTTAKE_LOW,
+                    States.CLOSE
             ).contains(wantedState);
 
             case PREPARE_CORAL_OUTTAKE_HIGH -> Set.of(
@@ -130,13 +141,17 @@ public class StateMachine extends StateMachineBase<States> {
                 intake.stop(),
                 Commands.runOnce(()-> changeRobotState(States.CORAL_IN_INTAKE))
         ));
-        addCommand(States.CORAL_IN_INTAKE, Commands.none());
+
+        addCommand(States.CORAL_IN_INTAKE, Commands.runOnce(() -> {
+            if (RobotState.getInstance().getL() > 1) changeRobotState(States.TRANSFER_CORAL_FROM_INTAKE_TO_ARM);
+        }));
         //endregion
 
         //region outtake coral
         addCommand(States.PREPARE_CORAL_OUTTAKE_LOW, Commands.sequence(
                 intakeAngle.lookAtL1(),
-                Commands.waitUntil(intakeAngle::atGoal)
+                Commands.waitUntil(intakeAngle::atGoal),
+                Commands.runOnce(()-> changeRobotState(States.CORAL_OUTTAKE_LOW))
         ));
         addCommand(States.CORAL_OUTTAKE_LOW, Commands.sequence(
                 intake.outtakeCoral(),
@@ -144,9 +159,10 @@ public class StateMachine extends StateMachineBase<States> {
                 intakeAngle.lookDown(),
                 Commands.runOnce(()-> changeRobotState(States.CLOSE))
         ));
-        addCommand(States.ARM_INTAKE, Commands.sequence(
+        addCommand(States.TRANSFER_CORAL_FROM_INTAKE_TO_ARM, Commands.sequence(
                 intakeAngle.lookAtArm(),
-                Commands.waitUntil(intakeAngle::atGoal),
+                arm.lookDown(),
+                Commands.waitUntil(() -> intakeAngle.atGoal() && arm.atGoal()),
                 outtake.intakeObject(),
                 intake.outtakeCoral(),
                 Commands.waitUntil(arm::isObjectInside),
@@ -154,15 +170,31 @@ public class StateMachine extends StateMachineBase<States> {
         ));
         addCommand(States.CORAL_IN_ARM, Commands.none());
 
+        addCommand(States.TRANSFER_CORAL_FROM_ARM_TO_INTAKE, Commands.sequence(
+                intakeAngle.lookAtArm(),
+                arm.lookDown(),
+                Commands.waitUntil(() -> intakeAngle.atGoal() && arm.atGoal()),
+                intake.intakeCoral(),
+                outtake.outtakeCoral(),
+                Commands.waitUntil(arm::isObjectInside),
+                Commands.runOnce(()-> changeRobotState(States.CORAL_IN_INTAKE))
+        ));
+
         addCommand(States.DRIVE_TOWARDS_LEFT_REEF, Commands.sequence(
                 swerve.autoDriveToReef(() -> false),
-                Commands.waitUntil(swerve::atGoal),
-                Commands.runOnce(()-> changeRobotState(States.PREPARE_CORAL_OUTTAKE_HIGH))
+                Commands.either(
+                        Commands.runOnce( () -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE_LOW)),
+                        Commands.runOnce( () -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE_HIGH)),
+                        () -> RobotState.getInstance().getL() == 1
+                )
         ));
         addCommand(States.DRIVE_TOWARDS_RIGHT_REEF, Commands.sequence(
                 swerve.autoDriveToReef(() -> true),
-                Commands.waitUntil(swerve::atGoal),
-                Commands.runOnce(()-> changeRobotState(States.PREPARE_CORAL_OUTTAKE_HIGH))
+                Commands.either(
+                        Commands.runOnce( () -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE_LOW)),
+                        Commands.runOnce( () -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE_HIGH)),
+                        () -> RobotState.getInstance().getL() == 1
+                )
         ));
 
         addCommand(States.PREPARE_CORAL_OUTTAKE_HIGH, Commands.sequence(

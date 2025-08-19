@@ -103,7 +103,7 @@ public class SwerveSubsystem extends SubsystemBase {
                         true
                     ), "AutoDrive"
                 );
-            })
+            }).until(this::atGoal)
         );
         return autoDriveToReefCommand;
     }

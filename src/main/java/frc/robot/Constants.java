@@ -92,7 +92,7 @@ public class Constants {
 
         /* Hard Limit */
         kArmControllerConstants.real.isLimitSwitch = true;
-        kArmControllerConstants.real.limitSwitchID = 2;
+        kArmControllerConstants.real.limitSwitchID = 1;
         kArmControllerConstants.real.limitSwitchDirection = -1;
         kArmControllerConstants.real.limitSwitchAutoStopReset = true;
         kArmControllerConstants.real.limitSwitchInverted = true;
@@ -131,7 +131,7 @@ public class Constants {
         kElevatorControllerConstants.real.isLimitSwitch = true;
         kElevatorControllerConstants.real.isVirtualLimit = true;
         kElevatorControllerConstants.real.virtualLimitStallThreshold = 30 / 12.0;
-        kElevatorControllerConstants.real.limitSwitchID = 3;
+        kElevatorControllerConstants.real.limitSwitchID = 2;
         kElevatorControllerConstants.real.limitSwitchDirection = -1;
         kElevatorControllerConstants.real.limitSwitchAutoStopReset = true;
         kElevatorControllerConstants.real.limitSwitchInverted = true;
@@ -194,15 +194,15 @@ public class Constants {
         kIntakeAngleControllerConstants.real.controlConstants = ControlConstants.createPID(1, 0, 0, 0);
         kIntakeAngleControllerConstants.real.gearRatio = 50;
         kIntakeAngleControllerConstants.real.conversionFactor = 2 * Math.PI;
-        kIntakeAngleControllerConstants.real.homePosition = Units.degreesToRadians(-60);
+        kIntakeAngleControllerConstants.real.homePosition = Units.degreesToRadians(0);
         kIntakeAngleControllerConstants.real.positionGoalTolerance = Units.degreesToRadians(1.5);
 
         /* Soft Limits */
-        kIntakeAngleControllerConstants.real.maxSoftLimit = Units.degreesToRadians(60);
+        kIntakeAngleControllerConstants.real.maxSoftLimit = Units.degreesToRadians(90);
 
         /* Hard Limit */
         kIntakeAngleControllerConstants.real.isLimitSwitch = true;
-        kIntakeAngleControllerConstants.real.limitSwitchID = 2;
+        kIntakeAngleControllerConstants.real.limitSwitchID = 3;
         kIntakeAngleControllerConstants.real.limitSwitchDirection = -1;
         kIntakeAngleControllerConstants.real.limitSwitchAutoStopReset = true;
         kIntakeAngleControllerConstants.real.limitSwitchInverted = true;
@@ -227,13 +227,6 @@ public class Constants {
         kClimberControllerConstants.real.followers[0].id = 61;
         kClimberControllerConstants.real.followers[0].inverted = true;
 
-        /* Hard Limit */
-        kClimberControllerConstants.real.isLimitSwitch = true;
-        kClimberControllerConstants.real.limitSwitchID = 2;
-        kClimberControllerConstants.real.limitSwitchDirection = -1;
-        kClimberControllerConstants.real.limitSwitchAutoStopReset = true;
-        kClimberControllerConstants.real.limitSwitchInverted = true;
-
         /* Simulation */
         kClimberControllerConstants.motorType = DCMotor.getKrakenX60(2);
     }
@@ -249,7 +242,7 @@ public class Constants {
         L4(0),
         LowAlgaeOut(0),
         HighAlgaeOut(0),
-        Net(0),
+        Net(70),
         Processor(0);
 
         final double angle;
@@ -287,9 +280,9 @@ public class Constants {
         LOOK_DOWN,LOOK_TO_L1,LOOK_TO_ARM
     }
     public static EnumMap<intakeAnglePositions, Rotation2d> anglesForIntakeAngle = new EnumMap<>(Map.of(
-        intakeAnglePositions.LOOK_DOWN, Rotation2d.fromDegrees(-90.0),
-        intakeAnglePositions.LOOK_TO_L1, Rotation2d.fromDegrees(0.0),
-        intakeAnglePositions.LOOK_TO_ARM, Rotation2d.fromDegrees(45.0)
+        intakeAnglePositions.LOOK_DOWN, Rotation2d.fromDegrees(0.0),
+        intakeAnglePositions.LOOK_TO_L1, Rotation2d.fromDegrees(45.0),
+        intakeAnglePositions.LOOK_TO_ARM, Rotation2d.fromDegrees(90.0)
     ));
 
     //endregion
@@ -495,6 +488,6 @@ public class Constants {
     public static final double kAutoDriveDistFromReef = 0.25;
     public static final double kAutoDriveRightSideOffset = 0.25;
     public static final double kAutoDriveLeftSideOffset = 0.25;
-    public static final double kAutoDriveDistThreshold = 0.05;
+    public static final double kAutoDriveDistThreshold = 0.3;
     //endregion
 }

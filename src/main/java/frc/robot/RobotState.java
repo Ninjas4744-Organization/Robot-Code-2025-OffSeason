@@ -7,8 +7,8 @@ import frc.lib.NinjasLib.MathUtils;
 import frc.lib.NinjasLib.statemachine.RobotStateWithSwerve;
 
 public class RobotState extends RobotStateWithSwerve<States> {
-    private static final DigitalInput armBeamBreaker = new DigitalInput(1);
-    private static final DigitalInput intakeBeamBreaker = new DigitalInput(2);
+    private static final DigitalInput armBeamBreaker = new DigitalInput(4);
+    private static final DigitalInput intakeBeamBreaker = new DigitalInput(5);
 
     private int L = 1; // The level we want to output the coral at.
     public int getL() {
