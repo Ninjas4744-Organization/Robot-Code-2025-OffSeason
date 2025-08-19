@@ -55,12 +55,12 @@ public class RobotContainer {
     public RobotContainer() {
         switch (Constants.kCurrentMode) {
             case REAL, SIM:
-                arm = new Arm(false, new ArmIOController());
-                elevator = new Elevator(false, new ElevatorIOController());
-                intake = new Intake(false, new IntakeIOController());
-                intake_angle = new IntakeAngle(false, new IntakeAngleIOController());
-                outtake = new Outtake(false, new OuttakeIOController());
-                climber = new Climber(false,new ClimberIOController());
+                arm = new Arm(true, new ArmIOController());
+                elevator = new Elevator(true, new ElevatorIOController());
+                intake = new Intake(true, new IntakeIOController());
+                intake_angle = new IntakeAngle(true, new IntakeAngleIOController());
+                outtake = new Outtake(true, new OuttakeIOController());
+                climber = new Climber(true,new ClimberIOController());
                 swerveSubsystem = new SwerveSubsystem(true);
                 break;
 
@@ -81,7 +81,7 @@ public class RobotContainer {
         }
 
         RobotStateBase.setInstance(new RobotState(Constants.kSwerveConstants.kinematics, Constants.kInvertGyro, Constants.kPigeonID, Constants.kSwerveConstants.enableOdometryThread));
-
+        StateMachine.setInstance(new StateMachine());
         Vision.setInstance(new Vision(Constants.kVisionConstants));
         fomCalculator = new FOMCalculator();
 
@@ -107,29 +107,29 @@ public class RobotContainer {
         driverController.L1().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(RobotState.getInstance().getRobotPose().getRotation())));
         //endregion
 
-        //region Auto Drive to Right Reef and score Coral High
+        //region Auto Drive to Right Reef and score Coral High/low
         driverController.R2().onTrue(Commands.runOnce(
                 () -> stateMachine.changeRobotState(States.DRIVE_TOWARDS_RIGHT_REEF)
         ));
         //endregion
 
-        //region Auto Drive to Left Reef and score Coral High
+        //region Auto Drive to Left Reef and score Coral High/low
         driverController.L2().onTrue(Commands.runOnce(
                 () -> stateMachine.changeRobotState(States.DRIVE_TOWARDS_LEFT_REEF)
+        ));
+        //endregion
+
+        //region Score Coral High/low [NO AUTO DRIVE]
+        driverController.triangle().onTrue(Commands.either(
+                Commands.runOnce( () -> stateMachine.changeRobotState(States.PREPARE_CORAL_OUTTAKE_LOW)),
+                Commands.runOnce( () -> stateMachine.changeRobotState(States.PREPARE_CORAL_OUTTAKE_HIGH)),
+                () -> RobotState.getInstance().getL() == 1
         ));
         //endregion
 
         //region Activating Coral Intake
         driverController.cross().onTrue(Commands.runOnce(
                 () -> stateMachine.changeRobotState(States.INTAKE_CORAL)
-        ));
-        //endregion
-
-        //region L1
-        driverController.povRight().onTrue(Commands.sequence(
-                Commands.runOnce(() ->
-                        stateMachine.changeRobotState(States.PREPARE_CORAL_OUTTAKE_LOW)
-                )
         ));
         //endregion
 
@@ -145,10 +145,24 @@ public class RobotContainer {
         //region Operator Buttons
 
         RobotState robotState = RobotState.getInstance();
-        //region Increment/decrement the desired L level to output coral
-        operatorController.R1().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() + 1)));
+        //region Increment/decrement the desired L level to output coral. Also takes control of what robot part holds the coral.
+        // For example, if we have increased the L level from 1 to 2, the robot will transfer the coral from the intake to the arm, and vise versa.
+        operatorController.R1().onTrue(Commands.runOnce(() -> {
+            robotState.setL(robotState.getL() + 1);
 
-        operatorController.L1().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() - 1)));
+
+            if (robotState.getL() == 2 && robotState.getRobotState() == States.CORAL_IN_INTAKE) {
+                stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_INTAKE_TO_ARM);
+            }
+        }));
+
+        operatorController.L1().onTrue(Commands.runOnce(() -> {
+            robotState.setL(robotState.getL() - 1);
+
+            if (robotState.getL() == 1 && robotState.getRobotState() == States.CORAL_IN_ARM) {
+                stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_ARM_TO_INTAKE);
+            }
+        }));
         //endregion
 
         //region Intake Algae floor
@@ -169,7 +183,7 @@ public class RobotContainer {
         ));
         //endregion
 
-        //region Climb - prepare climbing for first click, and climb for second click.
+        //region Climb - prepare climbing for the first click, and climb for the second click.
         operatorController.povUp().onTrue(Commands.either(
                 Commands.runOnce(() -> stateMachine.changeRobotState(States.CLIMB)),
                 Commands.runOnce(() -> stateMachine.changeRobotState(States.PREPARE_CLIMB)),
