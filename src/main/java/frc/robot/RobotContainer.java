@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.NinjasLib.localization.vision.Vision;
 import frc.lib.NinjasLib.localization.vision.VisionOutput;
 import frc.lib.NinjasLib.statemachine.RobotStateBase;
@@ -147,22 +148,17 @@ public class RobotContainer {
         RobotState robotState = RobotState.getInstance();
         //region Increment/decrement the desired L level to output coral. Also takes control of what robot part holds the coral.
         // For example, if we have increased the L level from 1 to 2, the robot will transfer the coral from the intake to the arm, and vise versa.
-        operatorController.R1().onTrue(Commands.runOnce(() -> {
-            robotState.setL(robotState.getL() + 1);
+        operatorController.R1().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() + 1)));
+        operatorController.L1().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() - 1)));
 
 
-            if (robotState.getL() == 2 && robotState.getRobotState() == States.CORAL_IN_INTAKE) {
-                stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_INTAKE_TO_ARM);
-            }
-        }));
+        // Have triggers that track when the robot should transfer coral from the intake to the arm, or from the arm to the intake.
+        Trigger transferCoralFromIntakeToArm = new Trigger(() -> robotState.getL() == 2 && robotState.getRobotState() == States.CORAL_IN_INTAKE);
+        Trigger transferCoralFromArmToIntake = new Trigger(() -> robotState.getL() == 1 && robotState.getRobotState() == States.CORAL_IN_ARM);
 
-        operatorController.L1().onTrue(Commands.runOnce(() -> {
-            robotState.setL(robotState.getL() - 1);
+        transferCoralFromIntakeToArm.onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_INTAKE_TO_ARM)));
+        transferCoralFromArmToIntake.onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_ARM_TO_INTAKE)));
 
-            if (robotState.getL() == 1 && robotState.getRobotState() == States.CORAL_IN_ARM) {
-                stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_ARM_TO_INTAKE);
-            }
-        }));
         //endregion
 
         //region Intake Algae floor
