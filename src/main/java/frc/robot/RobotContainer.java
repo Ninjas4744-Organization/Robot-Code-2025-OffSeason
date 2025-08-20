@@ -153,11 +153,10 @@ public class RobotContainer {
         operatorController.L1().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() - 1)));
 
         // Have triggers that track when the robot should transfer coral from the intake to the arm, or from the arm to the intake.
-        Trigger transferCoralFromIntakeToArm = new Trigger(() -> robotState.getL() == 2 && robotState.getRobotState() == States.CORAL_IN_INTAKE);
-        Trigger transferCoralFromArmToIntake = new Trigger(() -> robotState.getL() == 1 && robotState.getRobotState() == States.CORAL_IN_ARM);
-
-        transferCoralFromIntakeToArm.onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_INTAKE_TO_ARM)));
-        transferCoralFromArmToIntake.onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_ARM_TO_INTAKE)));
+        new Trigger(() -> robotState.getL() > 1 && robotState.getRobotState() == States.CORAL_IN_INTAKE)
+                .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_INTAKE_TO_ARM)));
+        new Trigger(() -> robotState.getL() == 1 && robotState.getRobotState() == States.CORAL_IN_ARM)
+                .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_ARM_TO_INTAKE)));
         //endregion
 
         //region Intake Algae floor
