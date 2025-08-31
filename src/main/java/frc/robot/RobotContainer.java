@@ -7,8 +7,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.lib.NinjasLib.localization.vision.Vision;
-import frc.lib.NinjasLib.localization.vision.VisionOutput;
 import frc.lib.NinjasLib.statemachine.RobotStateBase;
 import frc.lib.NinjasLib.swerve.Swerve;
 import frc.lib.NinjasLib.swerve.SwerveController;
@@ -26,9 +24,12 @@ import frc.robot.subsystems.elevator.ElevatorIOController;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOController;
-import frc.robot.subsystems.intake_angle.IntakeAngle;
-import frc.robot.subsystems.intake_angle.IntakeAngleIO;
-import frc.robot.subsystems.intake_angle.IntakeAngleIOController;
+import frc.robot.subsystems.intakealigner.IntakeAligner;
+import frc.robot.subsystems.intakealigner.IntakeAlignerIO;
+import frc.robot.subsystems.intakealigner.IntakeAlignerIOController;
+import frc.robot.subsystems.intakeangle.IntakeAngle;
+import frc.robot.subsystems.intakeangle.IntakeAngleIO;
+import frc.robot.subsystems.intakeangle.IntakeAngleIOController;
 import frc.robot.subsystems.outtake.Outtake;
 import frc.robot.subsystems.outtake.OuttakeIO;
 import frc.robot.subsystems.outtake.OuttakeIOController;
@@ -40,12 +41,11 @@ public class RobotContainer {
     private CommandPS5Controller driverController;
     private CommandPS5Controller operatorController;
 
-
-
     private static Elevator elevator;
     private static Arm arm;
     private static Intake intake;
-    private static IntakeAngle intake_angle;
+    private static IntakeAngle intakeAngle;
+    private static IntakeAligner intakeAligner;
     private static Outtake outtake;
     private static Climber climber;
     private static SwerveSubsystem swerveSubsystem;
@@ -56,12 +56,13 @@ public class RobotContainer {
     public RobotContainer() {
         switch (Constants.kCurrentMode) {
             case REAL, SIM:
-                arm = new Arm(true, new ArmIOController());
-                elevator = new Elevator(true, new ElevatorIOController());
+                arm = new Arm(false, new ArmIOController());
+                elevator = new Elevator(false, new ElevatorIOController());
                 intake = new Intake(true, new IntakeIOController());
-                intake_angle = new IntakeAngle(true, new IntakeAngleIOController());
-                outtake = new Outtake(true, new OuttakeIOController());
-                climber = new Climber(true,new ClimberIOController());
+                intakeAngle = new IntakeAngle(false, new IntakeAngleIOController());
+                intakeAligner = new IntakeAligner(false, new IntakeAlignerIOController());
+                outtake = new Outtake(false, new OuttakeIOController());
+                climber = new Climber(false, new ClimberIOController());
                 swerveSubsystem = new SwerveSubsystem(true);
                 break;
 
@@ -72,18 +73,21 @@ public class RobotContainer {
                 });
                 intake = new Intake(false, new IntakeIO() {
                 });
-                intake_angle = new IntakeAngle(false, new IntakeAngleIO() {
+                intakeAngle = new IntakeAngle(false, new IntakeAngleIO() {
+                });
+                intakeAligner = new IntakeAligner(false, new IntakeAlignerIO() {
                 });
                 outtake = new Outtake(false, new OuttakeIO() {
                 });
                 climber = new Climber(false, new ClimberIO() {
                 });
+                swerveSubsystem = new SwerveSubsystem(false);
                 break;
         }
 
         RobotStateBase.setInstance(new RobotState(Constants.kSwerveConstants.kinematics, Constants.kInvertGyro, Constants.kPigeonID, Constants.kSwerveConstants.enableOdometryThread));
         StateMachine.setInstance(new StateMachine());
-        Vision.setInstance(new Vision(Constants.kVisionConstants));
+//        Vision.setInstance(new Vision(Constants.kVisionConstants));
         fomCalculator = new FOMCalculator();
 
 //        autoChooser = AutoBuilder.buildAutoChooser();
@@ -197,24 +201,38 @@ public class RobotContainer {
         return arm;
     }
 
-    public static Intake getIntake() {return intake;}
+    public static Intake getIntake() {
+        return intake;
+    }
 
-    public static IntakeAngle getIntakeAngle() {return intake_angle;}
+    public static IntakeAngle getIntakeAngle() {
+        return intakeAngle;
+    }
 
-    public static Outtake getOuttake() {return outtake;}
+    public static IntakeAligner getIntakeAligner() {
+        return intakeAligner;
+    }
 
-    public static Climber getClimber() {return climber;}
+    public static Outtake getOuttake() {
+        return outtake;
+    }
 
-    public static SwerveSubsystem getSwerve() {return swerveSubsystem;}
+    public static Climber getClimber() {
+        return climber;
+    }
+
+    public static SwerveSubsystem getSwerve() {
+        return swerveSubsystem;
+    }
     //endregion
 
     public void periodic() {
         swerveSubsystem.swerveDrive(driverController);
 
-        VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
-        fomCalculator.update(estimations);
-        for (int i = 0; i < estimations.length; i++)
-            RobotState.getInstance().updateRobotPose(estimations[i], fomCalculator.getOdometryFOM(), fomCalculator.getVisionFOM()[i]);
+//        VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
+//        fomCalculator.update(estimations);
+//        for (int i = 0; i < estimations.length; i++)
+//            RobotState.getInstance().updateRobotPose(estimations[i], fomCalculator.getOdometryFOM(), fomCalculator.getVisionFOM()[i]);
 
         if (Robot.isSimulation()) {
             Logger.recordOutput("Simulation Field/Corals", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));

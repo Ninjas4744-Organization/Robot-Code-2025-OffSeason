@@ -1,15 +1,11 @@
 package frc.robot.subsystems.arm;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.hardware.CANcoder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotState;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
-import static frc.robot.Constants.kArmCanCoderReversed;
 
 public class Arm extends SubsystemBase {
     private ArmIO io;
@@ -34,16 +30,6 @@ public class Arm extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("Arm", inputs);
     }
-
-    public boolean isObjectInside() {
-        if (!enabled) {
-            return true;
-        }
-
-        return RobotState.isObjectInArm();
-    }
-
-    //--Commands
 
     public Command setAngle(Rotation2d angle){
         if (!enabled) {

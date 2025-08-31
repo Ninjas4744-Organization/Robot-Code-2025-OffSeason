@@ -9,11 +9,13 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.lib.NinjasLib.controllers.Controller;
 import frc.lib.NinjasLib.controllers.constants.ControlConstants;
@@ -26,11 +28,8 @@ import frc.lib.NinjasLib.swerve.constants.SwerveModuleConstants;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-
-import static javax.swing.UIManager.put;
 
 public class Constants {
     public enum RobotMode {
@@ -47,24 +46,20 @@ public class Constants {
     }
 
     //region General
-
     public static final RobotMode kSimMode = RobotMode.SIM;
     public static final RobotMode kCurrentMode = Robot.isReal() ? RobotMode.REAL : kSimMode;
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
     public static final String kCANBusName = "";
     public static final int kPigeonID = 45;
+    //endregion
 
-    /* arm */
+    //region Subsystems
+    //region Arm
     public static final int kArmCanCoderID = 0;
     public static final double kArmCanCoderOffset = 0;
     public static final SensorDirectionValue kArmCanCoderReversed = SensorDirectionValue.Clockwise_Positive;
 
-    //endregion
-
-
-    //region Subsystems
-    //region Arm
     public static final ControllerConstants kArmControllerConstants = new ControllerConstants();
     static {
         /* Base */
@@ -164,14 +159,8 @@ public class Constants {
         kIntakeControllerConstants.real.currentLimit = 80;
         kIntakeControllerConstants.real.isBrakeMode = true;
 
-        /* Followers */
-        kIntakeControllerConstants.real.followers = new SimpleControllerConstants[1];
-        kIntakeControllerConstants.real.followers[0] = new SimpleControllerConstants();
-        kIntakeControllerConstants.real.followers[0].id = 41;
-        kIntakeControllerConstants.real.followers[0].inverted = true;
-
         /* Simulation */
-        kIntakeControllerConstants.motorType = DCMotor.getKrakenX60(2);
+        kIntakeControllerConstants.motorType = DCMotor.getKrakenX60(1);
     }
     //endregion
 
@@ -179,7 +168,7 @@ public class Constants {
     public static final ControllerConstants kIntakeAngleControllerConstants = new ControllerConstants();
     static {
         /* Base */
-        kIntakeAngleControllerConstants.real.main.id = 60;
+        kIntakeAngleControllerConstants.real.main.id = 51;
         kIntakeAngleControllerConstants.real.main.inverted = false;
         kIntakeAngleControllerConstants.real.currentLimit = 80;
         kIntakeAngleControllerConstants.real.isBrakeMode = true;
@@ -212,11 +201,26 @@ public class Constants {
     }
     //endregion
 
+    //region Intake Aligner
+    public static final ControllerConstants kIntakeAlignerControllerConstants = new ControllerConstants();
+
+    static {
+        /* Base */
+        kIntakeAngleControllerConstants.real.main.id = 52;
+        kIntakeAngleControllerConstants.real.main.inverted = false;
+        kIntakeAngleControllerConstants.real.currentLimit = 80;
+        kIntakeAngleControllerConstants.real.isBrakeMode = true;
+
+        /* Simulation */
+        kIntakeAngleControllerConstants.motorType = DCMotor.getKrakenX60(1);
+    }
+    //endregion
+
     //region Climber
     public static final ControllerConstants kClimberControllerConstants = new ControllerConstants();
     static {
         /* Base */
-        kClimberControllerConstants.real.main.id = 70;
+        kClimberControllerConstants.real.main.id = 60;
         kClimberControllerConstants.real.main.inverted = false;
         kClimberControllerConstants.real.currentLimit = 80;
         kClimberControllerConstants.real.isBrakeMode = true;
@@ -275,28 +279,59 @@ public class Constants {
         }
     }
 
-    /* intake angle */
-    public enum intakeAnglePositions {
-        LOOK_DOWN,LOOK_TO_L1,LOOK_TO_ARM
+    public enum IntakeAnglePositions {
+        LOOK_DOWN(0),
+        LOOK_AT_L1(45),
+        LOOK_AT_ARM(90);
+
+        final double degrees;
+
+        IntakeAnglePositions(double degrees) {
+            this.degrees = degrees;
+        }
+
+        public double get() {
+            return degrees;
+        }
     }
-    public static EnumMap<intakeAnglePositions, Rotation2d> anglesForIntakeAngle = new EnumMap<>(Map.of(
-        intakeAnglePositions.LOOK_DOWN, Rotation2d.fromDegrees(0.0),
-        intakeAnglePositions.LOOK_TO_L1, Rotation2d.fromDegrees(45.0),
-        intakeAnglePositions.LOOK_TO_ARM, Rotation2d.fromDegrees(90.0)
-    ));
 
-    //endregion
-
-    //region Outtake Speeds
     public enum OuttakeSpeeds {
         Intake(-1),
-        OuttakeCoral(1),
+        Outtake(1),
         OuttakeAlgae(1);
-
 
         final double speed;
 
         OuttakeSpeeds(double speed) {
+            this.speed = speed;
+        }
+
+        public double get() {
+            return speed;
+        }
+    }
+
+    public enum IntakeSpeeds {
+        Intake(-0.3),
+        Outtake(0.6);
+
+        final double speed;
+
+        IntakeSpeeds(double speed) {
+            this.speed = speed;
+        }
+
+        public double get() {
+            return speed;
+        }
+    }
+
+    public enum IntakeAlignerSpeeds {
+        Align(0.8);
+
+        final double speed;
+
+        IntakeAlignerSpeeds(double speed) {
             this.speed = speed;
         }
 
@@ -312,7 +347,7 @@ public class Constants {
 
     public static final double kJoystickDeadband = 0.05;
     public static final boolean kInvertGyro = false;
-    public static final boolean kDriverFieldRelative = true;
+    public static final boolean kDriverFieldRelative = false;
 
     public static final SwerveConstants kSwerveConstants = new SwerveConstants();
 
@@ -332,7 +367,8 @@ public class Constants {
         kSwerveConstants.maxSpeed = 4.5;
         kSwerveConstants.maxAngularVelocity = 9.2;
 //        kSwerveConstants.maxAcceleration = Double.MAX_VALUE;
-        kSwerveConstants.maxSkidAcceleration = 100;
+//        kSwerveConstants.maxSkidAcceleration = 100;
+        kSwerveConstants.maxSkidAcceleration = Double.MAX_VALUE;
         kSwerveConstants.speedLimit = 4.5;
         kSwerveConstants.rotationSpeedLimit = 9.2;
         kSwerveConstants.accelerationLimit = Double.MAX_VALUE;//11.8;
@@ -348,29 +384,29 @@ public class Constants {
                     new ControllerConstants(),
                 kSwerveConstants.maxSpeed,
                 6 + i,
-                Controller.ControllerType.TalonFX,
-                Controller.ControllerType.TalonFX,
+                    Controller.ControllerType.SparkMax,
+                    Controller.ControllerType.SparkMax,
                 false,
                 0);
 
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.main.id = 10 + i * 2;
-//            kSwerveConstants.moduleConstants[i].driveMotorConstants.main.inverted = i % 2 == 0;
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.currentLimit = 72;
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.gearRatio = 5.360;
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.conversionFactor = wheelRadius * 2 * Math.PI;
-            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.controlConstants = ControlConstants.createTorqueCurrent(5 / 0.056267331109070916, 0.19);
+//            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.controlConstants = ControlConstants.createTorqueCurrent(5 / 0.056267331109070916, 0.19);
 
             kSwerveConstants.moduleConstants[i].angleMotorConstants.real.main.id = 11 + i * 2;
             kSwerveConstants.moduleConstants[i].angleMotorConstants.real.currentLimit = 60;
             kSwerveConstants.moduleConstants[i].angleMotorConstants.real.gearRatio = 18.75;
             kSwerveConstants.moduleConstants[i].angleMotorConstants.real.conversionFactor = 2 * Math.PI;
-            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.controlConstants = ControlConstants.createPID(5, 0, 0, 0);
+//            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.controlConstants = ControlConstants.createPID(5, 0, 0, 0);
+            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.controlConstants = ControlConstants.createPID(2, 0, 0, 0);
         }
 
-        kSwerveConstants.moduleConstants[0].CANCoderOffset = -0.295654;
-        kSwerveConstants.moduleConstants[1].CANCoderOffset = 0.230713;
-        kSwerveConstants.moduleConstants[2].CANCoderOffset = 0.238037;
-        kSwerveConstants.moduleConstants[3].CANCoderOffset = 0.273438;
+        kSwerveConstants.moduleConstants[0].CANCoderOffset = 0.134033203125;
+        kSwerveConstants.moduleConstants[1].CANCoderOffset = 0.270751953125;
+        kSwerveConstants.moduleConstants[2].CANCoderOffset = -0.493408203125;
+        kSwerveConstants.moduleConstants[3].CANCoderOffset = 0.359375;
 
         try {
             kSwerveConstants.robotConfig = RobotConfig.fromGUISettings();
@@ -380,8 +416,8 @@ public class Constants {
             throw new RuntimeException(e);
         }
 
-        kSwerveConstants.driveMotorType = DCMotor.getKrakenX60Foc(1);
-        kSwerveConstants.steerMotorType = DCMotor.getKrakenX60Foc(1);
+        kSwerveConstants.driveMotorType = DCMotor.getNEO(1);
+        kSwerveConstants.steerMotorType = DCMotor.getNEO(1);
 
 //        kSwerveConstants.enableOdometryThread = true;
 //        kSwerveConstants.odometryThreadFrequency = 2;
@@ -472,7 +508,7 @@ public class Constants {
     }
     //endregion
 
-    //region FOM
+    //region Standard Deviations
     public static final double kOdometryFOMPerMeter = 0.05;
     public static final double kCrashedAccelerationThreshold = 15;
     public static final double kCrashedOdometryFOMBonus = 4;

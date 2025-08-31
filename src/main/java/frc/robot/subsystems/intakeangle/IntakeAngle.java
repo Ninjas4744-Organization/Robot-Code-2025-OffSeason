@@ -1,12 +1,10 @@
-package frc.robot.subsystems.intake_angle;
+package frc.robot.subsystems.intakeangle;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.RobotState;
-//import frc.robot.subsystems.intake.IntakeAngleIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.function.DoubleSupplier;
@@ -62,13 +60,15 @@ public class IntakeAngle extends SubsystemBase {
     }
 
     public Command lookDown() {
-        return setAngle(Constants.anglesForIntakeAngle.get(Constants.intakeAnglePositions.LOOK_DOWN));
+        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAnglePositions.LOOK_DOWN.get()));
     }
+
     public Command lookAtL1() {
-        return setAngle(Constants.anglesForIntakeAngle.get(Constants.intakeAnglePositions.LOOK_TO_L1));
+        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAnglePositions.LOOK_AT_L1.get()));
     }
+
     public Command lookAtArm() {
-        return setAngle(Constants.anglesForIntakeAngle.get(Constants.intakeAnglePositions.LOOK_TO_ARM));
+        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAnglePositions.LOOK_AT_ARM.get()));
     }
 
     public boolean atGoal(){
@@ -76,5 +76,22 @@ public class IntakeAngle extends SubsystemBase {
             return true;
         }
         return io.getController().atGoal();
+    }
+
+    public Command reset() {
+        if (!enabled) {
+            return Commands.none();
+        }
+
+        return Commands.run(() -> {
+            io.getController().setPercent(-0.2);
+        }).until(() -> io.getController().getLimit());
+    }
+
+    public boolean isReset() {
+        if (!enabled) {
+            return true;
+        }
+        return io.getController().getLimit();
     }
 }

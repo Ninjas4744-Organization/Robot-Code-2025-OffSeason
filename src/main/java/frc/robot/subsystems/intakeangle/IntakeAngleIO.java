@@ -1,7 +1,6 @@
-package frc.robot.subsystems.intake_angle;
+package frc.robot.subsystems.intakeangle;
 
 import frc.lib.NinjasLib.controllers.Controller;
-//import frc.robot.subsystems.intake.IntakeAngleIOInputsAutoLogged;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface IntakeAngleIO {

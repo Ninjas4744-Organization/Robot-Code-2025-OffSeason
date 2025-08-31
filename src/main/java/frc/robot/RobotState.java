@@ -7,13 +7,13 @@ import frc.lib.NinjasLib.MathUtils;
 import frc.lib.NinjasLib.statemachine.RobotStateWithSwerve;
 
 public class RobotState extends RobotStateWithSwerve<States> {
-    private static final DigitalInput armBeamBreaker = new DigitalInput(4);
     private static final DigitalInput intakeBeamBreaker = new DigitalInput(5);
+    private int L = 1;
 
-    private int L = 1; // The level we want to output the coral at.
     public int getL() {
         return L;
     }
+
     public void setL(int L) {
         this.L = MathUtils.clamp(L,1,4);
     }
@@ -21,11 +21,6 @@ public class RobotState extends RobotStateWithSwerve<States> {
     public static boolean isCoralInIntake() {
         return intakeBeamBreaker.get();
     }
-
-    public static boolean isObjectInArm() {
-        return armBeamBreaker.get();
-    }
-
 
     public RobotState(SwerveDriveKinematics kinematics, boolean gyroInverted, int pigeonID, boolean enableOdometryThread) {
         super(kinematics, gyroInverted, pigeonID, enableOdometryThread);

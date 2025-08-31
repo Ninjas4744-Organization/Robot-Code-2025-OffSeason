@@ -7,7 +7,8 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake_angle.IntakeAngle;
+import frc.robot.subsystems.intakealigner.IntakeAligner;
+import frc.robot.subsystems.intakeangle.IntakeAngle;
 import frc.robot.subsystems.outtake.Outtake;
 
 import java.util.Set;
@@ -26,7 +27,6 @@ public class StateMachine extends StateMachineBase<States> {
                     States.INTAKE_ALGAE_LOW,
                     States.PREPARE_CLIMB
             ).contains(wantedState);
-
 
             case INTAKE_CORAL -> Set.of(
                     States.CORAL_IN_INTAKE
@@ -66,7 +66,6 @@ public class StateMachine extends StateMachineBase<States> {
                     States.CORAL_IN_INTAKE
             ).contains(wantedState);
 
-
             case DRIVE_TOWARDS_LEFT_REEF, DRIVE_TOWARDS_RIGHT_REEF -> Set.of(
                     States.PREPARE_CORAL_OUTTAKE_HIGH,
                     States.PREPARE_CORAL_OUTTAKE_LOW,
@@ -81,7 +80,6 @@ public class StateMachine extends StateMachineBase<States> {
                     States.CLOSE,
                     States.RESET
             ).contains(wantedState);
-
 
             // ALGAE
             case INTAKE_ALGAE_LOW,INTAKE_ALGAE_HIGH -> Set.of(
@@ -98,12 +96,9 @@ public class StateMachine extends StateMachineBase<States> {
                     States.RESET
             ).contains(wantedState);
 
-
-            case CLOSE,RESET -> Set.of(
+            case CLOSE, RESET -> Set.of(
                     States.IDLE
             ).contains(wantedState);
-
-
 
             case PREPARE_CLIMB -> Set.of(
                     States.CLIMB
@@ -117,29 +112,32 @@ public class StateMachine extends StateMachineBase<States> {
         };
     }
 
+    private boolean transferedCoralFromArmToIntake = false;
+
     @Override
     protected void setCommandMap() {
         Intake intake = RobotContainer.getIntake();
         Outtake outtake = RobotContainer.getOuttake();
         Arm arm = RobotContainer.getArm();
         IntakeAngle intakeAngle = RobotContainer.getIntakeAngle();
+        IntakeAligner intakeAligner = RobotContainer.getIntakeAligner();
         Elevator elevator = RobotContainer.getElevator();
         Climber climber = RobotContainer.getClimber();
         SwerveSubsystem swerve = RobotContainer.getSwerve();
-
 
         //region idle
         addCommand(States.IDLE, Commands.none());
         //endregion
 
         //region intake coral
-
-        addCommand(States.INTAKE_CORAL,Commands.sequence(
+        addCommand(States.INTAKE_CORAL, Commands.sequence(
                 intake.intakeCoral(),
                 intakeAngle.lookDown(),
+                intakeAligner.align(),
                 Commands.waitUntil(intake::isCoralInside),
+                intakeAligner.stop(),
                 intake.stop(),
-                Commands.runOnce(()-> changeRobotState(States.CORAL_IN_INTAKE))
+                Commands.runOnce(() -> changeRobotState(States.CLOSE))
         ));
 
         addCommand(States.CORAL_IN_INTAKE, Commands.none());
@@ -161,10 +159,10 @@ public class StateMachine extends StateMachineBase<States> {
                 intakeAngle.lookAtArm(),
                 arm.lookDown(),
                 Commands.waitUntil(() -> intakeAngle.atGoal() && arm.atGoal()),
-                outtake.intakeObject(),
+                outtake.intake(),
                 intake.outtakeCoral(),
-                Commands.waitUntil(arm::isObjectInside),
-                Commands.runOnce(()-> changeRobotState(States.CORAL_IN_ARM))
+                Commands.waitUntil(outtake::isCoralInside),
+                Commands.runOnce(() -> changeRobotState(States.CLOSE))
         ));
         addCommand(States.CORAL_IN_ARM, Commands.none());
 
@@ -173,9 +171,11 @@ public class StateMachine extends StateMachineBase<States> {
                 arm.lookDown(),
                 Commands.waitUntil(() -> intakeAngle.atGoal() && arm.atGoal()),
                 intake.intakeCoral(),
-                outtake.outtakeCoral(),
-                Commands.waitUntil(arm::isObjectInside),
-                Commands.runOnce(()-> changeRobotState(States.CORAL_IN_INTAKE))
+                intakeAligner.align(),
+                outtake.outtake(),
+                Commands.waitUntil(outtake::isCoralInside),
+                Commands.runOnce(() -> transferedCoralFromArmToIntake = true),
+                Commands.runOnce(() -> changeRobotState(States.CLOSE))
         ));
 
         addCommand(States.DRIVE_TOWARDS_LEFT_REEF, Commands.sequence(
@@ -202,7 +202,7 @@ public class StateMachine extends StateMachineBase<States> {
                 Commands.runOnce(()-> changeRobotState(States.CORAL_OUTTAKE_HIGH))
         ));
         addCommand(States.CORAL_OUTTAKE_HIGH, Commands.sequence(
-                outtake.outtakeCoral(),
+                outtake.outtake(),
                 Commands.waitSeconds(0.2),
                 Commands.runOnce(()-> changeRobotState(States.CLOSE))
         ));
@@ -213,8 +213,8 @@ public class StateMachine extends StateMachineBase<States> {
                 arm.lookAtAlgaeFloor(),
                 elevator.goToFloor(),
                 Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal()),
-                outtake.intakeObject(),
-                Commands.waitUntil(arm::isObjectInside),
+                outtake.intake(),
+                Commands.waitUntil(outtake::isAlgaeInside),
                 Commands.runOnce(()-> changeRobotState(States.ALGAE_IN_ARM))
                 // No need to stop the intaking because we want to keep ahold of the algae. we'll stop only when we outtake.
         ));
@@ -223,12 +223,12 @@ public class StateMachine extends StateMachineBase<States> {
                 arm.lookAtAlgaeReef(),
                 elevator.goToAlgaeReefHeight(),
                 Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal()),
-                outtake.intakeObject(),
-                Commands.waitUntil(arm::isObjectInside),
+                outtake.intake(),
+                Commands.waitUntil(outtake::isAlgaeInside),
                 Commands.runOnce(()-> changeRobotState(States.ALGAE_IN_ARM))
                 // No need to stop the intaking because we want to keep ahold of the algae. we'll stop only when we outtake.
         ));
-        addCommand(States.ALGAE_IN_ARM, outtake.intakeObject());
+        addCommand(States.ALGAE_IN_ARM, outtake.intake());
         //endregion
 
         //region outtake algae
@@ -240,7 +240,7 @@ public class StateMachine extends StateMachineBase<States> {
         ));
 
         addCommand(States.ALGAE_OUTTAKE, Commands.sequence(
-                outtake.outtakeAlgae(),
+                outtake.outtake(),
                 Commands.waitSeconds(0.2),
                 outtake.stop(),
                 Commands.runOnce(()-> changeRobotState(States.CLOSE))
@@ -258,21 +258,32 @@ public class StateMachine extends StateMachineBase<States> {
                         swerve.reset()
                 ),
                 Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal() && intakeAngle.atGoal()),
-                Commands.runOnce(()-> changeRobotState(States.IDLE))
+                Commands.runOnce(() -> {
+                    if (outtake.isCoralInside())
+                        changeRobotState(States.CORAL_IN_ARM);
+                    else if (outtake.isAlgaeInside())
+                        changeRobotState(States.ALGAE_IN_ARM);
+                    else if (intake.isCoralInside())
+                        changeRobotState(States.CORAL_IN_INTAKE);
+                    else
+                        changeRobotState(States.CLOSE);
+                })
         ));
+
         addCommand(States.RESET, Commands.sequence(
                 Commands.parallel(
-                    elevator.reset(),
-                    arm.reset()
+                        elevator.reset(),
+                        arm.reset(),
+                        intake.reset(),
+                        outtake.reset(),
+                        intakeAngle.reset()
                 ),
-                Commands.waitUntil(() -> elevator.isReset() && arm.isReset()),
-                Commands.runOnce(()-> changeRobotState(States.IDLE))
+                Commands.waitUntil(() -> elevator.isReset() && arm.isReset() && intakeAngle.isReset()),
+                Commands.runOnce(() -> changeRobotState(States.IDLE))
         ));
         //endregion
 
-
         //region climb
-
         //TODO: PREPARE CLIMB COMMAND
         addCommand(States.PREPARE_CLIMB, Commands.none());
         //TODO: CLIMB COMMAND
