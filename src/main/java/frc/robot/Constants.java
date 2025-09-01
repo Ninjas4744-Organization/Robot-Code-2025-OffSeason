@@ -390,23 +390,32 @@ public class Constants {
                 0);
 
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.main.id = 10 + i * 2;
+            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.main.inverted = true;
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.currentLimit = 72;
-            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.gearRatio = 5.360;
+//            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.gearRatio = 5.360;
+            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.gearRatio = 6.12;
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.conversionFactor = wheelRadius * 2 * Math.PI;
 //            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.controlConstants = ControlConstants.createTorqueCurrent(5 / 0.056267331109070916, 0.19);
 
             kSwerveConstants.moduleConstants[i].angleMotorConstants.real.main.id = 11 + i * 2;
             kSwerveConstants.moduleConstants[i].angleMotorConstants.real.currentLimit = 60;
-            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.gearRatio = 18.75;
+//            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.gearRatio = 18.75;
+            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.gearRatio = 12.8;
             kSwerveConstants.moduleConstants[i].angleMotorConstants.real.conversionFactor = 2 * Math.PI;
 //            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.controlConstants = ControlConstants.createPID(5, 0, 0, 0);
             kSwerveConstants.moduleConstants[i].angleMotorConstants.real.controlConstants = ControlConstants.createPID(2, 0, 0, 0);
         }
 
-        kSwerveConstants.moduleConstants[0].CANCoderOffset = 0.134033203125;
-        kSwerveConstants.moduleConstants[1].CANCoderOffset = 0.270751953125;
-        kSwerveConstants.moduleConstants[2].CANCoderOffset = -0.493408203125;
-        kSwerveConstants.moduleConstants[3].CANCoderOffset = 0.359375;
+        //Elhay's numbers
+//        kSwerveConstants.moduleConstants[0].CANCoderOffset = 0.134033203125;
+//        kSwerveConstants.moduleConstants[1].CANCoderOffset = 0.270751953125;
+//        kSwerveConstants.moduleConstants[2].CANCoderOffset = -0.493408203125;
+//        kSwerveConstants.moduleConstants[3].CANCoderOffset = 0.359375;
+
+        kSwerveConstants.moduleConstants[0].CANCoderOffset = 0.364502;
+        kSwerveConstants.moduleConstants[1].CANCoderOffset = 0.231689;
+        kSwerveConstants.moduleConstants[2].CANCoderOffset = 0.140381;
+        kSwerveConstants.moduleConstants[3].CANCoderOffset = -0.011230;
 
         try {
             kSwerveConstants.robotConfig = RobotConfig.fromGUISettings();

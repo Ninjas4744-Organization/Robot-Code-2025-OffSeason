@@ -81,7 +81,7 @@ public class Arm extends SubsystemBase {
         if (!enabled){
             return Commands.none();
         }
-        return Commands.runOnce(() -> {io.getController().setEncoder(io.getCANCoder().getRadians());}).andThen(setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Close.get())));
+        return Commands.runOnce(() -> io.getController().setEncoder(io.getCANCoder().getRadians())).andThen(setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Close.get())));
     }
 
     public boolean isReset(){
@@ -89,5 +89,9 @@ public class Arm extends SubsystemBase {
             return true;
        }
        return Math.abs(io.getCANCoder().getDegrees() - Constants.ArmPositions.Close.get()) < Constants.kArmControllerConstants.real.positionGoalTolerance;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 }

@@ -27,6 +27,7 @@ public class Intake extends SubsystemBase {
         if (!enabled)
             return;
 
+        System.out.println(Math.abs(io.getController().getCurrent()) + ", " + io.getController().getOutput());
         if (Math.abs(io.getController().getCurrent()) > 35 && io.getController().getOutput() < 0)
             isCoralInside = true;
 
@@ -55,11 +56,11 @@ public class Intake extends SubsystemBase {
         return isCoralInside;
     }
 
-    public Command intakeCoral() {
+    public Command intake() {
         return setPercent(Constants.IntakeSpeeds.Intake::get);
     }
 
-    public Command outtakeCoral() {
+    public Command outtake() {
         return Commands.sequence(
                 Commands.runOnce(() -> isCoralInside = false),
                 setPercent(Constants.IntakeSpeeds.Outtake::get)
@@ -77,13 +78,21 @@ public class Intake extends SubsystemBase {
     }
 
     public Command reset() {
+        if (!enabled)
+            return Commands.none();
+
         return Commands.sequence(
                 Commands.runOnce(() -> isCoralInside = false),
-                intakeCoral(),
+                intake(),
                 Commands.race(
                         Commands.waitUntil(() -> Math.abs(io.getController().getCurrent()) > 35),
-                        Commands.waitSeconds(1)
-                )
+                        Commands.waitSeconds(0.25)
+                ),
+                stop()
         );
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 }

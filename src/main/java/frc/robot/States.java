@@ -12,7 +12,7 @@ public enum States {
 
 
     TRANSFER_CORAL_FROM_INTAKE_TO_ARM, //transfer the coral from the intake from the bottom to the arm
-    CORAL_IN_ARM,//the coral is set in the arm
+    CORAL_IN_OUTTAKE,//the coral is set in the arm
     TRANSFER_CORAL_FROM_ARM_TO_INTAKE, //transfer the coral from the arm back to the intake (
 
     // automatic driving for when we want to score a coral NOTE:(FOR ALL L LEVELS)

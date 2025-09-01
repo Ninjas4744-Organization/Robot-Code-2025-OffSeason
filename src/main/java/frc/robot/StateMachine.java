@@ -20,6 +20,9 @@ public class StateMachine extends StateMachineBase<States> {
 
     @Override
     protected boolean canChangeRobotState(States currentState, States wantedState) {
+        if (wantedState == States.RESET || wantedState == States.CLOSE)
+            return true;
+
         return switch (currentState) {
             case IDLE -> Set.of(
                     States.INTAKE_CORAL,
@@ -52,10 +55,10 @@ public class StateMachine extends StateMachineBase<States> {
 
             // HIGH CORAL
             case TRANSFER_CORAL_FROM_INTAKE_TO_ARM -> Set.of(
-                    States.CORAL_IN_ARM
+                    States.CORAL_IN_OUTTAKE
             ).contains(wantedState);
 
-            case CORAL_IN_ARM -> Set.of(
+            case CORAL_IN_OUTTAKE -> Set.of(
                     States.DRIVE_TOWARDS_LEFT_REEF,
                     States.DRIVE_TOWARDS_RIGHT_REEF,
                     States.TRANSFER_CORAL_FROM_ARM_TO_INTAKE,
@@ -97,7 +100,10 @@ public class StateMachine extends StateMachineBase<States> {
             ).contains(wantedState);
 
             case CLOSE, RESET -> Set.of(
-                    States.IDLE
+                    States.IDLE,
+                    States.CORAL_IN_INTAKE,
+                    States.CORAL_IN_OUTTAKE,
+                    States.ALGAE_IN_ARM
             ).contains(wantedState);
 
             case PREPARE_CLIMB -> Set.of(
@@ -131,7 +137,7 @@ public class StateMachine extends StateMachineBase<States> {
 
         //region intake coral
         addCommand(States.INTAKE_CORAL, Commands.sequence(
-                intake.intakeCoral(),
+                intake.intake(),
                 intakeAngle.lookDown(),
                 intakeAligner.align(),
                 Commands.waitUntil(intake::isCoralInside),
@@ -150,7 +156,7 @@ public class StateMachine extends StateMachineBase<States> {
                 Commands.runOnce(()-> changeRobotState(States.CORAL_OUTTAKE_LOW))
         ));
         addCommand(States.CORAL_OUTTAKE_LOW, Commands.sequence(
-                intake.outtakeCoral(),
+                intake.outtake(),
                 Commands.waitSeconds(0.2),
                 intakeAngle.lookDown(),
                 Commands.runOnce(()-> changeRobotState(States.CLOSE))
@@ -160,17 +166,17 @@ public class StateMachine extends StateMachineBase<States> {
                 arm.lookDown(),
                 Commands.waitUntil(() -> intakeAngle.atGoal() && arm.atGoal()),
                 outtake.intake(),
-                intake.outtakeCoral(),
+                intake.outtake(),
                 Commands.waitUntil(outtake::isCoralInside),
                 Commands.runOnce(() -> changeRobotState(States.CLOSE))
         ));
-        addCommand(States.CORAL_IN_ARM, Commands.none());
+        addCommand(States.CORAL_IN_OUTTAKE, Commands.none());
 
         addCommand(States.TRANSFER_CORAL_FROM_ARM_TO_INTAKE, Commands.sequence(
                 intakeAngle.lookAtArm(),
                 arm.lookDown(),
                 Commands.waitUntil(() -> intakeAngle.atGoal() && arm.atGoal()),
-                intake.intakeCoral(),
+                intake.intake(),
                 intakeAligner.align(),
                 outtake.outtake(),
                 Commands.waitUntil(outtake::isCoralInside),
@@ -259,14 +265,14 @@ public class StateMachine extends StateMachineBase<States> {
                 ),
                 Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal() && intakeAngle.atGoal()),
                 Commands.runOnce(() -> {
-                    if (outtake.isCoralInside())
-                        changeRobotState(States.CORAL_IN_ARM);
-                    else if (outtake.isAlgaeInside())
+                    if (outtake.isCoralInside() && outtake.isEnabled())
+                        changeRobotState(States.CORAL_IN_OUTTAKE);
+                    else if (outtake.isAlgaeInside() && outtake.isEnabled())
                         changeRobotState(States.ALGAE_IN_ARM);
-                    else if (intake.isCoralInside())
+                    else if (intake.isCoralInside() && intake.isEnabled())
                         changeRobotState(States.CORAL_IN_INTAKE);
                     else
-                        changeRobotState(States.CLOSE);
+                        changeRobotState(States.IDLE);
                 })
         ));
 
@@ -279,7 +285,16 @@ public class StateMachine extends StateMachineBase<States> {
                         intakeAngle.reset()
                 ),
                 Commands.waitUntil(() -> elevator.isReset() && arm.isReset() && intakeAngle.isReset()),
-                Commands.runOnce(() -> changeRobotState(States.IDLE))
+                Commands.runOnce(() -> {
+                    if (outtake.isCoralInside() && outtake.isEnabled())
+                        changeRobotState(States.CORAL_IN_OUTTAKE);
+                    else if (outtake.isAlgaeInside() && outtake.isEnabled())
+                        changeRobotState(States.ALGAE_IN_ARM);
+                    else if (intake.isCoralInside() && intake.isEnabled())
+                        changeRobotState(States.CORAL_IN_INTAKE);
+                    else
+                        changeRobotState(States.IDLE);
+                })
         ));
         //endregion
 

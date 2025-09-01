@@ -49,4 +49,8 @@ public class IntakeAligner extends SubsystemBase {
     public Command stop() {
         return setPercent(() -> 0);
     }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
 }

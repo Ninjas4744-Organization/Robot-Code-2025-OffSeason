@@ -94,4 +94,8 @@ public class IntakeAngle extends SubsystemBase {
         }
         return io.getController().getLimit();
     }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
 }

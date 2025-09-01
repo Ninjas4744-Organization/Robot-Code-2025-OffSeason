@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.NinjasLib.statemachine.RobotStateBase;
+import frc.lib.NinjasLib.statemachine.StateMachineBase;
 import frc.lib.NinjasLib.swerve.Swerve;
 import frc.lib.NinjasLib.swerve.SwerveController;
 import frc.lib.NinjasLib.swerve.SwerveInput;
@@ -39,7 +40,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class RobotContainer {
     private CommandPS5Controller driverController;
-    private CommandPS5Controller operatorController;
+//    private CommandPS5Controller operatorController;
 
     private static Elevator elevator;
     private static Arm arm;
@@ -86,14 +87,14 @@ public class RobotContainer {
         }
 
         RobotStateBase.setInstance(new RobotState(Constants.kSwerveConstants.kinematics, Constants.kInvertGyro, Constants.kPigeonID, Constants.kSwerveConstants.enableOdometryThread));
-        StateMachine.setInstance(new StateMachine());
+        StateMachineBase.setInstance(new StateMachine());
 //        Vision.setInstance(new Vision(Constants.kVisionConstants));
         fomCalculator = new FOMCalculator();
 
 //        autoChooser = AutoBuilder.buildAutoChooser();
 
         driverController = new CommandPS5Controller(Constants.kDriverControllerPort);
-        operatorController = new CommandPS5Controller(Constants.kOperatorControllerPort);
+//        operatorController = new CommandPS5Controller(Constants.kOperatorControllerPort);
 
         if (Robot.isSimulation()) {
             for (int i = 0; i < 10; i++)
@@ -153,40 +154,40 @@ public class RobotContainer {
         //region Increment/decrement the desired L level to output coral. Also takes control of what robot part holds the coral.
 
         // For example, if we have increased the L level from 1 to 2, the robot will transfer the coral from the intake to the arm, and vise versa.
-        operatorController.R1().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() + 1)));
-        operatorController.L1().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() - 1)));
+//        operatorController.R1().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() + 1)));
+//        operatorController.L1().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() - 1)));
 
         // Have triggers that track when the robot should transfer coral from the intake to the arm, or from the arm to the intake.
         new Trigger(() -> robotState.getL() > 1 && robotState.getRobotState() == States.CORAL_IN_INTAKE)
                 .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_INTAKE_TO_ARM)));
-        new Trigger(() -> robotState.getL() == 1 && robotState.getRobotState() == States.CORAL_IN_ARM)
+        new Trigger(() -> robotState.getL() == 1 && robotState.getRobotState() == States.CORAL_IN_OUTTAKE)
                 .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_ARM_TO_INTAKE)));
         //endregion
 
         //region Intake Algae floor
-        operatorController.square().onTrue(Commands.runOnce(() ->
-                stateMachine.changeRobotState(States.INTAKE_ALGAE_LOW)
-        ));
+//        operatorController.square().onTrue(Commands.runOnce(() ->
+//                stateMachine.changeRobotState(States.INTAKE_ALGAE_LOW)
+//        ));
         //endregion
 
         //region Close
-        operatorController.circle().onTrue(Commands.runOnce(
-                () -> stateMachine.changeRobotState(States.CLOSE)
-        ));
+//        operatorController.circle().onTrue(Commands.runOnce(
+//                () -> stateMachine.changeRobotState(States.CLOSE)
+//        ));
         //endregion
 
         //region Reset
-        operatorController.povDown().onTrue(Commands.runOnce(
-                () -> stateMachine.changeRobotState(States.RESET)
-        ));
+//        operatorController.povDown().onTrue(Commands.runOnce(
+//                () -> stateMachine.changeRobotState(States.RESET)
+//        ));
         //endregion
 
         //region Climb - prepare climbing for the first click, and climb for the second click.
-        operatorController.povUp().onTrue(Commands.either(
-                Commands.runOnce(() -> stateMachine.changeRobotState(States.CLIMB)),
-                Commands.runOnce(() -> stateMachine.changeRobotState(States.PREPARE_CLIMB)),
-                () -> RobotState.getInstance().getRobotState() == States.PREPARE_CLIMB
-        ));
+//        operatorController.povUp().onTrue(Commands.either(
+//                Commands.runOnce(() -> stateMachine.changeRobotState(States.CLIMB)),
+//                Commands.runOnce(() -> stateMachine.changeRobotState(States.PREPARE_CLIMB)),
+//                () -> RobotState.getInstance().getRobotState() == States.PREPARE_CLIMB
+//        ));
         //endregion
 
         //endregion
@@ -249,5 +250,6 @@ public class RobotContainer {
         Swerve.getInstance().resetModulesToAbsolute();
         SwerveController.getInstance().setChannel("Driver");
         SwerveController.getInstance().setControl(new SwerveInput(), "Driver");
+        StateMachine.getInstance().changeRobotState(States.RESET);
     }
 }

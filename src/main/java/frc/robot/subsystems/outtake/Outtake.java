@@ -81,6 +81,9 @@ public class Outtake extends SubsystemBase {
     private boolean hadObjectInside = false;
 
     public Command reset() {
+        if (!enabled)
+            return Commands.none();
+
         return Commands.sequence(
                 intake(),
                 Commands.race(
@@ -90,6 +93,7 @@ public class Outtake extends SubsystemBase {
                         }),
                         Commands.waitSeconds(1)
                 ),
+                stop(),
                 Commands.runOnce(() -> {
                     if (!hadObjectInside) {
                         isCoralInside = false;
@@ -100,5 +104,9 @@ public class Outtake extends SubsystemBase {
                     }
                 })
         );
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 }
