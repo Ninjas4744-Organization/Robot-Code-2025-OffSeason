@@ -53,6 +53,7 @@ public class RobotContainer {
 
     private SendableChooser<Command> autoChooser;
     private FOMCalculator fomCalculator;
+    private CoralDetection coralDetection;
 
     public RobotContainer() {
         switch (Constants.kCurrentMode) {
@@ -89,9 +90,9 @@ public class RobotContainer {
         RobotStateBase.setInstance(new RobotState(Constants.kSwerveConstants.kinematics, Constants.kInvertGyro, Constants.kPigeonID, Constants.kSwerveConstants.enableOdometryThread));
         StateMachineBase.setInstance(new StateMachine());
 //        Vision.setInstance(new Vision(Constants.kVisionConstants));
-        fomCalculator = new FOMCalculator();
-
 //        autoChooser = AutoBuilder.buildAutoChooser();
+        fomCalculator = new FOMCalculator();
+        coralDetection = new CoralDetection();
 
         driverController = new CommandPS5Controller(Constants.kDriverControllerPort);
 //        operatorController = new CommandPS5Controller(Constants.kOperatorControllerPort);
@@ -145,6 +146,10 @@ public class RobotContainer {
                 Commands.runOnce(() -> stateMachine.changeRobotState(States.INTAKE_ALGAE_HIGH)) ,
                 () -> RobotState.getInstance().getRobotState() == States.ALGAE_IN_ARM
         ));
+
+        driverController.circle().onTrue(Commands.runOnce(
+                () -> stateMachine.changeRobotState(States.CLOSE)
+        ));
         //endregion
         //endregion
 
@@ -167,12 +172,6 @@ public class RobotContainer {
         //region Intake Algae floor
 //        operatorController.square().onTrue(Commands.runOnce(() ->
 //                stateMachine.changeRobotState(States.INTAKE_ALGAE_LOW)
-//        ));
-        //endregion
-
-        //region Close
-//        operatorController.circle().onTrue(Commands.runOnce(
-//                () -> stateMachine.changeRobotState(States.CLOSE)
 //        ));
         //endregion
 
@@ -234,6 +233,18 @@ public class RobotContainer {
 //        fomCalculator.update(estimations);
 //        for (int i = 0; i < estimations.length; i++)
 //            RobotState.getInstance().updateRobotPose(estimations[i], fomCalculator.getOdometryFOM(), fomCalculator.getVisionFOM()[i]);
+
+        coralDetection.update();
+        System.out.println(coralDetection.hasTarget());
+        Pose2d robotPose = RobotState.getInstance().getRobotPose();
+        if (coralDetection.hasTarget()) {
+            System.out.println(coralDetection.getYaw().getDegrees());
+            Logger.recordOutput("Coral Detection Dir", new Pose2d(
+                    robotPose.getX() + coralDetection.getFieldRelativeDir().getX(),
+                    robotPose.getY() + coralDetection.getFieldRelativeDir().getY(),
+                    coralDetection.getFieldRelativeDir().getAngle()
+            ));
+        }
 
         if (Robot.isSimulation()) {
             Logger.recordOutput("Simulation Field/Corals", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));

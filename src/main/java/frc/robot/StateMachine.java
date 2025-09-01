@@ -261,7 +261,7 @@ public class StateMachine extends StateMachineBase<States> {
                         intakeAngle.lookDown(),
                         intake.stop(),
                         outtake.stop(),
-                        swerve.reset()
+                        swerve.close()
                 ),
                 Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal() && intakeAngle.atGoal()),
                 Commands.runOnce(() -> {

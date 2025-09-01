@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -14,18 +13,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
-import frc.lib.NinjasLib.statemachine.RobotStateBase;
 import frc.lib.NinjasLib.swerve.Swerve;
 import frc.lib.NinjasLib.swerve.SwerveController;
 import frc.lib.NinjasLib.swerve.SwerveInput;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.RobotState;
-import frc.robot.States;
-import org.littletonrobotics.junction.Logger;
 
-import java.sql.Driver;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
@@ -107,18 +100,19 @@ public class SwerveSubsystem extends SubsystemBase {
         );
         return autoDriveToReefCommand;
     }
-    public void stopAutoDriving(){
+
+    public void stopAutoDriving() {
         autoDriveToReefCommand.cancel(); //TODO: Check if the command works even if we don't create the command each time but reuse the same one
     }
 
-    public boolean atGoal(){
+    public boolean atGoal() {
         return Math.abs(RobotState.getInstance().getDistance(target))  < Constants.kAutoDriveDistThreshold;
     }
 
-    public Command reset(){
-        if (!enabled){
+    public Command close() {
+        if (!enabled)
             return Commands.none();
-        }
+
         return Commands.runOnce(() -> {
             stopAutoDriving();
             if (DriverStation.isAutonomous()){
@@ -129,8 +123,17 @@ public class SwerveSubsystem extends SubsystemBase {
                 SwerveController.getInstance().setChannel("Driver");
                 SwerveController.getInstance().setControl(new SwerveInput(), "Driver");
             }
-            Swerve.getInstance().resetModulesToAbsolute();
         });
+    }
+
+    public Command reset() {
+        if (!enabled)
+            return Commands.none();
+
+        return Commands.sequence(
+                close(),
+                Commands.runOnce(() -> Swerve.getInstance().resetModulesToAbsolute())
+        );
     }
 
     @Override

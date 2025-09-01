@@ -347,7 +347,7 @@ public class Constants {
 
     public static final double kJoystickDeadband = 0.05;
     public static final boolean kInvertGyro = false;
-    public static final boolean kDriverFieldRelative = false;
+    public static final boolean kDriverFieldRelative = true;
 
     public static final SwerveConstants kSwerveConstants = new SwerveConstants();
 
@@ -367,7 +367,7 @@ public class Constants {
         kSwerveConstants.maxSpeed = 4.5;
         kSwerveConstants.maxAngularVelocity = 9.2;
 //        kSwerveConstants.maxAcceleration = Double.MAX_VALUE;
-//        kSwerveConstants.maxSkidAcceleration = 100;
+        kSwerveConstants.maxSkidAcceleration = 80;
         kSwerveConstants.maxSkidAcceleration = Double.MAX_VALUE;
         kSwerveConstants.speedLimit = 4.5;
         kSwerveConstants.rotationSpeedLimit = 9.2;
