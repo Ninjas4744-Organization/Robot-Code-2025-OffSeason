@@ -34,7 +34,7 @@ public class CoralDetection {
         hasTarget = result.hasTargets();
         if (result.hasTargets()) {
             PhotonTrackedTarget target = result.getBestTarget();
-            yaw = Rotation2d.fromDegrees(target.getYaw() + 16);
+            yaw = Rotation2d.fromDegrees(target.getYaw() + 6);
         }
     }
 

@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -101,6 +102,7 @@ public class SwerveSubsystem extends SubsystemBase {
         return driveToReefCommand;
     }
 
+    private Timer noCoralTimer = new Timer();
     public Command driveToCoral() {
         driveToCoralCommand = Commands.sequence(
                 Commands.waitUntil(() -> CoralDetection.getInstance().hasTarget()),
@@ -122,7 +124,23 @@ public class SwerveSubsystem extends SubsystemBase {
                                     true),
                             "AutoCoral"
                     );
-                }).until(() -> RobotState.getInstance().getRobotState() == States.CORAL_IN_INTAKE || !CoralDetection.getInstance().hasTarget()),
+                }).until(() -> {
+                    if (RobotState.getInstance().getRobotState() == States.CORAL_IN_INTAKE)
+                        return true;
+
+                    if (!CoralDetection.getInstance().hasTarget() && !noCoralTimer.isRunning())
+                        noCoralTimer.restart();
+
+                    if (CoralDetection.getInstance().hasTarget()) {
+                        noCoralTimer.stop();
+                        noCoralTimer.reset();
+                    }
+
+                    if (noCoralTimer.get() > 1)
+                        return true;
+
+                    return false;
+                }),
                 close()
         );
 
