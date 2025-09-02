@@ -440,7 +440,6 @@ public class Constants {
         kSwerveControllerConstants.drivePIDConstants = ControlConstants.createPID(6, 0, 0.2, 0);
         kSwerveControllerConstants.rotationPIDConstants = ControlConstants.createPID(3, 0.5, 0.2, Units.degreesToRadians(15));
         kSwerveControllerConstants.rotationPIDContinuousConnections = Pair.of(-Math.PI, Math.PI);
-        kSwerveControllerConstants.enableRotationPIDCorrection = true;
     }
 
     public static final PathFollowingController kAutonomyConfig =

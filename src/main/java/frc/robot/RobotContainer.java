@@ -2,11 +2,13 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.lib.NinjasLib.commands.DetachedCommand;
 import frc.lib.NinjasLib.statemachine.RobotStateBase;
 import frc.lib.NinjasLib.statemachine.StateMachineBase;
 import frc.lib.NinjasLib.swerve.Swerve;
@@ -53,7 +55,6 @@ public class RobotContainer {
 
     private SendableChooser<Command> autoChooser;
     private FOMCalculator fomCalculator;
-    private CoralDetection coralDetection;
 
     public RobotContainer() {
         switch (Constants.kCurrentMode) {
@@ -92,7 +93,6 @@ public class RobotContainer {
 //        Vision.setInstance(new Vision(Constants.kVisionConstants));
 //        autoChooser = AutoBuilder.buildAutoChooser();
         fomCalculator = new FOMCalculator();
-        coralDetection = new CoralDetection();
 
         driverController = new CommandPS5Controller(Constants.kDriverControllerPort);
 //        operatorController = new CommandPS5Controller(Constants.kOperatorControllerPort);
@@ -115,21 +115,22 @@ public class RobotContainer {
         //endregion
 
         //region Auto Drive to Right Reef and score Coral High/low
-        driverController.R2().onTrue(Commands.runOnce(
-                () -> stateMachine.changeRobotState(States.DRIVE_TOWARDS_RIGHT_REEF)
-        ));
+//        driverController.R2().onTrue(Commands.runOnce(
+//                () -> stateMachine.changeRobotState(States.DRIVE_TOWARDS_RIGHT_REEF)
+//        ));
+        driverController.R2().onTrue(new DetachedCommand(swerveSubsystem.driveToCoral()));
         //endregion
 
         //region Auto Drive to Left Reef and score Coral High/low
         driverController.L2().onTrue(Commands.runOnce(
-                () -> stateMachine.changeRobotState(States.DRIVE_TOWARDS_LEFT_REEF)
+                () -> stateMachine.changeRobotState(States.DRIVE_LEFT_REEF)
         ));
         //endregion
 
         //region Score Coral High/low [NO AUTO DRIVE]
         driverController.triangle().onTrue(Commands.either(
-                Commands.runOnce( () -> stateMachine.changeRobotState(States.PREPARE_CORAL_OUTTAKE_LOW)),
-                Commands.runOnce( () -> stateMachine.changeRobotState(States.PREPARE_CORAL_OUTTAKE_HIGH)),
+                Commands.runOnce(() -> stateMachine.changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1)),
+                Commands.runOnce(() -> stateMachine.changeRobotState(States.PREPARE_CORAL_OUTTAKE)),
                 () -> RobotState.getInstance().getL() == 1
         ));
         //endregion
@@ -164,9 +165,9 @@ public class RobotContainer {
 
         // Have triggers that track when the robot should transfer coral from the intake to the arm, or from the arm to the intake.
         new Trigger(() -> robotState.getL() > 1 && robotState.getRobotState() == States.CORAL_IN_INTAKE)
-                .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_INTAKE_TO_ARM)));
+                .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_INTAKE_TO_OUTTAKE)));
         new Trigger(() -> robotState.getL() == 1 && robotState.getRobotState() == States.CORAL_IN_OUTTAKE)
-                .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_ARM_TO_INTAKE)));
+                .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_OUTTAKE_TO_INTAKE)));
         //endregion
 
         //region Intake Algae floor
@@ -234,15 +235,14 @@ public class RobotContainer {
 //        for (int i = 0; i < estimations.length; i++)
 //            RobotState.getInstance().updateRobotPose(estimations[i], fomCalculator.getOdometryFOM(), fomCalculator.getVisionFOM()[i]);
 
-        coralDetection.update();
-        System.out.println(coralDetection.hasTarget());
-        Pose2d robotPose = RobotState.getInstance().getRobotPose();
-        if (coralDetection.hasTarget()) {
-            System.out.println(coralDetection.getYaw().getDegrees());
+        CoralDetection.getInstance().update();
+        if (CoralDetection.getInstance().hasTarget()) {
+            Pose2d robotPose = RobotState.getInstance().getRobotPose();
+            Translation2d dir = CoralDetection.getInstance().getFieldRelativeDir();
             Logger.recordOutput("Coral Detection Dir", new Pose2d(
-                    robotPose.getX() + coralDetection.getFieldRelativeDir().getX(),
-                    robotPose.getY() + coralDetection.getFieldRelativeDir().getY(),
-                    coralDetection.getFieldRelativeDir().getAngle()
+                    robotPose.getX() + dir.getX() / 2,
+                    robotPose.getY() + dir.getY() / 2,
+                    dir.getAngle()
             ));
         }
 

@@ -16,8 +16,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import frc.lib.NinjasLib.swerve.Swerve;
 import frc.lib.NinjasLib.swerve.SwerveController;
 import frc.lib.NinjasLib.swerve.SwerveInput;
-import frc.robot.Constants;
-import frc.robot.RobotState;
+import frc.robot.*;
 
 import java.util.List;
 import java.util.function.BooleanSupplier;
@@ -27,7 +26,8 @@ public class SwerveSubsystem extends SubsystemBase {
     private List<Pose2d> reefAprilTags;
     private Pose2d target;
     private ProfiledPIDController pidRotation;
-    private Command autoDriveToReefCommand;
+    private Command driveToReefCommand;
+    private Command driveToCoralCommand;
 
     public SwerveSubsystem(boolean enabled) {
         this.enabled = enabled;
@@ -73,9 +73,9 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public Command autoDriveToReef(BooleanSupplier isRightSide){
-        autoDriveToReefCommand = Commands.sequence(
+        driveToReefCommand = Commands.sequence(
             Commands.runOnce(() -> {
-                SwerveController.getInstance().setChannel("AutoDrive");
+                SwerveController.getInstance().setChannel("AutoReef");
                 target = RobotState.getInstance().getRobotPose().nearest(reefAprilTags);
                 target = new Pose2d(target.getTranslation(), target.getRotation().rotateBy(Rotation2d.k180deg));
                 target = target.transformBy(new Transform2d(-Constants.kAutoDriveDistFromReef, isRightSide.getAsBoolean() ? -Constants.kAutoDriveRightSideOffset : Constants.kAutoDriveLeftSideOffset, Rotation2d.kZero));
@@ -94,15 +94,47 @@ public class SwerveSubsystem extends SubsystemBase {
                         velocity * dir.getY(),
                         pidRotation.calculate(RobotState.getInstance().getRobotPose().getRotation().getRadians(), target.getRotation().getRadians()),
                         true
-                    ), "AutoDrive"
+                    ), "AutoReef"
                 );
             }).until(this::atGoal)
         );
-        return autoDriveToReefCommand;
+        return driveToReefCommand;
+    }
+
+    public Command driveToCoral() {
+        driveToCoralCommand = Commands.sequence(
+                Commands.waitUntil(() -> CoralDetection.getInstance().hasTarget()),
+                Commands.runOnce(() -> {
+                    SwerveController.getInstance().setChannel("AutoCoral");
+                    StateMachine.getInstance().changeRobotState(States.INTAKE_CORAL);
+                }),
+                Commands.run(() -> {
+                    Translation2d dir = CoralDetection.getInstance().getFieldRelativeDir();
+
+                    double anglePID = SwerveController.getInstance().lookAt(dir);
+                    double driveSpeed = 1;
+
+                    SwerveController.getInstance().setControl(
+                            new SwerveInput(
+                                    dir.getX() * driveSpeed,
+                                    dir.getY() * driveSpeed,
+                                    anglePID,
+                                    true),
+                            "AutoCoral"
+                    );
+                }).until(() -> RobotState.getInstance().getRobotState() == States.CORAL_IN_INTAKE || !CoralDetection.getInstance().hasTarget()),
+                close()
+        );
+
+        return driveToCoralCommand;
     }
 
     public void stopAutoDriving() {
-        autoDriveToReefCommand.cancel(); //TODO: Check if the command works even if we don't create the command each time but reuse the same one
+        if (driveToReefCommand != null)
+            driveToReefCommand.cancel(); //TODO: Check if the command works even if we don't create the command each time but reuse the same one
+
+        if (driveToCoralCommand != null)
+            driveToCoralCommand.cancel();
     }
 
     public boolean atGoal() {

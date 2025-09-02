@@ -12,8 +12,15 @@ public class CoralDetection {
     private PhotonCamera camera;
     private boolean hasTarget;
     private Rotation2d yaw;
+    private static CoralDetection instance;
 
-    public CoralDetection() {
+    public static CoralDetection getInstance() {
+        if (instance == null)
+            instance = new CoralDetection();
+        return instance;
+    }
+
+    private CoralDetection() {
         camera = new PhotonCamera("Coral");
     }
 
@@ -27,7 +34,7 @@ public class CoralDetection {
         hasTarget = result.hasTargets();
         if (result.hasTargets()) {
             PhotonTrackedTarget target = result.getBestTarget();
-            yaw = Rotation2d.fromDegrees(target.getYaw());
+            yaw = Rotation2d.fromDegrees(target.getYaw() + 16);
         }
     }
 
@@ -40,6 +47,6 @@ public class CoralDetection {
     }
 
     public Translation2d getFieldRelativeDir() {
-        return new Translation2d(1, yaw.unaryMinus().rotateBy(RobotState.getInstance().getRobotPose().getRotation()).rotateBy(Rotation2d.k180deg));
+        return new Translation2d(1, RobotState.getInstance().getGyroYaw().rotateBy(yaw.unaryMinus()));
     }
 }

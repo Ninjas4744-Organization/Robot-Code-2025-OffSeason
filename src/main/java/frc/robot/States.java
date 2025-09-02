@@ -6,21 +6,18 @@ public enum States {
     INTAKE_CORAL,
     CORAL_IN_INTAKE, //the coral is set in the middle of the intake
 
+    PREPARE_CORAL_OUTTAKE_L1, //For L1
+    CORAL_OUTTAKE_L1,
 
-    PREPARE_CORAL_OUTTAKE_LOW, //For L1
-    CORAL_OUTTAKE_LOW,
-
-
-    TRANSFER_CORAL_FROM_INTAKE_TO_ARM, //transfer the coral from the intake from the bottom to the arm
+    TRANSFER_CORAL_FROM_INTAKE_TO_OUTTAKE, //transfer the coral from the intake from the bottom to the arm
     CORAL_IN_OUTTAKE,//the coral is set in the arm
-    TRANSFER_CORAL_FROM_ARM_TO_INTAKE, //transfer the coral from the arm back to the intake (
+    TRANSFER_CORAL_FROM_OUTTAKE_TO_INTAKE, //transfer the coral from the arm back to the intake (
 
     // automatic driving for when we want to score a coral NOTE:(FOR ALL L LEVELS)
-    DRIVE_TOWARDS_LEFT_REEF,
-    DRIVE_TOWARDS_RIGHT_REEF,
-    PREPARE_CORAL_OUTTAKE_HIGH, //For L2-L4
-    CORAL_OUTTAKE_HIGH,
-
+    DRIVE_LEFT_REEF,
+    DRIVE_RIGHT_REEF,
+    PREPARE_CORAL_OUTTAKE, //For L2-L4
+    CORAL_OUTTAKE,
 
     INTAKE_ALGAE_LOW, //moving the arm and grabbing algae from the floor
     INTAKE_ALGAE_HIGH, //moving the arm and grabbing algae from the reef

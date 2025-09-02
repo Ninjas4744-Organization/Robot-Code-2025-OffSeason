@@ -36,50 +36,50 @@ public class StateMachine extends StateMachineBase<States> {
             ).contains(wantedState);
 
             case CORAL_IN_INTAKE -> Set.of(
-                    States.TRANSFER_CORAL_FROM_INTAKE_TO_ARM,
-                    States.PREPARE_CORAL_OUTTAKE_LOW,
-                    States.PREPARE_CORAL_OUTTAKE_HIGH,
-                    States.DRIVE_TOWARDS_LEFT_REEF,
-                    States.DRIVE_TOWARDS_RIGHT_REEF
+                    States.TRANSFER_CORAL_FROM_INTAKE_TO_OUTTAKE,
+                    States.PREPARE_CORAL_OUTTAKE_L1,
+                    States.PREPARE_CORAL_OUTTAKE,
+                    States.DRIVE_LEFT_REEF,
+                    States.DRIVE_RIGHT_REEF
             ).contains(wantedState);
 
             // LOW CORAL
-            case PREPARE_CORAL_OUTTAKE_LOW -> Set.of(
-                    States.CORAL_OUTTAKE_LOW
+            case PREPARE_CORAL_OUTTAKE_L1 -> Set.of(
+                    States.CORAL_OUTTAKE_L1
             ).contains(wantedState);
 
-            case CORAL_OUTTAKE_LOW -> Set.of(
+            case CORAL_OUTTAKE_L1 -> Set.of(
                     States.CLOSE,
                     States.RESET
             ).contains(wantedState);
 
             // HIGH CORAL
-            case TRANSFER_CORAL_FROM_INTAKE_TO_ARM -> Set.of(
+            case TRANSFER_CORAL_FROM_INTAKE_TO_OUTTAKE -> Set.of(
                     States.CORAL_IN_OUTTAKE
             ).contains(wantedState);
 
             case CORAL_IN_OUTTAKE -> Set.of(
-                    States.DRIVE_TOWARDS_LEFT_REEF,
-                    States.DRIVE_TOWARDS_RIGHT_REEF,
-                    States.TRANSFER_CORAL_FROM_ARM_TO_INTAKE,
-                    States.PREPARE_CORAL_OUTTAKE_HIGH
+                    States.DRIVE_LEFT_REEF,
+                    States.DRIVE_RIGHT_REEF,
+                    States.TRANSFER_CORAL_FROM_OUTTAKE_TO_INTAKE,
+                    States.PREPARE_CORAL_OUTTAKE
             ).contains(wantedState);
 
-            case TRANSFER_CORAL_FROM_ARM_TO_INTAKE -> Set.of(
+            case TRANSFER_CORAL_FROM_OUTTAKE_TO_INTAKE -> Set.of(
                     States.CORAL_IN_INTAKE
             ).contains(wantedState);
 
-            case DRIVE_TOWARDS_LEFT_REEF, DRIVE_TOWARDS_RIGHT_REEF -> Set.of(
-                    States.PREPARE_CORAL_OUTTAKE_HIGH,
-                    States.PREPARE_CORAL_OUTTAKE_LOW,
+            case DRIVE_LEFT_REEF, DRIVE_RIGHT_REEF -> Set.of(
+                    States.PREPARE_CORAL_OUTTAKE,
+                    States.PREPARE_CORAL_OUTTAKE_L1,
                     States.CLOSE
             ).contains(wantedState);
 
-            case PREPARE_CORAL_OUTTAKE_HIGH -> Set.of(
-                    States.CORAL_OUTTAKE_HIGH
+            case PREPARE_CORAL_OUTTAKE -> Set.of(
+                    States.CORAL_OUTTAKE
             ).contains(wantedState);
 
-            case CORAL_OUTTAKE_HIGH -> Set.of(
+            case CORAL_OUTTAKE -> Set.of(
                     States.CLOSE,
                     States.RESET
             ).contains(wantedState);
@@ -150,18 +150,18 @@ public class StateMachine extends StateMachineBase<States> {
         //endregion
 
         //region outtake coral
-        addCommand(States.PREPARE_CORAL_OUTTAKE_LOW, Commands.sequence(
+        addCommand(States.PREPARE_CORAL_OUTTAKE_L1, Commands.sequence(
                 intakeAngle.lookAtL1(),
                 Commands.waitUntil(intakeAngle::atGoal),
-                Commands.runOnce(()-> changeRobotState(States.CORAL_OUTTAKE_LOW))
+                Commands.runOnce(() -> changeRobotState(States.CORAL_OUTTAKE_L1))
         ));
-        addCommand(States.CORAL_OUTTAKE_LOW, Commands.sequence(
+        addCommand(States.CORAL_OUTTAKE_L1, Commands.sequence(
                 intake.outtake(),
                 Commands.waitSeconds(0.2),
                 intakeAngle.lookDown(),
                 Commands.runOnce(()-> changeRobotState(States.CLOSE))
         ));
-        addCommand(States.TRANSFER_CORAL_FROM_INTAKE_TO_ARM, Commands.sequence(
+        addCommand(States.TRANSFER_CORAL_FROM_INTAKE_TO_OUTTAKE, Commands.sequence(
                 intakeAngle.lookAtArm(),
                 arm.lookDown(),
                 Commands.waitUntil(() -> intakeAngle.atGoal() && arm.atGoal()),
@@ -172,7 +172,7 @@ public class StateMachine extends StateMachineBase<States> {
         ));
         addCommand(States.CORAL_IN_OUTTAKE, Commands.none());
 
-        addCommand(States.TRANSFER_CORAL_FROM_ARM_TO_INTAKE, Commands.sequence(
+        addCommand(States.TRANSFER_CORAL_FROM_OUTTAKE_TO_INTAKE, Commands.sequence(
                 intakeAngle.lookAtArm(),
                 arm.lookDown(),
                 Commands.waitUntil(() -> intakeAngle.atGoal() && arm.atGoal()),
@@ -184,30 +184,30 @@ public class StateMachine extends StateMachineBase<States> {
                 Commands.runOnce(() -> changeRobotState(States.CLOSE))
         ));
 
-        addCommand(States.DRIVE_TOWARDS_LEFT_REEF, Commands.sequence(
+        addCommand(States.DRIVE_LEFT_REEF, Commands.sequence(
                 swerve.autoDriveToReef(() -> false),
                 Commands.either(
-                        Commands.runOnce( () -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE_LOW)),
-                        Commands.runOnce( () -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE_HIGH)),
+                        Commands.runOnce(() -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1)),
+                        Commands.runOnce(() -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE)),
                         () -> RobotState.getInstance().getL() == 1
                 )
         ));
-        addCommand(States.DRIVE_TOWARDS_RIGHT_REEF, Commands.sequence(
+        addCommand(States.DRIVE_RIGHT_REEF, Commands.sequence(
                 swerve.autoDriveToReef(() -> true),
                 Commands.either(
-                        Commands.runOnce( () -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE_LOW)),
-                        Commands.runOnce( () -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE_HIGH)),
+                        Commands.runOnce(() -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1)),
+                        Commands.runOnce(() -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE)),
                         () -> RobotState.getInstance().getL() == 1
                 )
         ));
 
-        addCommand(States.PREPARE_CORAL_OUTTAKE_HIGH, Commands.sequence(
+        addCommand(States.PREPARE_CORAL_OUTTAKE, Commands.sequence(
                 elevator.goToLHeight(RobotState.getInstance().getL()),
                 arm.lookAtCoralReef(RobotState.getInstance().getL()),
                 Commands.waitUntil(() -> elevator.atGoal() && arm.atGoal()),
-                Commands.runOnce(()-> changeRobotState(States.CORAL_OUTTAKE_HIGH))
+                Commands.runOnce(() -> changeRobotState(States.CORAL_OUTTAKE))
         ));
-        addCommand(States.CORAL_OUTTAKE_HIGH, Commands.sequence(
+        addCommand(States.CORAL_OUTTAKE, Commands.sequence(
                 outtake.outtake(),
                 Commands.waitSeconds(0.2),
                 Commands.runOnce(()-> changeRobotState(States.CLOSE))
