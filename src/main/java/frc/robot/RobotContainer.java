@@ -64,7 +64,7 @@ public class RobotContainer {
                 intake = new Intake(true, new IntakeIOController());
                 intakeAngle = new IntakeAngle(false, new IntakeAngleIOController());
                 intakeAligner = new IntakeAligner(false, new IntakeAlignerIOController());
-                outtake = new Outtake(false, new OuttakeIOController());
+                outtake = new Outtake(true, new OuttakeIOController());
                 climber = new Climber(false, new ClimberIOController());
                 swerveSubsystem = new SwerveSubsystem(true);
                 break;
@@ -115,10 +115,10 @@ public class RobotContainer {
         //endregion
 
         //region Auto Drive to Right Reef and score Coral High/low
-//        driverController.R2().onTrue(Commands.runOnce(
-//                () -> stateMachine.changeRobotState(States.DRIVE_TOWARDS_RIGHT_REEF)
-//        ));
-        driverController.R2().onTrue(new DetachedCommand(swerveSubsystem.driveToCoral()));
+        driverController.R2().onTrue(Commands.runOnce(
+                () -> stateMachine.changeRobotState(States.DRIVE_RIGHT_REEF)
+        ));
+        driverController.R3().onTrue(new DetachedCommand(swerveSubsystem.driveToCoral()));
         //endregion
 
         //region Auto Drive to Left Reef and score Coral High/low
