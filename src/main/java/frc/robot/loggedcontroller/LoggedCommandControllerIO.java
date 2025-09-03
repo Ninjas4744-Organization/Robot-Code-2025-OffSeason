@@ -26,8 +26,8 @@ public interface LoggedCommandControllerIO {
         public boolean R1;
 
         // Triggers (as digital buttons)
-        public boolean L2Button;
-        public boolean R2Button;
+        public boolean L2;
+        public boolean R2;
 
         // Options / System
         public boolean create;    // left of touchpad

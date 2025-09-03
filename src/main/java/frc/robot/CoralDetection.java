@@ -21,10 +21,14 @@ public class CoralDetection {
     }
 
     private CoralDetection() {
-        camera = new PhotonCamera("Coral");
+        if(Robot.isReal())
+            camera = new PhotonCamera("Coral");
     }
 
     public void update() {
+        if(Robot.isSimulation())
+            return;
+
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();
         if (results.isEmpty())
             return;

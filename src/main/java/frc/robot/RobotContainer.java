@@ -6,7 +6,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.NinjasLib.commands.DetachedCommand;
 import frc.lib.NinjasLib.statemachine.RobotStateBase;
@@ -14,6 +13,9 @@ import frc.lib.NinjasLib.statemachine.StateMachineBase;
 import frc.lib.NinjasLib.swerve.Swerve;
 import frc.lib.NinjasLib.swerve.SwerveController;
 import frc.lib.NinjasLib.swerve.SwerveInput;
+import frc.robot.loggedcontroller.LoggedCommandController;
+import frc.robot.loggedcontroller.LoggedCommandControllerIO;
+import frc.robot.loggedcontroller.LoggedCommandControllerIOPS5;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIO;
@@ -41,7 +43,8 @@ import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFie
 import org.littletonrobotics.junction.Logger;
 
 public class RobotContainer {
-    private CommandPS5Controller driverController;
+//    private CommandPS5Controller driverController;
+    private LoggedCommandController driverController;
 //    private CommandPS5Controller operatorController;
 
     private static Elevator elevator;
@@ -67,24 +70,21 @@ public class RobotContainer {
                 outtake = new Outtake(false, new OuttakeIOController());
                 climber = new Climber(false, new ClimberIOController());
                 swerveSubsystem = new SwerveSubsystem(true);
+
+                driverController = new LoggedCommandController(new LoggedCommandControllerIOPS5(Constants.kDriverControllerPort));
                 break;
 
             case REPLAY:
-                arm = new Arm(false, new ArmIO() {
-                });
-                elevator = new Elevator(false, new ElevatorIO() {
-                });
-                intake = new Intake(false, new IntakeIO() {
-                });
-                intakeAngle = new IntakeAngle(false, new IntakeAngleIO() {
-                });
-                intakeAligner = new IntakeAligner(false, new IntakeAlignerIO() {
-                });
-                outtake = new Outtake(false, new OuttakeIO() {
-                });
-                climber = new Climber(false, new ClimberIO() {
-                });
-                swerveSubsystem = new SwerveSubsystem(false);
+                arm = new Arm(false, new ArmIO() {});
+                elevator = new Elevator(false, new ElevatorIO() {});
+                intake = new Intake(true, new IntakeIO() {});
+                intakeAngle = new IntakeAngle(false, new IntakeAngleIO() {});
+                intakeAligner = new IntakeAligner(false, new IntakeAlignerIO() {});
+                outtake = new Outtake(false, new OuttakeIO() {});
+                climber = new Climber(false, new ClimberIO() {});
+                swerveSubsystem = new SwerveSubsystem(true);
+
+                driverController = new LoggedCommandController(new LoggedCommandControllerIO() {});
                 break;
         }
 
@@ -94,7 +94,7 @@ public class RobotContainer {
 //        autoChooser = AutoBuilder.buildAutoChooser();
         fomCalculator = new FOMCalculator();
 
-        driverController = new CommandPS5Controller(Constants.kDriverControllerPort);
+//        driverController = new CommandPS5Controller(Constants.kDriverControllerPort);
 //        operatorController = new CommandPS5Controller(Constants.kOperatorControllerPort);
 
         if (Robot.isSimulation()) {
@@ -245,6 +245,10 @@ public class RobotContainer {
                     dir.getAngle()
             ));
         }
+
+        Logger.recordOutput("X", RobotState.getInstance().getRobotPose().getX());
+
+        driverController.periodic();
 
         if (Robot.isSimulation()) {
             Logger.recordOutput("Simulation Field/Corals", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));

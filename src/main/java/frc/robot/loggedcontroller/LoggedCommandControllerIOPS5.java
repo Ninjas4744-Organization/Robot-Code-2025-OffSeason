@@ -32,8 +32,8 @@ public class LoggedCommandControllerIOPS5 implements LoggedCommandControllerIO {
         inputs.R1 = controller.getR1Button();
 
         // Triggers (as digital buttons)
-        inputs.L2Button = controller.getL2Button();
-        inputs.R2Button = controller.getR2Button();
+        inputs.L2 = controller.getL2Button();
+        inputs.R2 = controller.getR2Button();
 
         // Options / System
         inputs.create = controller.getCreateButton();   // left of touchpad
