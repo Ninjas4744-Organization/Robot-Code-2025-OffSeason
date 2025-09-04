@@ -60,7 +60,7 @@ public class RobotContainer {
     private FOMCalculator fomCalculator;
 
     public RobotContainer() {
-        switch (Constants.kCurrentMode) {
+        switch (Constants.kRobotMode) {
             case REAL, SIM:
                 arm = new Arm(false, new ArmIOController());
                 elevator = new Elevator(false, new ElevatorIOController());
@@ -88,7 +88,7 @@ public class RobotContainer {
                 break;
         }
 
-        RobotStateBase.setInstance(new RobotState(Constants.kSwerveConstants.kinematics, Constants.kInvertGyro, Constants.kPigeonID, Constants.kSwerveConstants.enableOdometryThread));
+        RobotStateBase.setInstance(new RobotState(Constants.kSwerveConstants.kinematics));
         StateMachineBase.setInstance(new StateMachine());
 //        Vision.setInstance(new Vision(Constants.kVisionConstants));
 //        autoChooser = AutoBuilder.buildAutoChooser();
@@ -110,8 +110,8 @@ public class RobotContainer {
 
         //region Driver Buttons
         //region Gyro Reset
-        driverController.R1().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(Rotation2d.kZero)));
-        driverController.L1().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(RobotState.getInstance().getRobotPose().getRotation())));
+        driverController.R1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(Rotation2d.kZero)));
+        driverController.L1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(RobotState.getInstance().getRobotPose().getRotation())));
         //endregion
 
         //region Auto Drive to Right Reef and score Coral High/low
@@ -246,7 +246,7 @@ public class RobotContainer {
             ));
         }
 
-        Logger.recordOutput("X", RobotState.getInstance().getRobotPose().getX());
+//        Logger.recordOutput("X", RobotState.getInstance().getRobotPose().getX());
 
         driverController.periodic();
 

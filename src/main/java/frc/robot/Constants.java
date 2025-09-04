@@ -9,10 +9,7 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -47,11 +44,10 @@ public class Constants {
 
     //region General
     public static final RobotMode kSimMode = RobotMode.REPLAY;
-    public static final RobotMode kCurrentMode = Robot.isReal() ? RobotMode.REAL : kSimMode;
+    public static final RobotMode kRobotMode = Robot.isReal() ? RobotMode.REAL : kSimMode;
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
     public static final String kCANBusName = "";
-    public static final int kPigeonID = 45;
     //endregion
 
     //region Subsystems
@@ -432,6 +428,11 @@ public class Constants {
 //        kSwerveConstants.odometryThreadFrequency = 2;
         kSwerveConstants.enableOdometryThread = false;
         kSwerveConstants.odometryThreadFrequency = 50;
+        kSwerveConstants.isReplay = kRobotMode == RobotMode.REPLAY;
+        kSwerveConstants.robotStartPose = new Pose2d(3, 3, Rotation2d.kZero);
+        kSwerveConstants.gyroID = 45;
+        kSwerveConstants.gyroInverted = kInvertGyro;
+        kSwerveConstants.gyroType = SwerveConstants.GyroType.Pigeon2;
     }
 
     public static final SwerveControllerConstants kSwerveControllerConstants = new SwerveControllerConstants();

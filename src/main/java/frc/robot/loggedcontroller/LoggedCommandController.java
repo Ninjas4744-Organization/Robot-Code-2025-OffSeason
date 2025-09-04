@@ -1,6 +1,7 @@
 package frc.robot.loggedcontroller;
 
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import org.littletonrobotics.junction.Logger;
 
 public class LoggedCommandController {
     private LoggedCommandControllerIOInputsAutoLogged inputs = new LoggedCommandControllerIOInputsAutoLogged();
@@ -12,6 +13,7 @@ public class LoggedCommandController {
 
     public void periodic() {
         io.updateInputs(inputs);
+        Logger.processInputs("Controller", inputs);
     }
 
     // Face buttons

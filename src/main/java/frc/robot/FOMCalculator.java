@@ -21,13 +21,13 @@ public class FOMCalculator {
 
         odometryFOM += Swerve.getInstance().getOdometryTwist().getNorm() * Constants.kOdometryFOMPerMeter;
 
-        if (RobotState.getInstance().getAcceleration().getNorm() > Constants.kCrashedAccelerationThreshold) {
-            if (!crashed) {
-                odometryFOM += Constants.kCrashedOdometryFOMBonus;
-                crashed = true;
-            }
-        } else
-            crashed = false;
+//        if (RobotState.getInstance().getAcceleration().getNorm() > Constants.kCrashedAccelerationThreshold) {
+//            if (!crashed) {
+//                odometryFOM += Constants.kCrashedOdometryFOMBonus;
+//                crashed = true;
+//            }
+//        } else
+//            crashed = false;
 
         ChassisSpeeds chassisSpeeds = Swerve.getInstance().getChassisSpeeds(false);
         double robotSpeed = Math.hypot(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
@@ -51,7 +51,7 @@ public class FOMCalculator {
 
         Logger.recordOutput("FOMs/Robot Speed", robotSpeed);
         Logger.recordOutput("FOMs/Robot Angular Speed", robotAngularSpeed);
-        Logger.recordOutput("FOMs/Acceleration", RobotState.getInstance().getAcceleration().getNorm());
+//        Logger.recordOutput("FOMs/Acceleration", RobotState.getInstance().getAcceleration().getNorm());
         Logger.recordOutput("FOMs/Crashed", crashed);
         Logger.recordOutput("FOMs/Odometry FOM", odometryFOM);
 
