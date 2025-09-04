@@ -2,7 +2,6 @@ package frc.robot.subsystems.climber;
 
 import frc.lib.NinjasLib.controllers.Controller;
 import frc.robot.Constants;
-import frc.robot.subsystems.elevator.ElevatorIOInputsAutoLogged;
 
 public class ClimberIOController implements ClimberIO {
     private Controller controller;
@@ -10,11 +9,6 @@ public class ClimberIOController implements ClimberIO {
     @Override
     public void setup() {
         controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.kClimberControllerConstants);
-    }
-
-    @Override
-    public Controller getController() {
-        return controller;
     }
 
     @Override

@@ -12,11 +12,6 @@ public class ElevatorIOController implements ElevatorIO {
     }
 
     @Override
-    public Controller getController() {
-        return controller;
-    }
-
-    @Override
     public void updateInputs(ElevatorIOInputsAutoLogged inputs) {
         controller.updateInputs(inputs);
     }
@@ -24,5 +19,15 @@ public class ElevatorIOController implements ElevatorIO {
     @Override
     public void periodic() {
         controller.periodic();
+    }
+
+    @Override
+    public void setPosition(double position) {
+        controller.setPosition(position);
+    }
+
+    @Override
+    public void setPercent(double position) {
+        controller.setPercent(position);
     }
 }

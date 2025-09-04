@@ -8,22 +8,21 @@ public interface ArmIO {
     @AutoLog
     class ArmIOInputs extends Controller.ControllerIOInputs {
         Rotation2d AbsoluteAngle;
+        boolean AtGoal;
     }
 
     default void setup() {
-    }
-
-    default Rotation2d getCANCoder(){
-        return null;
-    }
-
-    default Controller getController() {
-        return null;
     }
 
     default void updateInputs(ArmIOInputsAutoLogged inputs) {
     }
 
     default void periodic() {
+    }
+
+    default void setPosition(Rotation2d position){
+    }
+
+    default void setEncoder(double position){
     }
 }

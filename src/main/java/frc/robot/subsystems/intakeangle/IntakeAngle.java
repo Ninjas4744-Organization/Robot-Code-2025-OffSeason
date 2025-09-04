@@ -38,7 +38,7 @@ public class IntakeAngle extends SubsystemBase {
             return Commands.none();
         }
         return Commands.runOnce(
-            () -> io.getController().setPercent(percent.getAsDouble())
+            () -> io.setPercent(percent.getAsDouble())
         );
     }
 
@@ -48,7 +48,7 @@ public class IntakeAngle extends SubsystemBase {
         }
 
         return Commands.runOnce(
-            () -> io.getController().setPosition(angle.getRadians())
+            () -> io.setPosition(angle.getRadians())
         );
     }
 
@@ -56,7 +56,7 @@ public class IntakeAngle extends SubsystemBase {
         if (!enabled) {
             return Rotation2d.kZero;
         }
-        return Rotation2d.fromRadians(io.getController().getPosition());
+        return Rotation2d.fromRadians(inputs.Position);
     }
 
     public Command lookDown() {
@@ -75,7 +75,7 @@ public class IntakeAngle extends SubsystemBase {
         if (!enabled){
             return true;
         }
-        return io.getController().atGoal();
+        return inputs.AtGoal;
     }
 
     public Command reset() {
@@ -84,15 +84,15 @@ public class IntakeAngle extends SubsystemBase {
         }
 
         return Commands.run(() -> {
-            io.getController().setPercent(-0.2);
-        }).until(() -> io.getController().getLimit());
+            io.setPercent(-0.2);
+        }).until(() -> inputs.LimitSwitch);
     }
 
     public boolean isReset() {
         if (!enabled) {
             return true;
         }
-        return io.getController().getLimit();
+        return inputs.LimitSwitch;
     }
 
     public boolean isEnabled() {
