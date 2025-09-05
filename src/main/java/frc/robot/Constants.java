@@ -450,7 +450,6 @@ public class Constants {
         );
     //endregion
 
-
     //region Vision
     public static final VisionConstants kVisionConstants = new VisionConstants();
     static {
@@ -460,7 +459,7 @@ public class Constants {
         );
 
         kVisionConstants.maxAmbiguity = 0.2;
-        kVisionConstants.maxDistance = 2;
+        kVisionConstants.maxDistance = 5;
         kVisionConstants.fieldLayoutGetter = Constants::getFieldLayoutWithIgnored;
     }
     //endregion
@@ -518,16 +517,20 @@ public class Constants {
     //endregion
 
     //region Standard Deviations
-    public static final double kOdometryFOMPerMeter = 0.05;
+    public static final double kOdometrySTDPerMeter = 0.02;
     public static final double kCrashedAccelerationThreshold = 15;
-    public static final double kCrashedOdometryFOMBonus = 4;
-    public static final double kResetOdometryFOMThreshold = 2.5;
-    public static final double kOdometryFOMResetValue = 1;
+    public static final double kCrashedOdometrySTDBonus = 4;
+    public static final double kResetOdometrySTDThreshold = 2.5;
+    public static final double kOdometrySTDResetValue = 0.1;
+    public static final int kCyclesToOdometrySTDReset = 35;
 
-    public static final double kVisionFOMDistMultiplier = 1;
-    public static final double kVisionFOMSpeedMultiplier = 1;
-    public static final double kVisionFOMAngularSpeedMultiplier = 1;
-    public static final double kVisionFOMAngleTransformMultiplier = 1;
+    public static final double kVisionSTDGood = 0.9;
+    public static final double kVisionSTDDistMultiplier = 1;
+    public static final double kVisionSTDGoodDist = 1.5;
+    public static final double kVisionSTDSpeedMultiplier = 1;
+    public static final double kVisionSTDGoodSpeed = 2;
+    public static final double kVisionSTDAngularSpeedMultiplier = 1;
+    public static final double kVisionSTDGoodAngularSpeed = 2;
 
     //region Auto Drive
     public static final double kAutoDriveDistFromReef = 0.25;

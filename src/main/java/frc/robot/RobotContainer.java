@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.NinjasLib.commands.DetachedCommand;
+import frc.lib.NinjasLib.localization.vision.Vision;
+import frc.lib.NinjasLib.localization.vision.VisionOutput;
 import frc.lib.NinjasLib.statemachine.RobotStateBase;
 import frc.lib.NinjasLib.statemachine.StateMachineBase;
 import frc.lib.NinjasLib.swerve.Swerve;
@@ -57,7 +59,7 @@ public class RobotContainer {
     private static SwerveSubsystem swerveSubsystem;
 
     private SendableChooser<Command> autoChooser;
-    private FOMCalculator fomCalculator;
+    private STDDevCalculator stdCalculator;
 
     public RobotContainer() {
         switch (Constants.kRobotMode) {
@@ -92,10 +94,7 @@ public class RobotContainer {
         StateMachineBase.setInstance(new StateMachine());
 //        Vision.setInstance(new Vision(Constants.kVisionConstants));
 //        autoChooser = AutoBuilder.buildAutoChooser();
-        fomCalculator = new FOMCalculator();
-
-//        driverController = new CommandPS5Controller(Constants.kDriverControllerPort);
-//        operatorController = new CommandPS5Controller(Constants.kOperatorControllerPort);
+        stdCalculator = new STDDevCalculator();
 
         if (Robot.isSimulation()) {
             for (int i = 0; i < 10; i++)
@@ -230,10 +229,10 @@ public class RobotContainer {
     public void periodic() {
         swerveSubsystem.swerveDrive(driverController);
 
-//        VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
-//        fomCalculator.update(estimations);
-//        for (int i = 0; i < estimations.length; i++)
-//            RobotState.getInstance().updateRobotPose(estimations[i], fomCalculator.getOdometryFOM(), fomCalculator.getVisionFOM()[i]);
+        VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
+        stdCalculator.update(estimations);
+        for (int i = 0; i < estimations.length; i++)
+            RobotState.getInstance().updateRobotPose(estimations[i], stdCalculator.getOdometrySTDDev(), stdCalculator.getVisionSTDDev()[i]);
 
         CoralDetection.getInstance().update();
         if (CoralDetection.getInstance().hasTarget()) {
@@ -245,8 +244,6 @@ public class RobotContainer {
                     dir.getAngle()
             ));
         }
-
-//        Logger.recordOutput("X", RobotState.getInstance().getRobotPose().getX());
 
         driverController.periodic();
 
