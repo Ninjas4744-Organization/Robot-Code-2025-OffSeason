@@ -74,6 +74,9 @@ public class STDDevCalculator {
         int camEstCount = 1;
         String lastCamName = "-1";
         for (int i = 0; i < estimations.length; i++) {
+            if (!estimations[i].hasTargets)
+                continue;
+
             if (lastCamName.equals(estimations[i].cameraName))
                 camEstCount++;
             else
@@ -81,6 +84,7 @@ public class STDDevCalculator {
 
             String name = "STDs/" + estimations[i].cameraName + " " + camEstCount;
             Logger.recordOutput(name + "/STD", visionSTDDev.get(i));
+            lastCamName = estimations[i].cameraName;
         }
     }
 

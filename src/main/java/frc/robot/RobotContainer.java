@@ -92,7 +92,7 @@ public class RobotContainer {
 
         RobotStateBase.setInstance(new RobotState(Constants.kSwerveConstants.kinematics));
         StateMachineBase.setInstance(new StateMachine());
-//        Vision.setInstance(new Vision(Constants.kVisionConstants));
+        Vision.setInstance(new Vision(Constants.kVisionConstants));
 //        autoChooser = AutoBuilder.buildAutoChooser();
         stdCalculator = new STDDevCalculator();
 

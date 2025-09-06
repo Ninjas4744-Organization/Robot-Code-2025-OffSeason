@@ -43,7 +43,7 @@ public class Constants {
     }
 
     //region General
-    public static final RobotMode kSimMode = RobotMode.REPLAY;
+    public static final RobotMode kSimMode = RobotMode.SIM;
     public static final RobotMode kRobotMode = Robot.isReal() ? RobotMode.REAL : kSimMode;
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
@@ -461,6 +461,8 @@ public class Constants {
         kVisionConstants.maxAmbiguity = 0.2;
         kVisionConstants.maxDistance = 5;
         kVisionConstants.fieldLayoutGetter = Constants::getFieldLayoutWithIgnored;
+        kVisionConstants.isReplay = kRobotMode == RobotMode.REPLAY;
+        kVisionConstants.robotPoseSupplier = () -> RobotState.getInstance().getRobotPose();
     }
     //endregion
 
