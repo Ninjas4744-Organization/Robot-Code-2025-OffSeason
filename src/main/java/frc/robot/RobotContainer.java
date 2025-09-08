@@ -5,13 +5,11 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.NinjasLib.commands.DetachedCommand;
-import frc.lib.NinjasLib.localization.vision.Vision;
-import frc.lib.NinjasLib.localization.vision.VisionOutput;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandController;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandControllerIO;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandControllerIOPS5;
@@ -95,7 +93,7 @@ public class RobotContainer {
 
         RobotStateBase.setInstance(new RobotState(Constants.kSwerveConstants.kinematics));
         StateMachineBase.setInstance(new StateMachine());
-        Vision.setInstance(new Vision(Constants.kVisionConstants));
+//        Vision.setInstance(new Vision(Constants.kVisionConstants));
         stdCalculator = new STDDevCalculator();
 
         if (Robot.isSimulation()) {
@@ -103,6 +101,7 @@ public class RobotContainer {
                 SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralOnField(new Pose2d(1.5, 4, Rotation2d.kZero)));
         }
 
+        registerCommands();
         configureAuto();
         configureBindings();
     }
@@ -113,7 +112,7 @@ public class RobotContainer {
 
             pose -> {
                 RobotState.getInstance().setRobotPose(pose);
-                Swerve.getInstance().getGyro().resetYaw(pose.getRotation());
+//                Swerve.getInstance().getGyro().resetYaw(pose.getRotation()); //TODO RETURN
             }, // Method to reset odometry (will be called if your auto has a starting pose)
 
             () -> Swerve.getInstance().getChassisSpeeds(false), // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
@@ -127,14 +126,14 @@ public class RobotContainer {
         );
 
         autoChooser = new LoggedDashboardChooser<>("Auto Chooser", AutoBuilder.buildAutoChooser());
-
-        registerCommands();
     }
 
     private void registerCommands() {
-        NamedCommands.registerCommand("Coral Intake", swerveSubsystem.driveToCoral());
+        NamedCommands.registerCommand("Coral Intake", new DetachedCommand(swerveSubsystem.driveToCoral()));
+        NamedCommands.registerCommand("Wait Coral", Commands.waitUntil(() -> CoralDetection.getInstance().hasTargets()));
         NamedCommands.registerCommand("Drive Left Reef", changeRobotState(States.DRIVE_LEFT_REEF));
         NamedCommands.registerCommand("Drive Right Reef", changeRobotState(States.DRIVE_RIGHT_REEF));
+        NamedCommands.registerCommand("Outtake", changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1));
         NamedCommands.registerCommand("Set L1", setL(1));
         NamedCommands.registerCommand("Set L2", setL(2));
         NamedCommands.registerCommand("Set L3", setL(3));
@@ -275,13 +274,13 @@ public class RobotContainer {
     public void periodic() {
         swerveSubsystem.swerveDrive(driverController);
 
-        VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
-        stdCalculator.update(estimations);
-        for (int i = 0; i < estimations.length; i++)
-            RobotState.getInstance().updateRobotPose(estimations[i], stdCalculator.getOdometrySTDDev(), stdCalculator.getVisionSTDDev()[i]);
+//        VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
+//        stdCalculator.update(estimations);
+//        for (int i = 0; i < estimations.length; i++)
+//            RobotState.getInstance().updateRobotPose(estimations[i], stdCalculator.getOdometrySTDDev(), stdCalculator.getVisionSTDDev()[i]);
 
         CoralDetection.getInstance().update();
-        if (CoralDetection.getInstance().hasTarget()) {
+        if (CoralDetection.getInstance().hasTargets()) {
             Pose2d robotPose = RobotState.getInstance().getRobotPose();
             Translation2d dir = CoralDetection.getInstance().getFieldRelativeDir();
             Logger.recordOutput("Coral Detection Dir", new Pose2d(
@@ -300,14 +299,13 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return Commands.none();
-//        return autoChooser.getSelected();
+        return autoChooser.get();
     }
 
     public void reset() {
         Swerve.getInstance().resetModulesToAbsolute();
-        SwerveController.getInstance().setChannel("Driver");
-        SwerveController.getInstance().setControl(new SwerveInput(), "Driver");
+        SwerveController.getInstance().setChannel(DriverStation.isAutonomous() ? "Auto" : "Driver");
+        SwerveController.getInstance().setControl(new SwerveInput(), DriverStation.isAutonomous() ? "Auto" : "Driver");
         StateMachine.getInstance().changeRobotState(States.RESET);
     }
 }

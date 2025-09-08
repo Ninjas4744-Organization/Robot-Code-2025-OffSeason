@@ -11,11 +11,7 @@
     "to source left",
     "to source right"
   ],
-  "autoFolders": [
-    "start left",
-    "start center",
-    "start right"
-  ],
+  "autoFolders": [],
   "defaultMaxVel": 2.0,
   "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 400.0,
