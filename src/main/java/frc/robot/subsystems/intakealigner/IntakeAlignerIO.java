@@ -11,13 +11,12 @@ public interface IntakeAlignerIO {
     default void setup() {
     }
 
-    default Controller getController() {
-        return null;
-    }
-
     default void updateInputs(IntakeAlignerIOInputsAutoLogged inputs) {
     }
 
     default void periodic() {
+    }
+
+    default void setPercent(double percent){
     }
 }

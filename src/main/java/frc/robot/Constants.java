@@ -9,10 +9,7 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -47,11 +44,10 @@ public class Constants {
 
     //region General
     public static final RobotMode kSimMode = RobotMode.SIM;
-    public static final RobotMode kCurrentMode = Robot.isReal() ? RobotMode.REAL : kSimMode;
+    public static final RobotMode kRobotMode = Robot.isReal() ? RobotMode.REAL : kSimMode;
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
     public static final String kCANBusName = "";
-    public static final int kPigeonID = 45;
     //endregion
 
     //region Subsystems
@@ -432,6 +428,11 @@ public class Constants {
 //        kSwerveConstants.odometryThreadFrequency = 2;
         kSwerveConstants.enableOdometryThread = false;
         kSwerveConstants.odometryThreadFrequency = 50;
+        kSwerveConstants.isReplay = kRobotMode == RobotMode.REPLAY;
+        kSwerveConstants.robotStartPose = new Pose2d(3, 3, Rotation2d.kZero);
+        kSwerveConstants.gyroID = 45;
+        kSwerveConstants.gyroInverted = kInvertGyro;
+        kSwerveConstants.gyroType = SwerveConstants.GyroType.Pigeon2;
     }
 
     public static final SwerveControllerConstants kSwerveControllerConstants = new SwerveControllerConstants();
@@ -449,7 +450,6 @@ public class Constants {
         );
     //endregion
 
-
     //region Vision
     public static final VisionConstants kVisionConstants = new VisionConstants();
     static {
@@ -459,8 +459,10 @@ public class Constants {
         );
 
         kVisionConstants.maxAmbiguity = 0.2;
-        kVisionConstants.maxDistance = 2;
+        kVisionConstants.maxDistance = 5;
         kVisionConstants.fieldLayoutGetter = Constants::getFieldLayoutWithIgnored;
+        kVisionConstants.isReplay = kRobotMode == RobotMode.REPLAY;
+        kVisionConstants.robotPoseSupplier = () -> RobotState.getInstance().getRobotPose();
     }
     //endregion
 
@@ -517,16 +519,20 @@ public class Constants {
     //endregion
 
     //region Standard Deviations
-    public static final double kOdometryFOMPerMeter = 0.05;
+    public static final double kOdometrySTDPerMeter = 0.02;
     public static final double kCrashedAccelerationThreshold = 15;
-    public static final double kCrashedOdometryFOMBonus = 4;
-    public static final double kResetOdometryFOMThreshold = 2.5;
-    public static final double kOdometryFOMResetValue = 1;
+    public static final double kCrashedOdometrySTDBonus = 4;
+    public static final double kResetOdometrySTDThreshold = 2.5;
+    public static final double kOdometrySTDResetValue = 0.1;
+    public static final int kCyclesToOdometrySTDReset = 35;
 
-    public static final double kVisionFOMDistMultiplier = 1;
-    public static final double kVisionFOMSpeedMultiplier = 1;
-    public static final double kVisionFOMAngularSpeedMultiplier = 1;
-    public static final double kVisionFOMAngleTransformMultiplier = 1;
+    public static final double kVisionSTDGood = 0.9;
+    public static final double kVisionSTDDistMultiplier = 1;
+    public static final double kVisionSTDGoodDist = 1.5;
+    public static final double kVisionSTDSpeedMultiplier = 1;
+    public static final double kVisionSTDGoodSpeed = 2;
+    public static final double kVisionSTDAngularSpeedMultiplier = 1;
+    public static final double kVisionSTDGoodAngularSpeed = 2;
 
     //region Auto Drive
     public static final double kAutoDriveDistFromReef = 0.25;

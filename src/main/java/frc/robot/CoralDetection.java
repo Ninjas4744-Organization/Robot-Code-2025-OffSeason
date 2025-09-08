@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.lib.NinjasLib.swerve.Swerve;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -21,10 +22,14 @@ public class CoralDetection {
     }
 
     private CoralDetection() {
-        camera = new PhotonCamera("Coral");
+        if(Robot.isReal())
+            camera = new PhotonCamera("Coral");
     }
 
     public void update() {
+        if(Robot.isSimulation())
+            return;
+
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();
         if (results.isEmpty())
             return;
@@ -47,6 +52,6 @@ public class CoralDetection {
     }
 
     public Translation2d getFieldRelativeDir() {
-        return new Translation2d(1, RobotState.getInstance().getGyroYaw().rotateBy(yaw.unaryMinus()));
+        return new Translation2d(1, Swerve.getInstance().getGyro().getYaw().rotateBy(yaw.unaryMinus()));
     }
 }

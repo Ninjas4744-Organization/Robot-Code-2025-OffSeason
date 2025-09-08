@@ -38,7 +38,7 @@ public class IntakeAligner extends SubsystemBase {
         }
 
         return Commands.runOnce(
-                () -> io.getController().setPercent(percent.getAsDouble())
+                () -> io.setPercent(percent.getAsDouble())
         );
     }
 
