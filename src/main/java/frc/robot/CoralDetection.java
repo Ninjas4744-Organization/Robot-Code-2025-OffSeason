@@ -3,7 +3,6 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.lib.NinjasLib.swerve.Swerve;
-import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -45,22 +44,23 @@ public class CoralDetection {
 
         targets = result.getTargets();
 
-        if(currentTargetId >= targets.size())
-            currentTargetId = 0;
+//        if(currentTargetId >= targets.size())
+//            currentTargetId = 0;
+//
+//        for(int i = 0; i < targets.size(); i++) {
+//            if(targets.get(i).getArea() - targets.get(currentTargetId).getArea() > 2)
+//                currentTargetId = i;
+//        }
+//
+//        for (int i = 0; i < targets.size(); i++) {
+//            Logger.recordOutput("Target" + i + " Area", targets.get(i).getArea());
+//        }
+//
+//        Logger.recordOutput("Current Target Id", currentTargetId);
+//        Logger.recordOutput("Current Target Area", targets.get(currentTargetId));
 
-        for(int i = 0; i < targets.size(); i++) {
-            if(targets.get(i).getArea() - targets.get(currentTargetId).getArea() > 2)
-                currentTargetId = i;
-        }
-
-        for (int i = 0; i < targets.size(); i++) {
-            Logger.recordOutput("Target" + i + " Area", targets.get(i).getArea());
-        }
-
-        Logger.recordOutput("Current Target Id", currentTargetId);
-        Logger.recordOutput("Current Target Area", targets.get(currentTargetId));
-
-        yaw = Rotation2d.fromDegrees(targets.get(currentTargetId).getYaw() + 3);
+//        yaw = Rotation2d.fromDegrees(targets.get(currentTargetId).getYaw() + 3);
+        yaw = Rotation2d.fromDegrees(targets.get(0).getYaw() + 3);
     }
 
     public boolean hasTargets() {

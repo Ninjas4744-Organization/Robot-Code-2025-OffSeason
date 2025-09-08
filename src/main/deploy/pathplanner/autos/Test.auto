@@ -27,42 +27,6 @@
           "data": {
             "pathName": "source right - front"
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Outtake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Coral Intake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "front - source right"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Wait Coral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "source right - front"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Outtake"
-          }
         }
       ]
     }
