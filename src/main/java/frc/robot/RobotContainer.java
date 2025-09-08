@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -44,6 +45,7 @@ import frc.robot.subsystems.outtake.OuttakeIOController;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnField;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
 //    private CommandPS5Controller driverController;
@@ -59,8 +61,8 @@ public class RobotContainer {
     private static Climber climber;
     private static SwerveSubsystem swerveSubsystem;
 
-    private SendableChooser<Command> autoChooser;
     private STDDevCalculator stdCalculator;
+    private LoggedDashboardChooser<Command> autoChooser;
 
     public RobotContainer() {
         switch (Constants.kRobotMode) {
@@ -94,7 +96,6 @@ public class RobotContainer {
         RobotStateBase.setInstance(new RobotState(Constants.kSwerveConstants.kinematics));
         StateMachineBase.setInstance(new StateMachine());
         Vision.setInstance(new Vision(Constants.kVisionConstants));
-//        autoChooser = AutoBuilder.buildAutoChooser();
         stdCalculator = new STDDevCalculator();
 
         if (Robot.isSimulation()) {
@@ -102,15 +103,42 @@ public class RobotContainer {
                 SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralOnField(new Pose2d(1.5, 4, Rotation2d.kZero)));
         }
 
+        configureAuto();
+        configureBindings();
+    }
+
+    private void configureAuto() {
+        AutoBuilder.configure(
+            () -> RobotState.getInstance().getRobotPose(), // Robot pose supplier
+
+            pose -> {
+                RobotState.getInstance().setRobotPose(pose);
+                Swerve.getInstance().getGyro().resetYaw(pose.getRotation());
+            }, // Method to reset odometry (will be called if your auto has a starting pose)
+
+            () -> Swerve.getInstance().getChassisSpeeds(false), // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+
+            drive -> SwerveController.getInstance().setControl(new SwerveInput(drive, false), "Auto"), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+
+            Constants.kAutonomyConfig, //Autonomy config
+            Constants.kSwerveConstants.robotConfig, //Robot config
+
+            () -> false
+        );
+
+        autoChooser = new LoggedDashboardChooser<>("Auto Chooser", AutoBuilder.buildAutoChooser());
+
+        registerCommands();
+    }
+
+    private void registerCommands() {
         NamedCommands.registerCommand("Coral Intake", swerveSubsystem.driveToCoral());
         NamedCommands.registerCommand("Drive Left Reef", changeRobotState(States.DRIVE_LEFT_REEF));
         NamedCommands.registerCommand("Drive Right Reef", changeRobotState(States.DRIVE_RIGHT_REEF));
-        NamedCommands.registerCommand("Prepare L1", setL(1));
-        NamedCommands.registerCommand("Prepare L2", setL(2));
-        NamedCommands.registerCommand("Prepare L3", setL(3));
-        NamedCommands.registerCommand("Prepare L4", setL(4));
-
-        configureBindings();
+        NamedCommands.registerCommand("Set L1", setL(1));
+        NamedCommands.registerCommand("Set L2", setL(2));
+        NamedCommands.registerCommand("Set L3", setL(3));
+        NamedCommands.registerCommand("Set L4", setL(4));
     }
 
     private Command changeRobotState(States state){
