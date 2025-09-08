@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -102,7 +103,24 @@ public class RobotContainer {
                 SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralOnField(new Pose2d(1.5, 4, Rotation2d.kZero)));
         }
 
+        NamedCommands.registerCommand("Coral Intake", swerveSubsystem.driveToCoral());
+        NamedCommands.registerCommand("Drive Left Reef", changeRobotState(States.DRIVE_LEFT_REEF));
+        NamedCommands.registerCommand("Drive Right Reef", changeRobotState(States.DRIVE_RIGHT_REEF));
+        NamedCommands.registerCommand("Prepare L1", setL(1));
+        NamedCommands.registerCommand("Prepare L2", setL(2));
+        NamedCommands.registerCommand("Prepare L3", setL(3));
+        NamedCommands.registerCommand("Prepare L4", setL(4));
+
         configureBindings();
+    }
+
+    private Command changeRobotState(States state){
+        return Commands.runOnce(() -> StateMachine.getInstance().changeRobotState(state));
+
+    }
+
+    private Command setL(int L){
+        return Commands.runOnce(() -> RobotState.getInstance().setL(L));
     }
 
     private void configureBindings() {
