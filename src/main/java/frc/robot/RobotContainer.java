@@ -135,8 +135,8 @@ public class RobotContainer {
     }
 
     private void registerCommands() {
-        NamedCommands.registerCommand("Coral Intake", new DetachedCommand(swerveSubsystem.driveToCoral()));
-        NamedCommands.registerCommand("Wait Coral", Commands.waitUntil(() -> coralDetection.hasTargets()));
+        NamedCommands.registerCommand("Intake Coral", new DetachedCommand(swerveSubsystem.driveToCoral()));
+        NamedCommands.registerCommand("Wait Coral", Commands.waitUntil(() -> RobotState.getInstance().getRobotState() == States.CORAL_IN_INTAKE));
         NamedCommands.registerCommand("Drive Left Reef", changeRobotState(States.DRIVE_LEFT_REEF));
         NamedCommands.registerCommand("Drive Right Reef", changeRobotState(States.DRIVE_RIGHT_REEF));
         NamedCommands.registerCommand("Outtake", changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1));
@@ -146,11 +146,11 @@ public class RobotContainer {
         NamedCommands.registerCommand("Set L4", setL(4));
     }
 
-    private Command changeRobotState(States state){
+    private Command changeRobotState(States state) {
         return Commands.runOnce(() -> StateMachine.getInstance().changeRobotState(state));
     }
 
-    private Command setL(int L){
+    private Command setL(int L) {
         return Commands.runOnce(() -> RobotState.getInstance().setL(L));
     }
 

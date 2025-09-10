@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intake;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -13,6 +14,7 @@ public class Intake extends SubsystemBase {
     private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
     private boolean enabled;
     private boolean isCoralInside = false;
+    private Timer coralTimer = new Timer();
 
     public Intake(boolean enabled, IntakeIO io) {
         if (enabled) {
@@ -27,13 +29,22 @@ public class Intake extends SubsystemBase {
         if (!enabled)
             return;
 
-        if (Math.abs(inputs.Current) > 65 && inputs.Output < 0)
+        if (Math.abs(inputs.Current) > 65 && inputs.Output < 0) {
+            if (!coralTimer.isRunning())
+                coralTimer.restart();
+        } else {
+            coralTimer.stop();
+            coralTimer.reset();
+        }
+
+        if(coralTimer.get() > 0.25)
             isCoralInside = true;
 
         io.periodic();
 
         io.updateInputs(inputs);
         Logger.processInputs("Intake", inputs);
+        Logger.recordOutput("Coral Timer", coralTimer.get());
     }
 
     public Command setPercent(DoubleSupplier percent) {
@@ -84,8 +95,8 @@ public class Intake extends SubsystemBase {
                 Commands.runOnce(() -> isCoralInside = false),
                 intake(),
                 Commands.race(
-                        Commands.waitUntil(() -> Math.abs(inputs.Current) > 65),
-                        Commands.waitSeconds(0.25)
+                        Commands.waitUntil(() -> isCoralInside),
+                        Commands.waitSeconds(0.5)
                 ),
                 stop()
         );

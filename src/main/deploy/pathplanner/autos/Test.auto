@@ -5,9 +5,27 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "front - source right"
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "Coral Intake"
+            "name": "Wait Coral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "source right - front"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Outtake"
           }
         },
         {
@@ -26,6 +44,12 @@
           "type": "path",
           "data": {
             "pathName": "source right - front"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Outtake"
           }
         }
       ]
