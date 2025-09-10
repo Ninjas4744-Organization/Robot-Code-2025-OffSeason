@@ -27,7 +27,7 @@ public class Intake extends SubsystemBase {
         if (!enabled)
             return;
 
-        if (Math.abs(io.getController().getCurrent()) > 65 && io.getController().getOutput() < 0)
+        if (Math.abs(inputs.Current) > 65 && inputs.Output < 0)
             isCoralInside = true;
 
         io.periodic();
@@ -42,7 +42,7 @@ public class Intake extends SubsystemBase {
         }
 
         return Commands.runOnce(
-            () -> io.getController().setPercent(percent.getAsDouble())
+            () -> io.setPercent(percent.getAsDouble())
         );
     }
 
@@ -72,7 +72,7 @@ public class Intake extends SubsystemBase {
         }
 
         return Commands.runOnce(
-            () -> io.getController().setPercent(0)
+            () -> io.setPercent(0)
         );
     }
 
@@ -84,7 +84,7 @@ public class Intake extends SubsystemBase {
                 Commands.runOnce(() -> isCoralInside = false),
                 intake(),
                 Commands.race(
-                        Commands.waitUntil(() -> Math.abs(io.getController().getCurrent()) > 65),
+                        Commands.waitUntil(() -> Math.abs(inputs.Current) > 65),
                         Commands.waitSeconds(0.25)
                 ),
                 stop()

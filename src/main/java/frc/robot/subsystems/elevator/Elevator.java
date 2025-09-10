@@ -37,7 +37,7 @@ public class Elevator extends SubsystemBase {
             return Commands.none();
         }
         return Commands.runOnce(() -> {
-            io.getController().setPosition(wantedHeight.getAsDouble());
+            io.setPosition(wantedHeight.getAsDouble());
         });
     }
 
@@ -67,7 +67,7 @@ public class Elevator extends SubsystemBase {
         if (!enabled) {
             return true;
         }
-        return io.getController().atGoal();
+        return inputs.AtGoal;
     }
 
     public Command reset() {
@@ -75,15 +75,15 @@ public class Elevator extends SubsystemBase {
             return Commands.none();
         }
         return Commands.run(() -> {
-            io.getController().setPercent(-0.2);
-        }).until(() -> io.getController().getLimit());
+            io.setPercent(-0.2);
+        }).until(() -> inputs.LimitSwitch);
     }
 
     public boolean isReset() {
         if (!enabled) {
             return true;
         }
-        return io.getController().getLimit();
+        return inputs.LimitSwitch;
     }
 
     public boolean isEnabled() {

@@ -1,14 +1,18 @@
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.NinjasLib.commands.DetachedCommand;
+import frc.lib.NinjasLib.loggedcontroller.LoggedCommandController;
+import frc.lib.NinjasLib.loggedcontroller.LoggedCommandControllerIO;
+import frc.lib.NinjasLib.loggedcontroller.LoggedCommandControllerIOPS5;
 import frc.lib.NinjasLib.statemachine.RobotStateBase;
 import frc.lib.NinjasLib.statemachine.StateMachineBase;
 import frc.lib.NinjasLib.swerve.Swerve;
@@ -40,9 +44,11 @@ import frc.robot.subsystems.outtake.OuttakeIOController;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnField;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
-    private CommandPS5Controller driverController;
+//    private CommandPS5Controller driverController;
+    private LoggedCommandController driverController;
 //    private CommandPS5Controller operatorController;
 
     private static Elevator elevator;
@@ -54,11 +60,11 @@ public class RobotContainer {
     private static Climber climber;
     private static SwerveSubsystem swerveSubsystem;
 
-    private SendableChooser<Command> autoChooser;
-    private FOMCalculator fomCalculator;
+    private STDDevCalculator stdCalculator;
+    private LoggedDashboardChooser<Command> autoChooser;
 
     public RobotContainer() {
-        switch (Constants.kCurrentMode) {
+        switch (Constants.kRobotMode) {
             case REAL, SIM:
                 arm = new Arm(false, new ArmIOController());
                 elevator = new Elevator(false, new ElevatorIOController());
@@ -68,42 +74,80 @@ public class RobotContainer {
                 outtake = new Outtake(false, new OuttakeIOController());
                 climber = new Climber(false, new ClimberIOController());
                 swerveSubsystem = new SwerveSubsystem(true);
+
+                driverController = new LoggedCommandController(new LoggedCommandControllerIOPS5(Constants.kDriverControllerPort));
                 break;
 
             case REPLAY:
-                arm = new Arm(false, new ArmIO() {
-                });
-                elevator = new Elevator(false, new ElevatorIO() {
-                });
-                intake = new Intake(false, new IntakeIO() {
-                });
-                intakeAngle = new IntakeAngle(false, new IntakeAngleIO() {
-                });
-                intakeAligner = new IntakeAligner(false, new IntakeAlignerIO() {
-                });
-                outtake = new Outtake(false, new OuttakeIO() {
-                });
-                climber = new Climber(false, new ClimberIO() {
-                });
-                swerveSubsystem = new SwerveSubsystem(false);
+                arm = new Arm(false, new ArmIO() {});
+                elevator = new Elevator(false, new ElevatorIO() {});
+                intake = new Intake(true, new IntakeIO() {});
+                intakeAngle = new IntakeAngle(false, new IntakeAngleIO() {});
+                intakeAligner = new IntakeAligner(false, new IntakeAlignerIO() {});
+                outtake = new Outtake(false, new OuttakeIO() {});
+                climber = new Climber(false, new ClimberIO() {});
+                swerveSubsystem = new SwerveSubsystem(true);
+
+                driverController = new LoggedCommandController(new LoggedCommandControllerIO() {});
                 break;
         }
 
-        RobotStateBase.setInstance(new RobotState(Constants.kSwerveConstants.kinematics, Constants.kInvertGyro, Constants.kPigeonID, Constants.kSwerveConstants.enableOdometryThread));
+        RobotStateBase.setInstance(new RobotState(Constants.kSwerveConstants.kinematics));
         StateMachineBase.setInstance(new StateMachine());
 //        Vision.setInstance(new Vision(Constants.kVisionConstants));
-//        autoChooser = AutoBuilder.buildAutoChooser();
-        fomCalculator = new FOMCalculator();
-
-        driverController = new CommandPS5Controller(Constants.kDriverControllerPort);
-//        operatorController = new CommandPS5Controller(Constants.kOperatorControllerPort);
+        stdCalculator = new STDDevCalculator();
 
         if (Robot.isSimulation()) {
             for (int i = 0; i < 10; i++)
                 SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralOnField(new Pose2d(1.5, 4, Rotation2d.kZero)));
         }
 
+        registerCommands();
+        configureAuto();
         configureBindings();
+    }
+
+    private void configureAuto() {
+        AutoBuilder.configure(
+            () -> RobotState.getInstance().getRobotPose(), // Robot pose supplier
+
+            pose -> {
+                RobotState.getInstance().setRobotPose(pose);
+//                Swerve.getInstance().getGyro().resetYaw(pose.getRotation()); //TODO RETURN
+            }, // Method to reset odometry (will be called if your auto has a starting pose)
+
+            () -> Swerve.getInstance().getChassisSpeeds(false), // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+
+            drive -> SwerveController.getInstance().setControl(new SwerveInput(drive, false), "Auto"), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+
+            Constants.kAutonomyConfig, //Autonomy config
+            Constants.kSwerveConstants.robotConfig, //Robot config
+
+            () -> false
+        );
+
+        autoChooser = new LoggedDashboardChooser<>("Auto Chooser", AutoBuilder.buildAutoChooser());
+    }
+
+    private void registerCommands() {
+        NamedCommands.registerCommand("Coral Intake", new DetachedCommand(swerveSubsystem.driveToCoral()));
+        NamedCommands.registerCommand("Wait Coral", Commands.waitUntil(() -> CoralDetection.getInstance().hasTargets()));
+        NamedCommands.registerCommand("Drive Left Reef", changeRobotState(States.DRIVE_LEFT_REEF));
+        NamedCommands.registerCommand("Drive Right Reef", changeRobotState(States.DRIVE_RIGHT_REEF));
+        NamedCommands.registerCommand("Outtake", changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1));
+        NamedCommands.registerCommand("Set L1", setL(1));
+        NamedCommands.registerCommand("Set L2", setL(2));
+        NamedCommands.registerCommand("Set L3", setL(3));
+        NamedCommands.registerCommand("Set L4", setL(4));
+    }
+
+    private Command changeRobotState(States state){
+        return Commands.runOnce(() -> StateMachine.getInstance().changeRobotState(state));
+
+    }
+
+    private Command setL(int L){
+        return Commands.runOnce(() -> RobotState.getInstance().setL(L));
     }
 
     private void configureBindings() {
@@ -111,8 +155,8 @@ public class RobotContainer {
 
         //region Driver Buttons
         //region Gyro Reset
-        driverController.R1().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(Rotation2d.kZero)));
-        driverController.L1().onTrue(Commands.runOnce(() -> RobotState.getInstance().resetGyro(RobotState.getInstance().getRobotPose().getRotation())));
+        driverController.R1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(Rotation2d.kZero)));
+        driverController.L1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(RobotState.getInstance().getRobotPose().getRotation())));
         //endregion
 
         //region Auto Drive to Right Reef and score Coral High/low
@@ -232,12 +276,12 @@ public class RobotContainer {
         swerveSubsystem.swerveDrive(driverController);
 
 //        VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
-//        fomCalculator.update(estimations);
+//        stdCalculator.update(estimations);
 //        for (int i = 0; i < estimations.length; i++)
-//            RobotState.getInstance().updateRobotPose(estimations[i], fomCalculator.getOdometryFOM(), fomCalculator.getVisionFOM()[i]);
+//            RobotState.getInstance().updateRobotPose(estimations[i], stdCalculator.getOdometrySTDDev(), stdCalculator.getVisionSTDDev()[i]);
 
         CoralDetection.getInstance().update();
-        if (CoralDetection.getInstance().hasTarget()) {
+        if (CoralDetection.getInstance().hasTargets()) {
             Pose2d robotPose = RobotState.getInstance().getRobotPose();
             Translation2d dir = CoralDetection.getInstance().getFieldRelativeDir();
             Logger.recordOutput("Coral Detection Dir", new Pose2d(
@@ -247,6 +291,8 @@ public class RobotContainer {
             ));
         }
 
+        driverController.periodic();
+
         if (Robot.isSimulation()) {
             Logger.recordOutput("Simulation Field/Corals", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
             SimulatedArena.getInstance().simulationPeriodic();
@@ -254,14 +300,13 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return Commands.none();
-//        return autoChooser.getSelected();
+        return autoChooser.get();
     }
 
     public void reset() {
         Swerve.getInstance().resetModulesToAbsolute();
-        SwerveController.getInstance().setChannel("Driver");
-        SwerveController.getInstance().setControl(new SwerveInput(), "Driver");
+        SwerveController.getInstance().setChannel(DriverStation.isAutonomous() ? "Auto" : "Driver");
+        SwerveController.getInstance().setControl(new SwerveInput(), DriverStation.isAutonomous() ? "Auto" : "Driver");
         StateMachine.getInstance().changeRobotState(States.RESET);
     }
 }

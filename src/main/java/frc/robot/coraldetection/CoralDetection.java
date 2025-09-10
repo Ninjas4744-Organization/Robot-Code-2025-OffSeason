@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.RobotState;
 import org.littletonrobotics.junction.Logger;
+import frc.lib.NinjasLib.swerve.Swerve;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -15,10 +16,12 @@ public class CoralDetection {
     private final CoralDetectionIOInputsAutoLogged inputs = new CoralDetectionIOInputsAutoLogged();
     private boolean enabled;
 
-    private PhotonCamera camera;
-    private boolean hasTarget;
-    private Rotation2d yaw;
     private static CoralDetection instance;
+    private PhotonCamera camera;
+    private boolean hasTargets;
+    private Rotation2d yaw;
+    private List<PhotonTrackedTarget> targets;
+    private int currentTargetId = 0;
 
     public CoralDetection(boolean enabled, CoralDetectionIO io) {
         if (enabled) {
@@ -42,25 +45,47 @@ public class CoralDetection {
     }
 
     private CoralDetection() {
-        camera = new PhotonCamera("Coral");
+        if(Robot.isReal())
+            camera = new PhotonCamera("Coral");
     }
 
     public void update() {
+        if(Robot.isSimulation())
+            return;
+
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();
         if (results.isEmpty())
             return;
 
         PhotonPipelineResult result = results.get(results.size() - 1);
 
-        hasTarget = result.hasTargets();
-        if (result.hasTargets()) {
-            PhotonTrackedTarget target = result.getBestTarget();
-            yaw = Rotation2d.fromDegrees(target.getYaw() + 6);
-        }
+        hasTargets = result.hasTargets();
+        if (!hasTargets)
+            return;
+
+        targets = result.getTargets();
+
+//        if(currentTargetId >= targets.size())
+//            currentTargetId = 0;
+//
+//        for(int i = 0; i < targets.size(); i++) {
+//            if(targets.get(i).getArea() - targets.get(currentTargetId).getArea() > 2)
+//                currentTargetId = i;
+//        }
+//
+//        for (int i = 0; i < targets.size(); i++) {
+//            Logger.recordOutput("Target" + i + " Area", targets.get(i).getArea());
+//        }
+//
+//        Logger.recordOutput("Current Target Id", currentTargetId);
+//        Logger.recordOutput("Current Target Area", targets.get(currentTargetId));
+
+//        yaw = Rotation2d.fromDegrees(targets.get(currentTargetId).getYaw() + 3);
+        yaw = Rotation2d.fromDegrees(targets.get(0).getYaw() + 3);
     }
 
-    public boolean hasTarget() {
-        return hasTarget;
+    public boolean hasTargets() {
+        return hasTargets;
     }
 
     public Rotation2d getYaw() {
@@ -68,7 +93,7 @@ public class CoralDetection {
     }
 
     public Translation2d getFieldRelativeDir() {
-        return new Translation2d(1, RobotState.getInstance().getGyroYaw().rotateBy(yaw.unaryMinus()));
+        return new Translation2d(1, Swerve.getInstance().getGyro().getYaw().rotateBy(yaw.unaryMinus()));
     }
 
     public boolean isEnabled() {

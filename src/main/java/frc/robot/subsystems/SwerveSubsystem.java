@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import frc.lib.NinjasLib.loggedcontroller.LoggedCommandController;
 import frc.lib.NinjasLib.swerve.Swerve;
 import frc.lib.NinjasLib.swerve.SwerveController;
 import frc.lib.NinjasLib.swerve.SwerveInput;
@@ -59,7 +59,7 @@ public class SwerveSubsystem extends SubsystemBase {
         }
     }
 
-    public void swerveDrive(CommandPS5Controller controller) {
+    public void swerveDrive(LoggedCommandController controller) {
         SwerveController.getInstance().setControl(SwerveController.getInstance().fromPercent(
                 new SwerveInput(-MathUtil.applyDeadband(controller.getLeftY(), Constants.kJoystickDeadband) * Constants.kDriverSpeedFactor,
                         -MathUtil.applyDeadband(controller.getLeftX(), Constants.kJoystickDeadband) * Constants.kDriverSpeedFactor,
@@ -106,12 +106,18 @@ public class SwerveSubsystem extends SubsystemBase {
     private Timer noCoralTimer = new Timer();
     public Command driveToCoral() {
         driveToCoralCommand = Commands.sequence(
-                Commands.waitUntil(() -> CoralDetection.getInstance().hasTarget()),
+                Commands.waitSeconds(0.5),
+                Commands.waitUntil(() -> {
+                    System.out.println("WAITING FOR CORAL");
+                    return CoralDetection.getInstance().hasTargets();
+                }),
                 Commands.runOnce(() -> {
+                    System.out.println("Found Coral");
                     SwerveController.getInstance().setChannel("AutoCoral");
                     StateMachine.getInstance().changeRobotState(States.INTAKE_CORAL);
                 }),
                 Commands.run(() -> {
+                    System.out.println("Driving to coral");
                     Translation2d dir = CoralDetection.getInstance().getFieldRelativeDir();
 
                     double anglePID = SwerveController.getInstance().lookAt(dir);
@@ -129,10 +135,10 @@ public class SwerveSubsystem extends SubsystemBase {
                     if (RobotState.getInstance().getRobotState() == States.CORAL_IN_INTAKE)
                         return true;
 
-                    if (!CoralDetection.getInstance().hasTarget() && !noCoralTimer.isRunning())
+                    if (!CoralDetection.getInstance().hasTargets() && !noCoralTimer.isRunning())
                         noCoralTimer.restart();
 
-                    if (CoralDetection.getInstance().hasTarget()) {
+                    if (CoralDetection.getInstance().hasTargets()) {
                         noCoralTimer.stop();
                         noCoralTimer.reset();
                     }

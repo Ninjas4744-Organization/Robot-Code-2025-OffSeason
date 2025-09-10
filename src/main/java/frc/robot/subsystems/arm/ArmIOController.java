@@ -22,23 +22,24 @@ public class ArmIOController implements ArmIO {
     }
 
     @Override
-    public Rotation2d getCANCoder(){
-        return Rotation2d.fromRotations(canCoder.getAbsolutePosition().getValueAsDouble());
-    }
-
-    @Override
-    public Controller getController() {
-        return controller;
-    }
-
-    @Override
     public void updateInputs(ArmIOInputsAutoLogged inputs) {
         controller.updateInputs(inputs);
-        inputs.AbsoluteAngle = getCANCoder();
+        inputs.AbsoluteAngle = Rotation2d.fromRotations(canCoder.getAbsolutePosition().getValueAsDouble());
+        inputs.AtGoal = controller.atGoal();
     }
 
     @Override
     public void periodic() {
         controller.periodic();
+    }
+
+    @Override
+    public void setPosition(Rotation2d position) {
+        controller.setPosition(position.getRadians());
+    }
+
+    @Override
+    public void setEncoder(double position) {
+        controller.setEncoder(position);
     }
 }

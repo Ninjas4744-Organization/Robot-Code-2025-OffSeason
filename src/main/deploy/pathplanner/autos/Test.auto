@@ -1,0 +1,37 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Coral Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "front - source right"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Wait Coral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "source right - front"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
