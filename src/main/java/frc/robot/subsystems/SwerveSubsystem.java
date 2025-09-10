@@ -18,6 +18,7 @@ import frc.lib.NinjasLib.swerve.Swerve;
 import frc.lib.NinjasLib.swerve.SwerveController;
 import frc.lib.NinjasLib.swerve.SwerveInput;
 import frc.robot.*;
+import frc.robot.coraldetection.CoralDetection;
 
 import java.util.List;
 import java.util.function.BooleanSupplier;
