@@ -19,6 +19,8 @@ import frc.lib.NinjasLib.swerve.Swerve;
 import frc.lib.NinjasLib.swerve.SwerveController;
 import frc.lib.NinjasLib.swerve.SwerveInput;
 import frc.robot.coraldetection.CoralDetection;
+import frc.robot.coraldetection.CoralDetectionIO;
+import frc.robot.coraldetection.CoralDetectionIOCamera;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIO;
@@ -58,6 +60,7 @@ public class RobotContainer {
     private static IntakeAligner intakeAligner;
     private static Outtake outtake;
     private static Climber climber;
+    private static CoralDetection coralDetection;
     private static SwerveSubsystem swerveSubsystem;
 
     private STDDevCalculator stdCalculator;
@@ -75,6 +78,7 @@ public class RobotContainer {
                 climber = new Climber(false, new ClimberIOController());
                 swerveSubsystem = new SwerveSubsystem(true);
 
+                coralDetection = new CoralDetection(new CoralDetectionIOCamera());
                 driverController = new LoggedCommandController(new LoggedCommandControllerIOPS5(Constants.kDriverControllerPort));
                 break;
 
@@ -88,6 +92,7 @@ public class RobotContainer {
                 climber = new Climber(false, new ClimberIO() {});
                 swerveSubsystem = new SwerveSubsystem(true);
 
+                coralDetection = new CoralDetection(new CoralDetectionIO() {});
                 driverController = new LoggedCommandController(new LoggedCommandControllerIO() {});
                 break;
         }
@@ -131,7 +136,7 @@ public class RobotContainer {
 
     private void registerCommands() {
         NamedCommands.registerCommand("Coral Intake", new DetachedCommand(swerveSubsystem.driveToCoral()));
-        NamedCommands.registerCommand("Wait Coral", Commands.waitUntil(() -> CoralDetection.getInstance().hasTargets()));
+        NamedCommands.registerCommand("Wait Coral", Commands.waitUntil(() -> coralDetection.hasTargets()));
         NamedCommands.registerCommand("Drive Left Reef", changeRobotState(States.DRIVE_LEFT_REEF));
         NamedCommands.registerCommand("Drive Right Reef", changeRobotState(States.DRIVE_RIGHT_REEF));
         NamedCommands.registerCommand("Outtake", changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1));
@@ -143,7 +148,6 @@ public class RobotContainer {
 
     private Command changeRobotState(States state){
         return Commands.runOnce(() -> StateMachine.getInstance().changeRobotState(state));
-
     }
 
     private Command setL(int L){
@@ -267,6 +271,10 @@ public class RobotContainer {
         return climber;
     }
 
+    public static CoralDetection getCoralDetection() {
+        return coralDetection;
+    }
+
     public static SwerveSubsystem getSwerve() {
         return swerveSubsystem;
     }
@@ -280,10 +288,10 @@ public class RobotContainer {
 //        for (int i = 0; i < estimations.length; i++)
 //            RobotState.getInstance().updateRobotPose(estimations[i], stdCalculator.getOdometrySTDDev(), stdCalculator.getVisionSTDDev()[i]);
 
-        CoralDetection.getInstance().update();
-        if (CoralDetection.getInstance().hasTargets()) {
+        coralDetection.periodic();
+        if (coralDetection.hasTargets()) {
             Pose2d robotPose = RobotState.getInstance().getRobotPose();
-            Translation2d dir = CoralDetection.getInstance().getFieldRelativeDir();
+            Translation2d dir = coralDetection.getFieldRelativeDir();
             Logger.recordOutput("Coral Detection Dir", new Pose2d(
                     robotPose.getX() + dir.getX() / 2,
                     robotPose.getY() + dir.getY() / 2,
