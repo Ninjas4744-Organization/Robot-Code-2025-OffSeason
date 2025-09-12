@@ -6,18 +6,21 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ElevatorIO {
     @AutoLog
     class ElevatorIOInputs extends Controller.ControllerIOInputs {
+        boolean AtGoal;
     }
 
     default void setup() {
-    }
-
-    default Controller getController() {
-        return null;
     }
 
     default void updateInputs(ElevatorIOInputsAutoLogged inputs) {
     }
 
     default void periodic() {
+    }
+
+    default void setPosition(double position) {
+    }
+
+    default void setPercent(double position) {
     }
 }

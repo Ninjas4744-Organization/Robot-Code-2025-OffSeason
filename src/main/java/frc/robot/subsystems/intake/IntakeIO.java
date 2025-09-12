@@ -1,7 +1,6 @@
 package frc.robot.subsystems.intake;
 
 import frc.lib.NinjasLib.controllers.Controller;
-import frc.robot.subsystems.elevator.ElevatorIOInputsAutoLogged;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface IntakeIO {
@@ -12,9 +11,7 @@ public interface IntakeIO {
     default void setup() {
     }
 
-    default Controller getController() {
-        return null;
-    }
+    default void setPercent(double percent) { }
 
     default void updateInputs(IntakeIOInputsAutoLogged inputs) {
     }

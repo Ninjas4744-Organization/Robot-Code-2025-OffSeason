@@ -2,7 +2,6 @@ package frc.robot.subsystems.intake;
 
 import frc.lib.NinjasLib.controllers.Controller;
 import frc.robot.Constants;
-import frc.robot.subsystems.intake.IntakeIOInputsAutoLogged;
 
 public class IntakeIOController implements IntakeIO {
     private Controller controller;
@@ -10,11 +9,6 @@ public class IntakeIOController implements IntakeIO {
     @Override
     public void setup() {
         controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.kIntakeControllerConstants);
-    }
-
-    @Override
-    public Controller getController() {
-        return controller;
     }
 
     @Override
@@ -27,6 +21,7 @@ public class IntakeIOController implements IntakeIO {
         controller.periodic();
     }
 
+    @Override
     public void setPercent(double percent) {
         controller.setPercent(percent);
     }

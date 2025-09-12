@@ -12,11 +12,6 @@ public class OuttakeIOController implements OuttakeIO{
     }
 
     @Override
-    public Controller getController() {
-        return controller;
-    }
-
-    @Override
     public void updateInputs(OuttakeIOInputsAutoLogged inputs) {
         controller.updateInputs(inputs);
     }
@@ -24,5 +19,10 @@ public class OuttakeIOController implements OuttakeIO{
     @Override
     public void periodic() {
         controller.periodic();
+    }
+
+    @Override
+    public void setPercent(double percent) {
+        controller.setPercent(percent);
     }
 }

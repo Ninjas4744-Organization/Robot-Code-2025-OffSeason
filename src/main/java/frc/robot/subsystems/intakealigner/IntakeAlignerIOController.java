@@ -12,11 +12,6 @@ public class IntakeAlignerIOController implements IntakeAlignerIO {
     }
 
     @Override
-    public Controller getController() {
-        return controller;
-    }
-
-    @Override
     public void updateInputs(IntakeAlignerIOInputsAutoLogged inputs) {
         controller.updateInputs(inputs);
     }
@@ -26,6 +21,7 @@ public class IntakeAlignerIOController implements IntakeAlignerIO {
         controller.periodic();
     }
 
+    @Override
     public void setPercent(double percent) {
         controller.setPercent(percent);
     }
