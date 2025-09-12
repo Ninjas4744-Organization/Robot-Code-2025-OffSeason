@@ -9,8 +9,6 @@ FRC Team Ninjas#4744's robot code for the 2025 FRC game **REEFSCAPE** (Offseason
 - **NinjasLib** – Our custom library providing reusable FRC utilities, math helpers, hardware abstractions, swerve and vision.
 
 ## Notable Features
-- **Cool FOM System** – A custom Field-Oriented Measurement system for odometry and vision fusion.
-- **MegaTag2 Limelight Integration** – Tag-based localization with automatic camera selection and vision-based pose correction.
 - **State Machine + WPILib Commands** – Combines the predictability of finite state machines with the flexibility of command-based programming.
 - **AdvantageKit Logging** – Robust data logging for debugging and performance analysis.
 - **Robot Physics Simulation** – Realistic simulation of drivetrain and mechanisms for testing without hardware.
