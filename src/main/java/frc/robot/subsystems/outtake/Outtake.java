@@ -28,7 +28,7 @@ public class Outtake extends SubsystemBase {
         if (!enabled)
             return;
 
-        if (Math.abs(io.getController().getCurrent()) > 35 && io.getController().getOutput() < 0) {
+        if (Math.abs(inputs.Current) > 35 && inputs.Output < 0) {
             if (RobotState.getInstance().getRobotState() == States.INTAKE_CORAL)
                 isCoralInside = true;
             else
@@ -45,21 +45,21 @@ public class Outtake extends SubsystemBase {
         if (!enabled){
             return Commands.none();
         }
-        return Commands.runOnce(() -> io.getController().setPercent(0));
+        return Commands.runOnce(() -> io.setPercent(0));
     }
 
     public Command intake() {
         if (!enabled){
             return Commands.none();
         }
-        return Commands.runOnce(() -> io.getController().setPercent(Constants.OuttakeSpeeds.Intake.get()));
+        return Commands.runOnce(() -> io.setPercent(Constants.OuttakeSpeeds.Intake.get()));
     }
 
     public Command outtake() {
         if (!enabled){
             return Commands.none();
         }
-        return Commands.runOnce(() -> io.getController().setPercent(Constants.OuttakeSpeeds.Outtake.get()));
+        return Commands.runOnce(() -> io.setPercent(Constants.OuttakeSpeeds.Outtake.get()));
     }
 
     public boolean isCoralInside() {
@@ -88,7 +88,7 @@ public class Outtake extends SubsystemBase {
                 intake(),
                 Commands.race(
                         Commands.waitUntil(() -> {
-                            hadObjectInside = Math.abs(io.getController().getCurrent()) > 35;
+                            hadObjectInside = Math.abs(inputs.Current) > 35;
                             return hadObjectInside;
                         }),
                         Commands.waitSeconds(1)

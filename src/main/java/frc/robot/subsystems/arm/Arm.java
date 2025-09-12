@@ -35,7 +35,7 @@ public class Arm extends SubsystemBase {
         if (!enabled) {
             return Commands.none();
         }
-        return Commands.runOnce(() -> {io.getController().setPosition(angle.getRadians());});
+        return Commands.runOnce(() -> io.setPosition(angle));
     }
 
     public Command lookDown() {
@@ -44,9 +44,9 @@ public class Arm extends SubsystemBase {
 
     public Command lookAtCoralReef(int L) {
         return switch (L) {
-            case 2-> setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.L4.get()));
-            case 3-> setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.L3.get()));
-            case 4-> setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.L2.get()));
+            case 2 -> setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.L4.get()));
+            case 3 -> setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.L3.get()));
+            case 4 -> setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.L2.get()));
             default -> setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Close.get()));
         };
     }
@@ -67,28 +67,28 @@ public class Arm extends SubsystemBase {
         if (!enabled) {
             return Rotation2d.kZero;
         }
-        return Rotation2d.fromRadians(io.getController().getPosition());
+        return Rotation2d.fromRadians(inputs.Position);
     }
 
     public boolean atGoal(){
         if (!enabled){
             return true;
         }
-        return io.getController().atGoal();
+        return inputs.AtGoal;
     }
 
     public Command reset(){
         if (!enabled){
             return Commands.none();
         }
-        return Commands.runOnce(() -> io.getController().setEncoder(io.getCANCoder().getRadians())).andThen(setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Close.get())));
+        return Commands.runOnce(() -> io.setEncoder(inputs.AbsoluteAngle.getRadians())).andThen(setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Close.get())));
     }
 
     public boolean isReset(){
        if (!enabled){
             return true;
        }
-       return Math.abs(io.getCANCoder().getDegrees() - Constants.ArmPositions.Close.get()) < Constants.kArmControllerConstants.real.positionGoalTolerance;
+       return Math.abs(inputs.AbsoluteAngle.getDegrees() - Constants.ArmPositions.Close.get()) < Constants.kArmControllerConstants.real.positionGoalTolerance;
     }
 
     public boolean isEnabled() {

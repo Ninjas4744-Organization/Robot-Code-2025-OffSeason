@@ -282,7 +282,8 @@ public class StateMachine extends StateMachineBase<States> {
                         arm.reset(),
                         intake.reset(),
                         outtake.reset(),
-                        intakeAngle.reset()
+                        intakeAngle.reset(),
+                        swerve.reset()
                 ),
                 Commands.waitUntil(() -> elevator.isReset() && arm.isReset() && intakeAngle.isReset()),
                 Commands.runOnce(() -> {

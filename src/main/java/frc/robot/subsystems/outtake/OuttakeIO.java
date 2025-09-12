@@ -11,13 +11,12 @@ public interface OuttakeIO {
     default void setup() {
     }
 
-    default Controller getController() {
-        return null;
-    }
-
     default void updateInputs(OuttakeIOInputsAutoLogged inputs) {
     }
 
     default void periodic() {
+    }
+
+    default void setPercent(double percent){
     }
 }

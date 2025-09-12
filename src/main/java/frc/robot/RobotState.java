@@ -22,8 +22,8 @@ public class RobotState extends RobotStateWithSwerve<States> {
         return intakeBeamBreaker.get();
     }
 
-    public RobotState(SwerveDriveKinematics kinematics, boolean gyroInverted, int pigeonID, boolean enableOdometryThread) {
-        super(kinematics, gyroInverted, pigeonID, enableOdometryThread);
+    public RobotState(SwerveDriveKinematics kinematics) {
+        super(kinematics);
 
         robotState = States.IDLE;
         CANBus = new CANBus(Constants.kCANBusName);
