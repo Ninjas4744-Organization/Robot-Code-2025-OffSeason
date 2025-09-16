@@ -3,6 +3,7 @@ package frc.robot.coraldetection;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.lib.NinjasLib.swerve.Swerve;
+import frc.robot.Robot;
 import org.littletonrobotics.junction.Logger;
 
 public class CoralDetection {
@@ -14,6 +15,9 @@ public class CoralDetection {
     }
 
     public void periodic() {
+        if(Robot.isSimulation())
+            return;
+
         io.updateInputs(inputs);
         Logger.processInputs("Coral Detection", inputs);
     }

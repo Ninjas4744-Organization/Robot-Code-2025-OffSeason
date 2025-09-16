@@ -8,9 +8,13 @@ import com.pathplanner.lib.controllers.PathFollowingController;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -19,6 +23,7 @@ import frc.lib.NinjasLib.controllers.constants.ControlConstants;
 import frc.lib.NinjasLib.controllers.constants.ControllerConstants;
 import frc.lib.NinjasLib.controllers.constants.RealControllerConstants.SimpleControllerConstants;
 import frc.lib.NinjasLib.localization.vision.VisionConstants;
+import frc.lib.NinjasLib.localization.vision.VisionOutput;
 import frc.lib.NinjasLib.swerve.constants.SwerveConstants;
 import frc.lib.NinjasLib.swerve.constants.SwerveControllerConstants;
 import frc.lib.NinjasLib.swerve.constants.SwerveModuleConstants;
@@ -350,10 +355,10 @@ public class Constants {
     public static final SwerveConstants kSwerveConstants = new SwerveConstants();
     static {
         kSwerveConstants.openLoop = true;
-        kSwerveConstants.trackWidth = 0.685;
-        kSwerveConstants.wheelBase = 0.685;
-        kSwerveConstants.bumperLength = 0.846;
-        kSwerveConstants.bumperWidth = 0.846;
+        kSwerveConstants.trackWidth = 0.735;
+        kSwerveConstants.wheelBase = 0.735;
+        kSwerveConstants.bumperLength = 0.896;
+        kSwerveConstants.bumperWidth = 0.896;
         kSwerveConstants.kinematics = new SwerveDriveKinematics(
             new Translation2d(kSwerveConstants.wheelBase / 2.0, kSwerveConstants.trackWidth / 2.0),
             new Translation2d(kSwerveConstants.wheelBase / 2.0, -kSwerveConstants.trackWidth / 2.0),
@@ -450,6 +455,10 @@ public class Constants {
         kVisionConstants.isReplay = kRobotMode == RobotMode.REPLAY;
         kVisionConstants.robotPoseSupplier = () -> RobotState.getInstance().getRobotPose();
     }
+
+    public static Matrix<N3, N1> getVisionSTD(VisionOutput output) {
+        return VecBuilder.fill(output.closestTargetDist, output.closestTargetDist, output.closestTargetDist * 2);
+    }
     //endregion
 
     //region Field
@@ -504,24 +513,24 @@ public class Constants {
     }
     //endregion
 
-    //region Standard Deviations
-    public static final double kOdometrySTDPerMeter = 0.02;
-    public static final double kCrashedAccelerationThreshold = 15;
-    public static final double kCrashedOdometrySTDBonus = 4;
-    public static final double kResetOdometrySTDThreshold = 2.5;
-    public static final double kOdometrySTDResetValue = 0.1;
-    public static final int kCyclesToOdometrySTDReset = 35;
-
-    public static final double kVisionSTDGood = 0.9;
-    public static final double kVisionSTDDistMultiplier = 1;
-    public static final double kVisionSTDGoodDist = 1.5;
-    public static final double kVisionSTDSpeedMultiplier = 1;
-    public static final double kVisionSTDGoodSpeed = 2;
-    public static final double kVisionSTDAngularSpeedMultiplier = 1;
-    public static final double kVisionSTDGoodAngularSpeed = 2;
+//    //region Standard Deviations
+//    public static final double kOdometrySTDPerMeter = 0.02;
+//    public static final double kCrashedAccelerationThreshold = 15;
+//    public static final double kCrashedOdometrySTDBonus = 4;
+//    public static final double kResetOdometrySTDThreshold = 2.5;
+//    public static final double kOdometrySTDResetValue = 0.1;
+//    public static final int kCyclesToOdometrySTDReset = 35;
+//
+//    public static final double kVisionSTDGood = 0.9;
+//    public static final double kVisionSTDDistMultiplier = 1;
+//    public static final double kVisionSTDGoodDist = 1.5;
+//    public static final double kVisionSTDSpeedMultiplier = 1;
+//    public static final double kVisionSTDGoodSpeed = 2;
+//    public static final double kVisionSTDAngularSpeedMultiplier = 1;
+//    public static final double kVisionSTDGoodAngularSpeed = 2;
 
     //region Auto Drive
-    public static final double kAutoDriveDistFromReef = 0.25;
+    public static final double kAutoDriveDistFromReef = 0.5;
     public static final double kAutoDriveRightSideOffset = 0.25;
     public static final double kAutoDriveLeftSideOffset = 0.25;
     public static final double kAutoDriveDistThreshold = 0.3;

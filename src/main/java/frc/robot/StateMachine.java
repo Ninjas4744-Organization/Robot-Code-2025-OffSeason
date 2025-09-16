@@ -36,7 +36,7 @@ public class StateMachine extends StateMachineBase<States> {
             ).contains(wantedState);
 
             case CORAL_IN_INTAKE -> Set.of(
-                    States.TRANSFER_CORAL_FROM_INTAKE_TO_OUTTAKE,
+                    States.TRANSFER_CORAL_TO_OUTTAKE,
                     States.PREPARE_CORAL_OUTTAKE_L1,
                     States.PREPARE_CORAL_OUTTAKE,
                     States.DRIVE_LEFT_REEF,
@@ -54,18 +54,18 @@ public class StateMachine extends StateMachineBase<States> {
             ).contains(wantedState);
 
             // HIGH CORAL
-            case TRANSFER_CORAL_FROM_INTAKE_TO_OUTTAKE -> Set.of(
+            case TRANSFER_CORAL_TO_OUTTAKE -> Set.of(
                     States.CORAL_IN_OUTTAKE
             ).contains(wantedState);
 
             case CORAL_IN_OUTTAKE -> Set.of(
                     States.DRIVE_LEFT_REEF,
                     States.DRIVE_RIGHT_REEF,
-                    States.TRANSFER_CORAL_FROM_OUTTAKE_TO_INTAKE,
+                    States.TRANSFER_CORAL_TO_INTAKE,
                     States.PREPARE_CORAL_OUTTAKE
             ).contains(wantedState);
 
-            case TRANSFER_CORAL_FROM_OUTTAKE_TO_INTAKE -> Set.of(
+            case TRANSFER_CORAL_TO_INTAKE -> Set.of(
                     States.CORAL_IN_INTAKE
             ).contains(wantedState);
 
@@ -161,7 +161,7 @@ public class StateMachine extends StateMachineBase<States> {
                 intakeAngle.lookDown(),
                 Commands.runOnce(()-> changeRobotState(States.CLOSE))
         ));
-        addCommand(States.TRANSFER_CORAL_FROM_INTAKE_TO_OUTTAKE, Commands.sequence(
+        addCommand(States.TRANSFER_CORAL_TO_OUTTAKE, Commands.sequence(
                 intakeAngle.lookAtArm(),
                 arm.lookDown(),
                 Commands.waitUntil(() -> intakeAngle.atGoal() && arm.atGoal()),
@@ -172,7 +172,7 @@ public class StateMachine extends StateMachineBase<States> {
         ));
         addCommand(States.CORAL_IN_OUTTAKE, Commands.none());
 
-        addCommand(States.TRANSFER_CORAL_FROM_OUTTAKE_TO_INTAKE, Commands.sequence(
+        addCommand(States.TRANSFER_CORAL_TO_INTAKE, Commands.sequence(
                 intakeAngle.lookAtArm(),
                 arm.lookDown(),
                 Commands.waitUntil(() -> intakeAngle.atGoal() && arm.atGoal()),

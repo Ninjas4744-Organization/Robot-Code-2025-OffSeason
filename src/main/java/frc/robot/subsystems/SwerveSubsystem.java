@@ -2,12 +2,10 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,7 +25,6 @@ public class SwerveSubsystem extends SubsystemBase {
     private boolean enabled;
     private List<Pose2d> reefAprilTags;
     private Pose2d target;
-    private ProfiledPIDController pidRotation;
     private Command driveToReefCommand;
     private Command driveToCoralCommand;
 
@@ -55,8 +52,6 @@ public class SwerveSubsystem extends SubsystemBase {
                     layout.getTagPose(22).get().toPose2d()
             );
             target = Pose2d.kZero;
-            pidRotation = new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(Constants., Constants.));
-            pidRotation.enableContinuousInput(-Math.PI, Math.PI);
         }
     }
 
@@ -83,9 +78,8 @@ public class SwerveSubsystem extends SubsystemBase {
                 target = new Pose2d(target.getTranslation(), target.getRotation().rotateBy(Rotation2d.k180deg));
                 target = target.transformBy(new Transform2d(-Constants.kAutoDriveDistFromReef, isRightSide.getAsBoolean() ? -Constants.kAutoDriveRightSideOffset : Constants.kAutoDriveLeftSideOffset, Rotation2d.kZero));
 
-                pidRotation.reset(RobotState.getInstance().getRobotPose().getRotation().getRadians());
+//                pidRotation.reset(RobotState.getInstance().getRobotPose().getRotation().getRadians());
             }),
-
             Commands.run(() -> {
                 Translation2d translation = RobotState.getInstance().getTranslation(target);
                 Translation2d dir = translation.div(translation.getNorm());
@@ -95,7 +89,8 @@ public class SwerveSubsystem extends SubsystemBase {
                     new SwerveInput(
                         velocity * dir.getX(),
                         velocity * dir.getY(),
-                        pidRotation.calculate(RobotState.getInstance().getRobotPose().getRotation().getRadians(), target.getRotation().getRadians()),
+//                        pidRotation.calculate(RobotState.getInstance().getRobotPose().getRotation().getRadians(), target.getRotation().getRadians()),
+                        SwerveController.getInstance().lookAt(target.getRotation().getRadians()),
                         true
                     ), "AutoReef"
                 );
@@ -151,7 +146,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void stopAutoDriving() {
         if (driveToReefCommand != null)
-            driveToReefCommand.cancel(); //TODO: Check if the command works even if we don't create the command each time but reuse the same one
+            driveToReefCommand.cancel();
 
         if (driveToCoralCommand != null)
             driveToCoralCommand.cancel();
@@ -194,6 +189,7 @@ public class SwerveSubsystem extends SubsystemBase {
             return;
 
         SwerveController.getInstance().periodic();
-        Logger.recordOutput("IsCoralDrive", driveToCoralCommand.isScheduled() && !driveToCoralCommand.isFinished());
+        Logger.recordOutput("Swerve/Coral Command", driveToCoralCommand.isScheduled() && !driveToCoralCommand.isFinished());
+        Logger.recordOutput("Swerve/Reef Command", driveToReefCommand.isScheduled() && !driveToReefCommand.isFinished());
     }
 }

@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.NinjasLib.commands.DetachedCommand;
+import frc.lib.NinjasLib.localization.vision.Vision;
+import frc.lib.NinjasLib.localization.vision.VisionOutput;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandController;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandControllerIO;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandControllerIOPS5;
@@ -52,7 +54,6 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
-//    private CommandPS5Controller driverController;
     private LoggedCommandController driverController;
 //    private CommandPS5Controller operatorController;
 
@@ -66,7 +67,6 @@ public class RobotContainer {
     private static CoralDetection coralDetection;
     private static SwerveSubsystem swerveSubsystem;
 
-    private STDDevCalculator stdCalculator;
     private LoggedDashboardChooser<Command> autoChooser;
 
     public RobotContainer() {
@@ -106,8 +106,7 @@ public class RobotContainer {
 
         RobotStateBase.setInstance(new RobotState(Constants.kSwerveConstants.kinematics));
         StateMachineBase.setInstance(new StateMachine());
-//        Vision.setInstance(new Vision(Constants.kVisionConstants));
-        stdCalculator = new STDDevCalculator();
+        Vision.setInstance(new Vision(Constants.kVisionConstants));
 
         if (Robot.isSimulation()) {
             for (int i = 0; i < 10; i++)
@@ -126,11 +125,11 @@ public class RobotContainer {
             pose -> {
                 RobotState.getInstance().setRobotPose(pose);
 //                Swerve.getInstance().getGyro().resetYaw(pose.getRotation()); //TODO RETURN
-            }, // Method to reset odometry (will be called if your auto has a starting pose)
+            },
 
-            () -> Swerve.getInstance().getChassisSpeeds(false), // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+            () -> Swerve.getInstance().getChassisSpeeds(false),
 
-            drive -> SwerveController.getInstance().setControl(new SwerveInput(drive, false), "Auto"), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+            drive -> SwerveController.getInstance().setControl(new SwerveInput(drive, false), "Auto"),
 
             Constants.kAutonomyConfig, //Autonomy config
             Constants.kSwerveConstants.robotConfig, //Robot config
@@ -144,13 +143,13 @@ public class RobotContainer {
     private void registerCommands() {
         NamedCommands.registerCommand("Intake Coral", new DetachedCommand(swerveSubsystem.driveToCoral()));
         NamedCommands.registerCommand("Wait Coral", Commands.waitUntil(() -> RobotState.getInstance().getRobotState() == States.CORAL_IN_INTAKE));
-        NamedCommands.registerCommand("Drive Left Reef", changeRobotState(States.DRIVE_LEFT_REEF));
-        NamedCommands.registerCommand("Drive Right Reef", changeRobotState(States.DRIVE_RIGHT_REEF));
+        NamedCommands.registerCommand("Left Reef", changeRobotState(States.DRIVE_LEFT_REEF));
+        NamedCommands.registerCommand("Right Reef", changeRobotState(States.DRIVE_RIGHT_REEF));
         NamedCommands.registerCommand("Outtake", changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1));
-        NamedCommands.registerCommand("Set L1", setL(1));
-        NamedCommands.registerCommand("Set L2", setL(2));
-        NamedCommands.registerCommand("Set L3", setL(3));
-        NamedCommands.registerCommand("Set L4", setL(4));
+        NamedCommands.registerCommand("L1", setL(1));
+        NamedCommands.registerCommand("L2", setL(2));
+        NamedCommands.registerCommand("L3", setL(3));
+        NamedCommands.registerCommand("L4", setL(4));
     }
 
     private Command changeRobotState(States state) {
@@ -164,88 +163,61 @@ public class RobotContainer {
     private void configureBindings() {
         StateMachine stateMachine = StateMachine.getInstance();
 
-        //region Driver Buttons
-        //region Gyro Reset
-        driverController.R1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(Rotation2d.kZero)));
-        driverController.L1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(RobotState.getInstance().getRobotPose().getRotation())));
-        //endregion
+        //region Driver buttons
+//        driverController.R1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(Rotation2d.kZero)));
+//        driverController.L1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(RobotState.getInstance().getRobotPose().getRotation())));
 
-        //region Auto Drive to Right Reef and score Coral High/low
         driverController.R2().onTrue(Commands.runOnce(
                 () -> stateMachine.changeRobotState(States.DRIVE_RIGHT_REEF)
         ));
-        driverController.R3().onTrue(new DetachedCommand(swerveSubsystem.driveToCoral()));
-        //endregion
 
-        //region Auto Drive to Left Reef and score Coral High/low
         driverController.L2().onTrue(Commands.runOnce(
                 () -> stateMachine.changeRobotState(States.DRIVE_LEFT_REEF)
         ));
-        //endregion
 
-        //region Score Coral High/low [NO AUTO DRIVE]
         driverController.triangle().onTrue(Commands.either(
                 Commands.runOnce(() -> stateMachine.changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1)),
                 Commands.runOnce(() -> stateMachine.changeRobotState(States.PREPARE_CORAL_OUTTAKE)),
-                () -> RobotState.getInstance().getL() == 1
+                () -> RobotState.getL() == 1
         ));
-        //endregion
 
-        //region Activating Coral Intake
         driverController.cross().onTrue(Commands.runOnce(
                 () -> stateMachine.changeRobotState(States.INTAKE_CORAL)
         ));
-        //endregion
 
-        //region Intake Algae reef OR Output Algae to barge when ahold of it (depending on state)
-        driverController.square().onTrue(Commands.either(
-                Commands.runOnce(() ->  stateMachine.changeRobotState(States.PREPARE_ALGAE_OUTTAKE)),
-                Commands.runOnce(() -> stateMachine.changeRobotState(States.INTAKE_ALGAE_HIGH)) ,
-                () -> RobotState.getInstance().getRobotState() == States.ALGAE_IN_OUTTAKE
-        ));
+//        driverController.square().onTrue(Commands.either(
+//                Commands.runOnce(() ->  stateMachine.changeRobotState(States.PREPARE_ALGAE_OUTTAKE)),
+//                Commands.runOnce(() -> stateMachine.changeRobotState(States.INTAKE_ALGAE_HIGH)) ,
+//                () -> RobotState.getInstance().getRobotState() == States.ALGAE_IN_OUTTAKE
+//        ));
 
         driverController.circle().onTrue(Commands.runOnce(
                 () -> stateMachine.changeRobotState(States.CLOSE)
         ));
         //endregion
-        //endregion
 
         //region Operator Buttons
+        driverController.R1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() + 1)));
+        driverController.L1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() - 1)));
 
-        RobotState robotState = RobotState.getInstance();
-        //region Increment/decrement the desired L level to output coral. Also takes control of what robot part holds the coral.
+        new Trigger(() -> RobotState.getL() > 1 && RobotState.getInstance().getRobotState() == States.CORAL_IN_INTAKE)
+                .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_TO_OUTTAKE)));
+        new Trigger(() -> RobotState.getL() == 1 && RobotState.getInstance().getRobotState() == States.CORAL_IN_OUTTAKE)
+                .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_TO_INTAKE)));
 
-        // For example, if we have increased the L level from 1 to 2, the robot will transfer the coral from the intake to the arm, and vise versa.
-//        operatorController.R1().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() + 1)));
-//        operatorController.L1().onTrue(Commands.runOnce(() -> robotState.setL(robotState.getL() - 1)));
-
-        // Have triggers that track when the robot should transfer coral from the intake to the arm, or from the arm to the intake.
-        new Trigger(() -> robotState.getL() > 1 && robotState.getRobotState() == States.CORAL_IN_INTAKE)
-                .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_INTAKE_TO_OUTTAKE)));
-        new Trigger(() -> robotState.getL() == 1 && robotState.getRobotState() == States.CORAL_IN_OUTTAKE)
-                .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_FROM_OUTTAKE_TO_INTAKE)));
-        //endregion
-
-        //region Intake Algae floor
 //        operatorController.square().onTrue(Commands.runOnce(() ->
 //                stateMachine.changeRobotState(States.INTAKE_ALGAE_LOW)
 //        ));
-        //endregion
 
-        //region Reset
-//        operatorController.povDown().onTrue(Commands.runOnce(
-//                () -> stateMachine.changeRobotState(States.RESET)
-//        ));
-        //endregion
+        driverController.povDown().onTrue(Commands.runOnce(
+                () -> stateMachine.changeRobotState(States.RESET)
+        ));
 
-        //region Climb - prepare climbing for the first click, and climb for the second click.
 //        operatorController.povUp().onTrue(Commands.either(
 //                Commands.runOnce(() -> stateMachine.changeRobotState(States.CLIMB)),
 //                Commands.runOnce(() -> stateMachine.changeRobotState(States.PREPARE_CLIMB)),
 //                () -> RobotState.getInstance().getRobotState() == States.PREPARE_CLIMB
 //        ));
-        //endregion
-
         //endregion
     }
 
@@ -290,10 +262,10 @@ public class RobotContainer {
     public void periodic() {
         swerveSubsystem.swerveDrive(driverController);
 
-//        VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
+        VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
 //        stdCalculator.update(estimations);
-//        for (int i = 0; i < estimations.length; i++)
-//            RobotState.getInstance().updateRobotPose(estimations[i], stdCalculator.getOdometrySTDDev(), stdCalculator.getVisionSTDDev()[i]);
+        for (VisionOutput estimation : estimations)
+            RobotState.getInstance().updateRobotPose(estimation, Constants.getVisionSTD(estimation));
 
         coralDetection.periodic();
         if (coralDetection.hasTargets()) {
