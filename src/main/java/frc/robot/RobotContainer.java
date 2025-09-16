@@ -13,6 +13,9 @@ import frc.lib.NinjasLib.commands.DetachedCommand;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandController;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandControllerIO;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandControllerIOPS5;
+import frc.lib.NinjasLib.loggeddigitalinput.LoggedDigitalInputIO;
+import frc.lib.NinjasLib.loggeddigitalinput.LoggedDigitalInputIOReal;
+import frc.lib.NinjasLib.loggeddigitalinput.LoggedDigitalInputIOSim;
 import frc.lib.NinjasLib.statemachine.RobotStateBase;
 import frc.lib.NinjasLib.statemachine.StateMachineBase;
 import frc.lib.NinjasLib.swerve.Swerve;
@@ -71,12 +74,16 @@ public class RobotContainer {
             case REAL, SIM:
                 arm = new Arm(false, new ArmIOController());
                 elevator = new Elevator(false, new ElevatorIOController());
-                intake = new Intake(true, new IntakeIOController());
                 intakeAngle = new IntakeAngle(false, new IntakeAngleIOController());
                 intakeAligner = new IntakeAligner(false, new IntakeAlignerIOController());
                 outtake = new Outtake(true, new OuttakeIOController());
                 climber = new Climber(false, new ClimberIOController());
                 swerveSubsystem = new SwerveSubsystem(true);
+
+                if(Constants.kRobotMode == Constants.RobotMode.REAL)
+                    intake = new Intake(true, new IntakeIOController(), new LoggedDigitalInputIOReal(), Constants.kIntakeBeamBreakerPort);
+                else
+                    intake = new Intake(true, new IntakeIOController(), new LoggedDigitalInputIOSim(() -> driverController.options().getAsBoolean()), Constants.kIntakeBeamBreakerPort);
 
                 coralDetection = new CoralDetection(new CoralDetectionIOCamera());
                 driverController = new LoggedCommandController(new LoggedCommandControllerIOPS5(Constants.kDriverControllerPort));
@@ -85,7 +92,7 @@ public class RobotContainer {
             case REPLAY:
                 arm = new Arm(false, new ArmIO() {});
                 elevator = new Elevator(false, new ElevatorIO() {});
-                intake = new Intake(true, new IntakeIO() {});
+                intake = new Intake(true, new IntakeIO() {}, new LoggedDigitalInputIO() {}, Constants.kIntakeBeamBreakerPort);
                 intakeAngle = new IntakeAngle(false, new IntakeAngleIO() {});
                 intakeAligner = new IntakeAligner(false, new IntakeAlignerIO() {});
                 outtake = new Outtake(false, new OuttakeIO() {});
@@ -194,7 +201,7 @@ public class RobotContainer {
         driverController.square().onTrue(Commands.either(
                 Commands.runOnce(() ->  stateMachine.changeRobotState(States.PREPARE_ALGAE_OUTTAKE)),
                 Commands.runOnce(() -> stateMachine.changeRobotState(States.INTAKE_ALGAE_HIGH)) ,
-                () -> RobotState.getInstance().getRobotState() == States.ALGAE_IN_ARM
+                () -> RobotState.getInstance().getRobotState() == States.ALGAE_IN_OUTTAKE
         ));
 
         driverController.circle().onTrue(Commands.runOnce(

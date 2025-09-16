@@ -86,9 +86,9 @@ public class StateMachine extends StateMachineBase<States> {
 
             // ALGAE
             case INTAKE_ALGAE_LOW,INTAKE_ALGAE_HIGH -> Set.of(
-                    States.ALGAE_IN_ARM
+                    States.ALGAE_IN_OUTTAKE
             ).contains(wantedState);
-            case ALGAE_IN_ARM -> Set.of(
+            case ALGAE_IN_OUTTAKE -> Set.of(
                     States.PREPARE_ALGAE_OUTTAKE
             ).contains(wantedState);
             case PREPARE_ALGAE_OUTTAKE -> Set.of(
@@ -103,7 +103,7 @@ public class StateMachine extends StateMachineBase<States> {
                     States.IDLE,
                     States.CORAL_IN_INTAKE,
                     States.CORAL_IN_OUTTAKE,
-                    States.ALGAE_IN_ARM
+                    States.ALGAE_IN_OUTTAKE
             ).contains(wantedState);
 
             case PREPARE_CLIMB -> Set.of(
@@ -221,7 +221,7 @@ public class StateMachine extends StateMachineBase<States> {
                 Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal()),
                 outtake.intake(),
                 Commands.waitUntil(outtake::isAlgaeInside),
-                Commands.runOnce(()-> changeRobotState(States.ALGAE_IN_ARM))
+                Commands.runOnce(()-> changeRobotState(States.ALGAE_IN_OUTTAKE))
                 // No need to stop the intaking because we want to keep ahold of the algae. we'll stop only when we outtake.
         ));
         addCommand(States.INTAKE_ALGAE_HIGH, Commands.sequence(
@@ -231,10 +231,10 @@ public class StateMachine extends StateMachineBase<States> {
                 Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal()),
                 outtake.intake(),
                 Commands.waitUntil(outtake::isAlgaeInside),
-                Commands.runOnce(()-> changeRobotState(States.ALGAE_IN_ARM))
+                Commands.runOnce(()-> changeRobotState(States.ALGAE_IN_OUTTAKE))
                 // No need to stop the intaking because we want to keep ahold of the algae. we'll stop only when we outtake.
         ));
-        addCommand(States.ALGAE_IN_ARM, outtake.intake());
+        addCommand(States.ALGAE_IN_OUTTAKE, outtake.intake());
         //endregion
 
         //region outtake algae
@@ -265,11 +265,11 @@ public class StateMachine extends StateMachineBase<States> {
                 ),
                 Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal() && intakeAngle.atGoal()),
                 Commands.runOnce(() -> {
-                    if (outtake.isCoralInside() && outtake.isEnabled())
+                    if (outtake.isCoralInside())
                         changeRobotState(States.CORAL_IN_OUTTAKE);
-                    else if (outtake.isAlgaeInside() && outtake.isEnabled())
-                        changeRobotState(States.ALGAE_IN_ARM);
-                    else if (intake.isCoralInside() && intake.isEnabled())
+                    else if (outtake.isAlgaeInside())
+                        changeRobotState(States.ALGAE_IN_OUTTAKE);
+                    else if (intake.isCoralInside())
                         changeRobotState(States.CORAL_IN_INTAKE);
                     else
                         changeRobotState(States.IDLE);
@@ -287,11 +287,11 @@ public class StateMachine extends StateMachineBase<States> {
                 ),
                 Commands.waitUntil(() -> elevator.isReset() && arm.isReset() && intakeAngle.isReset()),
                 Commands.runOnce(() -> {
-                    if (outtake.isCoralInside() && outtake.isEnabled())
+                    if (outtake.isCoralInside())
                         changeRobotState(States.CORAL_IN_OUTTAKE);
-                    else if (outtake.isAlgaeInside() && outtake.isEnabled())
-                        changeRobotState(States.ALGAE_IN_ARM);
-                    else if (intake.isCoralInside() && intake.isEnabled())
+                    else if (outtake.isAlgaeInside())
+                        changeRobotState(States.ALGAE_IN_OUTTAKE);
+                    else if (intake.isCoralInside())
                         changeRobotState(States.CORAL_IN_INTAKE);
                     else
                         changeRobotState(States.IDLE);

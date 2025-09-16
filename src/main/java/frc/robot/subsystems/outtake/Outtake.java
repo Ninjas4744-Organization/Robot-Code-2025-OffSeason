@@ -1,5 +1,6 @@
 package frc.robot.subsystems.outtake;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -14,6 +15,7 @@ public class Outtake extends SubsystemBase {
     private boolean enabled;
     private boolean isCoralInside = false;
     private boolean isAlgaeInside = false;
+    private Timer currentTimer = new Timer();
 
     public Outtake(boolean enabled, OuttakeIO io) {
         if (enabled) {
@@ -28,10 +30,18 @@ public class Outtake extends SubsystemBase {
         if (!enabled)
             return;
 
-        if (Math.abs(inputs.Current) > 35 && inputs.Output < 0) {
+        if (Math.abs(inputs.Current) > Constants.kOuttakeCurrentThreshold && inputs.Output < 0) {
+            if (!currentTimer.isRunning())
+                currentTimer.restart();
+        } else {
+            currentTimer.stop();
+            currentTimer.reset();
+        }
+
+        if(currentTimer.get() > 0.25){
             if (RobotState.getInstance().getRobotState() == States.INTAKE_CORAL)
                 isCoralInside = true;
-            else
+            else if (RobotState.getInstance().getRobotState() == States.INTAKE_ALGAE_HIGH || RobotState.getInstance().getRobotState() == States.INTAKE_ALGAE_LOW)
                 isAlgaeInside = true;
         }
 
@@ -49,31 +59,33 @@ public class Outtake extends SubsystemBase {
     }
 
     public Command intake() {
-        if (!enabled){
+        if (!enabled)
             return Commands.none();
-        }
+
         return Commands.runOnce(() -> io.setPercent(Constants.OuttakeSpeeds.Intake.get()));
     }
 
     public Command outtake() {
-        if (!enabled){
+        if (!enabled)
             return Commands.none();
-        }
-        return Commands.runOnce(() -> io.setPercent(Constants.OuttakeSpeeds.Outtake.get()));
+
+        return Commands.runOnce(() -> {
+            io.setPercent(Constants.OuttakeSpeeds.Outtake.get());
+            isAlgaeInside = false;
+            isCoralInside = false;
+        });
     }
 
     public boolean isCoralInside() {
-        if (!enabled) {
-            return true;
-        }
+        if (!enabled)
+            return false;
 
         return isCoralInside;
     }
 
     public boolean isAlgaeInside() {
-        if (!enabled) {
-            return true;
-        }
+        if (!enabled)
+            return false;
 
         return isAlgaeInside;
     }
@@ -88,10 +100,19 @@ public class Outtake extends SubsystemBase {
                 intake(),
                 Commands.race(
                         Commands.waitUntil(() -> {
-                            hadObjectInside = Math.abs(inputs.Current) > 35;
+                            if (Math.abs(inputs.Current) > Constants.kOuttakeCurrentThreshold) {
+                                if (!currentTimer.isRunning())
+                                    currentTimer.restart();
+                            } else {
+                                currentTimer.stop();
+                                currentTimer.reset();
+                            }
+
+                            if(currentTimer.get() > 0.25)
+                                hadObjectInside = true;
                             return hadObjectInside;
                         }),
-                        Commands.waitSeconds(1)
+                        Commands.waitSeconds(0.5)
                 ),
                 stop(),
                 Commands.runOnce(() -> {
@@ -104,9 +125,5 @@ public class Outtake extends SubsystemBase {
                     }
                 })
         );
-    }
-
-    public boolean isEnabled() {
-        return enabled;
     }
 }

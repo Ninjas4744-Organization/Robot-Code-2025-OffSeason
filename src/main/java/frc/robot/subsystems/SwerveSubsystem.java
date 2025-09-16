@@ -55,7 +55,7 @@ public class SwerveSubsystem extends SubsystemBase {
                     layout.getTagPose(22).get().toPose2d()
             );
             target = Pose2d.kZero;
-            pidRotation = new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(Constants.kSwerveConstants.maxAngularVelocity, Constants.kSwerveConstants.maxAcceleration));
+            pidRotation = new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(Constants., Constants.));
             pidRotation.enableContinuousInput(-Math.PI, Math.PI);
         }
     }

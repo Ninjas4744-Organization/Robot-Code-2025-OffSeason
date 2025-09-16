@@ -21,7 +21,7 @@ public enum States {
 
     INTAKE_ALGAE_LOW, //moving the arm and grabbing algae from the floor
     INTAKE_ALGAE_HIGH, //moving the arm and grabbing algae from the reef
-    ALGAE_IN_ARM, //Finished the initial grab of the algae
+    ALGAE_IN_OUTTAKE, //Finished the initial grab of the algae
     PREPARE_ALGAE_OUTTAKE, //towards the barge
     ALGAE_OUTTAKE,
 

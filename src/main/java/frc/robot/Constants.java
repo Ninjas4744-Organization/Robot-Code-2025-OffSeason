@@ -133,6 +133,7 @@ public class Constants {
     //endregion
 
     //region Outtake
+    public static final double kOuttakeCurrentThreshold = 65;
     public static final ControllerConstants kOuttakeControllerConstants = new ControllerConstants();
     static {
         /* Base */
@@ -147,6 +148,7 @@ public class Constants {
     //endregion
 
     //region Intake
+    public static final int kIntakeBeamBreakerPort = 4;
     public static final ControllerConstants kIntakeControllerConstants = new ControllerConstants();
     static {
         /* Base */
@@ -346,7 +348,6 @@ public class Constants {
     public static final boolean kDriverFieldRelative = true;
 
     public static final SwerveConstants kSwerveConstants = new SwerveConstants();
-
     static {
         kSwerveConstants.openLoop = true;
         kSwerveConstants.trackWidth = 0.685;
@@ -362,51 +363,38 @@ public class Constants {
 
         kSwerveConstants.maxSpeed = 4.5;
         kSwerveConstants.maxAngularVelocity = 9.2;
-//        kSwerveConstants.maxAcceleration = Double.MAX_VALUE;
-        kSwerveConstants.maxSkidAcceleration = 80;
+
+        kSwerveConstants.speedLimit = Double.MAX_VALUE;
+        kSwerveConstants.rotationSpeedLimit = Double.MAX_VALUE;
+        kSwerveConstants.accelerationLimit = Double.MAX_VALUE;
+        kSwerveConstants.rotationAccelerationLimit = Double.MAX_VALUE;
         kSwerveConstants.maxSkidAcceleration = Double.MAX_VALUE;
-        kSwerveConstants.speedLimit = 4.5;
-        kSwerveConstants.rotationSpeedLimit = 9.2;
-        kSwerveConstants.accelerationLimit = Double.MAX_VALUE;//11.8;
-        kSwerveConstants.rotationAccelerationLimit = Double.MAX_VALUE;//63.79;
+
+        double wheelRadius = 0.048;
 
         kSwerveConstants.moduleConstants = new SwerveModuleConstants[4];
-
-        double wheelRadius = 0.049806;//0.048;
-
         for (int i = 0; i < 4; i++) {
             kSwerveConstants.moduleConstants[i] = new SwerveModuleConstants(i,
                     new ControllerConstants(),
                     new ControllerConstants(),
-                kSwerveConstants.maxSpeed,
-                6 + i,
-                    Controller.ControllerType.SparkMax,
-                    Controller.ControllerType.SparkMax,
-                false,
-                0);
+                    kSwerveConstants.maxSpeed, 6 + i,
+                    Controller.ControllerType.TalonFX,
+                    Controller.ControllerType.TalonFX,
+                    false, 0);
 
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.main.id = 10 + i * 2;
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.main.inverted = true;
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.currentLimit = 72;
-//            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.gearRatio = 5.360;
-            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.gearRatio = 6.12;
+            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.gearRatio = 5.9;
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.conversionFactor = wheelRadius * 2 * Math.PI;
-//            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.controlConstants = ControlConstants.createTorqueCurrent(5 / 0.056267331109070916, 0.19);
+            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.controlConstants = ControlConstants.createTorqueCurrent(90, 0.19);
 
             kSwerveConstants.moduleConstants[i].angleMotorConstants.real.main.id = 11 + i * 2;
             kSwerveConstants.moduleConstants[i].angleMotorConstants.real.currentLimit = 60;
-//            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.gearRatio = 18.75;
-            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.gearRatio = 12.8;
+            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.gearRatio = 18.75;
             kSwerveConstants.moduleConstants[i].angleMotorConstants.real.conversionFactor = 2 * Math.PI;
-//            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.controlConstants = ControlConstants.createPID(5, 0, 0, 0);
-            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.controlConstants = ControlConstants.createPID(2, 0, 0, 0);
+            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.controlConstants = ControlConstants.createPID(5, 0, 0, 0);
         }
-
-        //Elhay's numbers
-//        kSwerveConstants.moduleConstants[0].CANCoderOffset = 0.134033203125;
-//        kSwerveConstants.moduleConstants[1].CANCoderOffset = 0.270751953125;
-//        kSwerveConstants.moduleConstants[2].CANCoderOffset = -0.493408203125;
-//        kSwerveConstants.moduleConstants[3].CANCoderOffset = 0.359375;
 
         kSwerveConstants.moduleConstants[0].CANCoderOffset = 0.364502;
         kSwerveConstants.moduleConstants[1].CANCoderOffset = 0.231689;
@@ -421,11 +409,9 @@ public class Constants {
             throw new RuntimeException(e);
         }
 
-        kSwerveConstants.driveMotorType = DCMotor.getNEO(1);
-        kSwerveConstants.steerMotorType = DCMotor.getNEO(1);
+        kSwerveConstants.driveMotorType = DCMotor.getKrakenX60Foc(1);
+        kSwerveConstants.steerMotorType = DCMotor.getKrakenX60Foc(1);
 
-//        kSwerveConstants.enableOdometryThread = true;
-//        kSwerveConstants.odometryThreadFrequency = 2;
         kSwerveConstants.enableOdometryThread = false;
         kSwerveConstants.odometryThreadFrequency = 50;
         kSwerveConstants.isReplay = kRobotMode == RobotMode.REPLAY;
@@ -454,8 +440,8 @@ public class Constants {
     public static final VisionConstants kVisionConstants = new VisionConstants();
     static {
         kVisionConstants.cameras = Map.of(
-                "FrontRight", Pair.of(new Transform3d(0.0815 + 0.1054, -0.0745, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(-7.5 - 1.5))), VisionConstants.CameraType.PhotonVision),
-                "FrontLeft", Pair.of(new Transform3d(0.0815 + 0.1054, 0.0755, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(7.5 - 1.5))), VisionConstants.CameraType.PhotonVision)
+            "FrontRight", Pair.of(new Transform3d(0.0815 + 0.1054, -0.0745, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(-7.5 - 1.5))), VisionConstants.CameraType.PhotonVision),
+            "FrontLeft", Pair.of(new Transform3d(0.0815 + 0.1054, 0.0755, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(7.5 - 1.5))), VisionConstants.CameraType.PhotonVision)
         );
 
         kVisionConstants.maxAmbiguity = 0.2;
