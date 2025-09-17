@@ -4,14 +4,11 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.NinjasLib.commands.DetachedCommand;
-import frc.lib.NinjasLib.localization.vision.Vision;
-import frc.lib.NinjasLib.localization.vision.VisionOutput;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandController;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandControllerIO;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandControllerIOPS5;
@@ -74,9 +71,9 @@ public class RobotContainer {
             case REAL, SIM:
                 arm = new Arm(false, new ArmIOController());
                 elevator = new Elevator(false, new ElevatorIOController());
-                intakeAngle = new IntakeAngle(false, new IntakeAngleIOController());
-                intakeAligner = new IntakeAligner(false, new IntakeAlignerIOController());
-                outtake = new Outtake(true, new OuttakeIOController());
+                intakeAngle = new IntakeAngle(true, new IntakeAngleIOController());
+                intakeAligner = new IntakeAligner(true, new IntakeAlignerIOController());
+                outtake = new Outtake(false, new OuttakeIOController());
                 climber = new Climber(false, new ClimberIOController());
                 swerveSubsystem = new SwerveSubsystem(true);
 
@@ -93,8 +90,8 @@ public class RobotContainer {
                 arm = new Arm(false, new ArmIO() {});
                 elevator = new Elevator(false, new ElevatorIO() {});
                 intake = new Intake(true, new IntakeIO() {}, new LoggedDigitalInputIO() {}, Constants.kIntakeBeamBreakerPort);
-                intakeAngle = new IntakeAngle(false, new IntakeAngleIO() {});
-                intakeAligner = new IntakeAligner(false, new IntakeAlignerIO() {});
+                intakeAngle = new IntakeAngle(true, new IntakeAngleIO() {});
+                intakeAligner = new IntakeAligner(true, new IntakeAlignerIO() {});
                 outtake = new Outtake(false, new OuttakeIO() {});
                 climber = new Climber(false, new ClimberIO() {});
                 swerveSubsystem = new SwerveSubsystem(true);
@@ -106,7 +103,7 @@ public class RobotContainer {
 
         RobotStateBase.setInstance(new RobotState(Constants.kSwerveConstants.kinematics));
         StateMachineBase.setInstance(new StateMachine());
-        Vision.setInstance(new Vision(Constants.kVisionConstants));
+//        Vision.setInstance(new Vision(Constants.kVisionConstants));
 
         if (Robot.isSimulation()) {
             for (int i = 0; i < 10; i++)
@@ -262,21 +259,21 @@ public class RobotContainer {
     public void periodic() {
         swerveSubsystem.swerveDrive(driverController);
 
-        VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
-//        stdCalculator.update(estimations);
-        for (VisionOutput estimation : estimations)
-            RobotState.getInstance().updateRobotPose(estimation, Constants.getVisionSTD(estimation));
-
-        coralDetection.periodic();
-        if (coralDetection.hasTargets()) {
-            Pose2d robotPose = RobotState.getInstance().getRobotPose();
-            Translation2d dir = coralDetection.getFieldRelativeDir();
-            Logger.recordOutput("Coral Detection Dir", new Pose2d(
-                    robotPose.getX() + dir.getX() / 2,
-                    robotPose.getY() + dir.getY() / 2,
-                    dir.getAngle()
-            ));
-        }
+//        VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
+////        stdCalculator.update(estimations);
+//        for (VisionOutput estimation : estimations)
+//            RobotState.getInstance().updateRobotPose(estimation, Constants.getVisionSTD(estimation));
+//
+//        coralDetection.periodic();
+//        if (coralDetection.hasTargets()) {
+//            Pose2d robotPose = RobotState.getInstance().getRobotPose();
+//            Translation2d dir = coralDetection.getFieldRelativeDir();
+//            Logger.recordOutput("Coral Detection Dir", new Pose2d(
+//                    robotPose.getX() + dir.getX() / 2,
+//                    robotPose.getY() + dir.getY() / 2,
+//                    dir.getAngle()
+//            ));
+//        }
 
         driverController.periodic();
 

@@ -52,7 +52,6 @@ public class Constants {
     public static final RobotMode kRobotMode = Robot.isReal() ? RobotMode.REAL : kSimMode;
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
-    public static final String kCANBusName = "";
     //endregion
 
     //region Subsystems
@@ -64,7 +63,7 @@ public class Constants {
     public static final ControllerConstants kArmControllerConstants = new ControllerConstants();
     static {
         /* Base */
-        kArmControllerConstants.real.main.id = 20;
+        kArmControllerConstants.real.main.id = 40;
         kArmControllerConstants.real.main.inverted = false;
         kArmControllerConstants.real.currentLimit = 60;
         kArmControllerConstants.real.isBrakeMode = true;
@@ -72,7 +71,7 @@ public class Constants {
         /* Followers */
         kArmControllerConstants.real.followers = new SimpleControllerConstants[1];
         kArmControllerConstants.real.followers[0] = new SimpleControllerConstants();
-        kArmControllerConstants.real.followers[0].id = 21;
+        kArmControllerConstants.real.followers[0].id = 41;
         kArmControllerConstants.real.followers[0].inverted = true;
 
         /* Control */
@@ -142,7 +141,7 @@ public class Constants {
     public static final ControllerConstants kOuttakeControllerConstants = new ControllerConstants();
     static {
         /* Base */
-        kOuttakeControllerConstants.real.main.id = 40;
+        kOuttakeControllerConstants.real.main.id = 50;
         kOuttakeControllerConstants.real.main.inverted = false;
         kOuttakeControllerConstants.real.currentLimit = 60;
         kOuttakeControllerConstants.real.isBrakeMode = false;
@@ -157,7 +156,7 @@ public class Constants {
     public static final ControllerConstants kIntakeControllerConstants = new ControllerConstants();
     static {
         /* Base */
-        kIntakeControllerConstants.real.main.id = 50;
+        kIntakeControllerConstants.real.main.id = 20;
         kIntakeControllerConstants.real.main.inverted = false;
         kIntakeControllerConstants.real.currentLimit = 80;
         kIntakeControllerConstants.real.isBrakeMode = true;
@@ -171,16 +170,10 @@ public class Constants {
     public static final ControllerConstants kIntakeAngleControllerConstants = new ControllerConstants();
     static {
         /* Base */
-        kIntakeAngleControllerConstants.real.main.id = 51;
+        kIntakeAngleControllerConstants.real.main.id = 21;
         kIntakeAngleControllerConstants.real.main.inverted = false;
         kIntakeAngleControllerConstants.real.currentLimit = 80;
         kIntakeAngleControllerConstants.real.isBrakeMode = true;
-
-        /* Followers */
-        kIntakeAngleControllerConstants.real.followers = new SimpleControllerConstants[1];
-        kIntakeAngleControllerConstants.real.followers[0] = new SimpleControllerConstants();
-        kIntakeAngleControllerConstants.real.followers[0].id = 51;
-        kIntakeAngleControllerConstants.real.followers[0].inverted = true;
 
         /* Control */
         kIntakeAngleControllerConstants.real.controlConstants = ControlConstants.createPID(1, 0, 0, 0);
@@ -206,11 +199,10 @@ public class Constants {
 
     //region Intake Aligner
     public static final ControllerConstants kIntakeAlignerControllerConstants = new ControllerConstants();
-
     static {
         /* Base */
-        kIntakeAngleControllerConstants.real.main.id = 52;
-        kIntakeAngleControllerConstants.real.main.inverted = false;
+        kIntakeAngleControllerConstants.real.main.id = 22;
+        kIntakeAngleControllerConstants.real.main.inverted = true;
         kIntakeAngleControllerConstants.real.currentLimit = 80;
         kIntakeAngleControllerConstants.real.isBrakeMode = true;
 
@@ -316,7 +308,7 @@ public class Constants {
 
     public enum IntakeSpeeds {
         Intake(-0.3),
-        Outtake(0.6);
+        Outtake(0.4);
 
         final double speed;
 
@@ -330,7 +322,7 @@ public class Constants {
     }
 
     public enum IntakeAlignerSpeeds {
-        Align(0.8);
+        Align(0.6);
 
         final double speed;
 
@@ -350,7 +342,7 @@ public class Constants {
 
     public static final double kJoystickDeadband = 0.05;
     public static final boolean kInvertGyro = false;
-    public static final boolean kDriverFieldRelative = true;
+    public static final boolean kDriverFieldRelative = false;
 
     public static final SwerveConstants kSwerveConstants = new SwerveConstants();
     static {
@@ -421,6 +413,8 @@ public class Constants {
         kSwerveConstants.odometryThreadFrequency = 50;
         kSwerveConstants.isReplay = kRobotMode == RobotMode.REPLAY;
         kSwerveConstants.robotStartPose = new Pose2d(3, 3, Rotation2d.kZero);
+        kSwerveConstants.CANivore = "Swerve Bus";
+
         kSwerveConstants.gyroID = 45;
         kSwerveConstants.gyroInverted = kInvertGyro;
         kSwerveConstants.gyroType = SwerveConstants.GyroType.Pigeon2;
