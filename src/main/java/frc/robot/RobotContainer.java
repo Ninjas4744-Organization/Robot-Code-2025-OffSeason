@@ -184,7 +184,7 @@ public class RobotContainer {
                 () -> stateMachine.changeRobotState(States.INTAKE_CORAL)
         ));
 
-        driverController.square().onTrue(Commands.runOnce(() -> RobotState.getInstance().setRobotPose(lastVisionPose)));
+//        driverController.square().onTrue(Commands.runOnce(() -> RobotState.getInstance().setRobotPose(lastVisionPose)));
 //        driverController.square().onTrue(Commands.either(
 //                Commands.runOnce(() ->  stateMachine.changeRobotState(States.PREPARE_ALGAE_OUTTAKE)),
 //                Commands.runOnce(() -> stateMachine.changeRobotState(States.INTAKE_ALGAE_HIGH)) ,
@@ -204,6 +204,10 @@ public class RobotContainer {
                 .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_TO_OUTTAKE)));
         new Trigger(() -> RobotState.getL() == 1 && RobotState.getInstance().getRobotState() == States.CORAL_IN_OUTTAKE)
                 .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_TO_INTAKE)));
+
+//        driverController.square().onTrue(Commands.runOnce(() ->
+//                CSVWriter.writeCsv("Robot Speed", "Delay Meters", robotSpeed, delayMeters, "Vision Delay test 1, FPS=25.csv")
+//        ));
 
 //        operatorController.square().onTrue(Commands.runOnce(() ->
 //                stateMachine.changeRobotState(States.INTAKE_ALGAE_LOW)
@@ -260,13 +264,17 @@ public class RobotContainer {
     //endregion
 
     private Pose2d lastVisionPose = new Pose2d();
+//    private List<Double> robotSpeed = new ArrayList<>();
+//    private List<Double> delayMeters = new ArrayList<>();
     public void periodic() {
         swerveSubsystem.swerveDrive(driverController);
 
+//        Pose2d visionPose = new Pose2d();
         VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
-//        for (VisionOutput estimation : estimations)
-//            RobotState.getInstance().updateRobotPose(estimation, Constants.getVisionSTD(estimation));
+        for (VisionOutput estimation : estimations)
+            RobotState.getInstance().updateRobotPose(estimation, Constants.getVisionSTD(estimation));
         for (VisionOutput estimation : estimations){
+//            visionPose = estimation.robotPose;
             if(estimation.hasTargets){
                 Logger.recordOutput("Vision Robot Pose", estimation.robotPose);
                 lastVisionPose = estimation.robotPose;
@@ -283,6 +291,12 @@ public class RobotContainer {
 //                    robotPose.getY() + dir.getY() / 2,
 //                    dir.getAngle()
 //            ));
+//        }
+
+//        if(!visionPose.equals(Pose2d.kZero)){
+//            ChassisSpeeds speed = Swerve.getInstance().getChassisSpeeds(false);
+//            robotSpeed.add(Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond));
+//            delayMeters.add(RobotState.getInstance().getDistance(visionPose));
 //        }
 
         driverController.periodic();
