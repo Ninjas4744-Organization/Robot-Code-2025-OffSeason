@@ -260,6 +260,7 @@ public class StateMachine extends StateMachineBase<States> {
                         elevator.goToFloor(),
                         intakeAngle.lookDown(),
                         intake.stop(),
+                        intakeAligner.stop(),
                         outtake.stop(),
                         swerve.close()
                 ),
@@ -283,6 +284,7 @@ public class StateMachine extends StateMachineBase<States> {
                         intake.reset(),
                         outtake.reset(),
                         intakeAngle.reset(),
+                        intakeAligner.stop(),
                         swerve.reset()
                 ),
                 Commands.waitUntil(() -> elevator.isReset() && arm.isReset() && intakeAngle.isReset()),

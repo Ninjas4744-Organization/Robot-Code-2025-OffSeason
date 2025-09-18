@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intakeangle;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.NinjasLib.controllers.Controller;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -7,6 +8,7 @@ public interface IntakeAngleIO {
     @AutoLog
     class IntakeAngleIOInputs extends Controller.ControllerIOInputs {
         boolean AtGoal;
+        Rotation2d AbsoluteAngle;
     }
 
     default void setup() {
@@ -22,5 +24,8 @@ public interface IntakeAngleIO {
     }
 
     default void setPosition(double position){
+    }
+
+    default void setEncoder(double position){
     }
 }

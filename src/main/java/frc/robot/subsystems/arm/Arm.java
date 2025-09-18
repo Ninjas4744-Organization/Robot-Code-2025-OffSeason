@@ -88,7 +88,7 @@ public class Arm extends SubsystemBase {
        if (!enabled){
             return true;
        }
-       return Math.abs(inputs.AbsoluteAngle.getDegrees() - Constants.ArmPositions.Close.get()) < Constants.kArmControllerConstants.real.positionGoalTolerance;
+       return inputs.AtGoal;
     }
 
     public boolean isEnabled() {

@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -54,13 +55,13 @@ public class Constants {
     public static final int kOperatorControllerPort = 1;
     //endregion
 
-    //region Subsystems
     //region Arm
     public static final int kArmCanCoderID = 0;
     public static final double kArmCanCoderOffset = 0;
     public static final SensorDirectionValue kArmCanCoderReversed = SensorDirectionValue.Clockwise_Positive;
 
     public static final ControllerConstants kArmControllerConstants = new ControllerConstants();
+    //endregion
     static {
         /* Base */
         kArmControllerConstants.real.main.id = 40;
@@ -167,30 +168,33 @@ public class Constants {
     //endregion
 
     //region Intake Angle
+    public static final int kIntakeAngleCanCoderID = 23;
+    public static final double kIntakeAngleCanCoderOffset = -0.441650;
+    public static final SensorDirectionValue kIntakeAngleCanCoderReversed = SensorDirectionValue.CounterClockwise_Positive;
     public static final ControllerConstants kIntakeAngleControllerConstants = new ControllerConstants();
     static {
         /* Base */
         kIntakeAngleControllerConstants.real.main.id = 21;
-        kIntakeAngleControllerConstants.real.main.inverted = false;
-        kIntakeAngleControllerConstants.real.currentLimit = 80;
+        kIntakeAngleControllerConstants.real.main.inverted = true;
+        kIntakeAngleControllerConstants.real.currentLimit = 50;
         kIntakeAngleControllerConstants.real.isBrakeMode = true;
 
         /* Control */
-        kIntakeAngleControllerConstants.real.controlConstants = ControlConstants.createPID(1, 0, 0, 0);
-        kIntakeAngleControllerConstants.real.gearRatio = 50;
+        kIntakeAngleControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(40, 0, 0, 0, 20, 25, 0, 0, 0, 0, GravityTypeValue.Arm_Cosine);
+        kIntakeAngleControllerConstants.real.gearRatio = 65 + 1 / 3.0;
         kIntakeAngleControllerConstants.real.conversionFactor = 2 * Math.PI;
         kIntakeAngleControllerConstants.real.homePosition = Units.degreesToRadians(0);
-        kIntakeAngleControllerConstants.real.positionGoalTolerance = Units.degreesToRadians(1.5);
+        kIntakeAngleControllerConstants.real.positionGoalTolerance = Units.degreesToRadians(7);
 
         /* Soft Limits */
-        kIntakeAngleControllerConstants.real.maxSoftLimit = Units.degreesToRadians(90);
+//        kIntakeAngleControllerConstants.real.maxSoftLimit = Units.degreesToRadians(90);
 
         /* Hard Limit */
-        kIntakeAngleControllerConstants.real.isLimitSwitch = true;
-        kIntakeAngleControllerConstants.real.limitSwitchID = 3;
-        kIntakeAngleControllerConstants.real.limitSwitchDirection = -1;
-        kIntakeAngleControllerConstants.real.limitSwitchAutoStopReset = true;
-        kIntakeAngleControllerConstants.real.limitSwitchInverted = true;
+//        kIntakeAngleControllerConstants.real.isLimitSwitch = true;
+//        kIntakeAngleControllerConstants.real.limitSwitchID = 3;
+//        kIntakeAngleControllerConstants.real.limitSwitchDirection = -1;
+//        kIntakeAngleControllerConstants.real.limitSwitchAutoStopReset = true;
+//        kIntakeAngleControllerConstants.real.limitSwitchInverted = true;
 
         /* Simulation */
         kIntakeAngleControllerConstants.motorType = DCMotor.getKrakenX60(2);
@@ -198,6 +202,8 @@ public class Constants {
     //endregion
 
     //region Intake Aligner
+
+
     public static final ControllerConstants kIntakeAlignerControllerConstants = new ControllerConstants();
     static {
         /* Base */
@@ -229,7 +235,6 @@ public class Constants {
         /* Simulation */
         kClimberControllerConstants.motorType = DCMotor.getKrakenX60(2);
     }
-    //endregion
     //endregion
 
 
@@ -275,8 +280,8 @@ public class Constants {
     }
 
     public enum IntakeAnglePositions {
-        LOOK_DOWN(0),
-        LOOK_AT_L1(45),
+        LOOK_DOWN(-18),
+        LOOK_AT_L1(60),
         LOOK_AT_ARM(90);
 
         final double degrees;
@@ -342,7 +347,7 @@ public class Constants {
 
     public static final double kJoystickDeadband = 0.05;
     public static final boolean kInvertGyro = false;
-    public static final boolean kDriverFieldRelative = false;
+    public static final boolean kDriverFieldRelative = true;
 
     public static final SwerveConstants kSwerveConstants = new SwerveConstants();
     static {
@@ -380,6 +385,8 @@ public class Constants {
                     false, 0);
 
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.main.id = 10 + i * 2;
+//            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.main.inverted = i % 2 == 0;
+            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.main.inverted = false;
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.currentLimit = 100;
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.gearRatio = 5.9;
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.conversionFactor = wheelRadius * 2 * Math.PI;
@@ -392,10 +399,10 @@ public class Constants {
             kSwerveConstants.moduleConstants[i].angleMotorConstants.real.controlConstants = ControlConstants.createPID(10, 0, 0, 0);
         }
 
-        kSwerveConstants.moduleConstants[0].CANCoderOffset = -0.289307;
-        kSwerveConstants.moduleConstants[1].CANCoderOffset = -0.261963;
-        kSwerveConstants.moduleConstants[2].CANCoderOffset = -0.270020;
-        kSwerveConstants.moduleConstants[3].CANCoderOffset = 0.281250;
+        kSwerveConstants.moduleConstants[0].CANCoderOffset = -0.218750;
+        kSwerveConstants.moduleConstants[1].CANCoderOffset = 0.232422;
+        kSwerveConstants.moduleConstants[2].CANCoderOffset = 0.229248;
+        kSwerveConstants.moduleConstants[3].CANCoderOffset = 0.210938;
 
         try {
             kSwerveConstants.robotConfig = RobotConfig.fromGUISettings();
@@ -408,8 +415,8 @@ public class Constants {
         kSwerveConstants.driveMotorType = DCMotor.getKrakenX60Foc(1);
         kSwerveConstants.steerMotorType = DCMotor.getKrakenX60Foc(1);
 
-        kSwerveConstants.enableOdometryThread = false;
-        kSwerveConstants.odometryThreadFrequency = 50;
+        kSwerveConstants.enableOdometryThread = true;
+        kSwerveConstants.odometryThreadFrequency = 250;
         kSwerveConstants.isReplay = kRobotMode == RobotMode.REPLAY;
         kSwerveConstants.robotStartPose = new Pose2d(3, 3, Rotation2d.kZero);
         kSwerveConstants.CANivore = "Swerve Bus";
