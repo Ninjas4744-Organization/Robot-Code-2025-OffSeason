@@ -280,7 +280,7 @@ public class Constants {
     }
 
     public enum IntakeAnglePositions {
-        LOOK_DOWN(-18),
+        LOOK_DOWN(-16),
         LOOK_AT_L1(60),
         LOOK_AT_ARM(90);
 
@@ -445,8 +445,9 @@ public class Constants {
     public static final VisionConstants kVisionConstants = new VisionConstants();
     static {
         kVisionConstants.cameras = Map.of(
-            "FrontRight", Pair.of(new Transform3d(0.0815 + 0.1054, -0.0745, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(-7.5 - 1.5))), VisionConstants.CameraType.PhotonVision),
-            "FrontLeft", Pair.of(new Transform3d(0.0815 + 0.1054, 0.0755, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(7.5 - 1.5))), VisionConstants.CameraType.PhotonVision)
+//            "FrontRight", Pair.of(new Transform3d(0.0815 + 0.1054, -0.0745, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(-7.5 - 1.5))), VisionConstants.CameraType.PhotonVision),
+//            "FrontLeft", Pair.of(new Transform3d(0.0815 + 0.1054, 0.0755, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(7.5 - 1.5))), VisionConstants.CameraType.PhotonVision)
+            "Right", Pair.of(new Transform3d(0.735 / 2, -0.03, 0, new Rotation3d(0, 0, 0)), VisionConstants.CameraType.PhotonVision)
         );
 
         kVisionConstants.maxAmbiguity = 0.2;
