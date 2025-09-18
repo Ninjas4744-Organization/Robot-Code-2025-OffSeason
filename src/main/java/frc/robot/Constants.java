@@ -201,13 +201,13 @@ public class Constants {
     public static final ControllerConstants kIntakeAlignerControllerConstants = new ControllerConstants();
     static {
         /* Base */
-        kIntakeAngleControllerConstants.real.main.id = 22;
-        kIntakeAngleControllerConstants.real.main.inverted = true;
-        kIntakeAngleControllerConstants.real.currentLimit = 80;
-        kIntakeAngleControllerConstants.real.isBrakeMode = true;
+        kIntakeAlignerControllerConstants.real.main.id = 22;
+        kIntakeAlignerControllerConstants.real.main.inverted = true;
+        kIntakeAlignerControllerConstants.real.currentLimit = 80;
+        kIntakeAlignerControllerConstants.real.isBrakeMode = true;
 
         /* Simulation */
-        kIntakeAngleControllerConstants.motorType = DCMotor.getKrakenX60(1);
+        kIntakeAlignerControllerConstants.motorType = DCMotor.getKrakenX60(1);
     }
     //endregion
 
@@ -308,7 +308,7 @@ public class Constants {
 
     public enum IntakeSpeeds {
         Intake(-0.3),
-        Outtake(0.4);
+        Outtake(0.6);
 
         final double speed;
 
@@ -380,8 +380,7 @@ public class Constants {
                     false, 0);
 
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.main.id = 10 + i * 2;
-            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.main.inverted = true;
-            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.currentLimit = 72;
+            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.currentLimit = 100;
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.gearRatio = 5.9;
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.conversionFactor = wheelRadius * 2 * Math.PI;
             kSwerveConstants.moduleConstants[i].driveMotorConstants.real.controlConstants = ControlConstants.createTorqueCurrent(90, 0.19);
@@ -390,13 +389,13 @@ public class Constants {
             kSwerveConstants.moduleConstants[i].angleMotorConstants.real.currentLimit = 60;
             kSwerveConstants.moduleConstants[i].angleMotorConstants.real.gearRatio = 18.75;
             kSwerveConstants.moduleConstants[i].angleMotorConstants.real.conversionFactor = 2 * Math.PI;
-            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.controlConstants = ControlConstants.createPID(5, 0, 0, 0);
+            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.controlConstants = ControlConstants.createPID(10, 0, 0, 0);
         }
 
-        kSwerveConstants.moduleConstants[0].CANCoderOffset = 0.364502;
-        kSwerveConstants.moduleConstants[1].CANCoderOffset = 0.231689;
-        kSwerveConstants.moduleConstants[2].CANCoderOffset = 0.140381;
-        kSwerveConstants.moduleConstants[3].CANCoderOffset = -0.011230;
+        kSwerveConstants.moduleConstants[0].CANCoderOffset = -0.289307;
+        kSwerveConstants.moduleConstants[1].CANCoderOffset = -0.261963;
+        kSwerveConstants.moduleConstants[2].CANCoderOffset = -0.270020;
+        kSwerveConstants.moduleConstants[3].CANCoderOffset = 0.281250;
 
         try {
             kSwerveConstants.robotConfig = RobotConfig.fromGUISettings();

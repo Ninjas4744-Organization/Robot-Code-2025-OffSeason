@@ -71,16 +71,16 @@ public class RobotContainer {
             case REAL, SIM:
                 arm = new Arm(false, new ArmIOController());
                 elevator = new Elevator(false, new ElevatorIOController());
-                intakeAngle = new IntakeAngle(true, new IntakeAngleIOController());
-                intakeAligner = new IntakeAligner(true, new IntakeAlignerIOController());
+                intakeAngle = new IntakeAngle(false, new IntakeAngleIOController());
+                intakeAligner = new IntakeAligner(false, new IntakeAlignerIOController());
                 outtake = new Outtake(false, new OuttakeIOController());
                 climber = new Climber(false, new ClimberIOController());
                 swerveSubsystem = new SwerveSubsystem(true);
 
                 if(Constants.kRobotMode == Constants.RobotMode.REAL)
-                    intake = new Intake(true, new IntakeIOController(), new LoggedDigitalInputIOReal(), Constants.kIntakeBeamBreakerPort);
+                    intake = new Intake(false, new IntakeIOController(), new LoggedDigitalInputIOReal(), Constants.kIntakeBeamBreakerPort);
                 else
-                    intake = new Intake(true, new IntakeIOController(), new LoggedDigitalInputIOSim(() -> driverController.options().getAsBoolean()), Constants.kIntakeBeamBreakerPort);
+                    intake = new Intake(false, new IntakeIOController(), new LoggedDigitalInputIOSim(() -> driverController.options().getAsBoolean()), Constants.kIntakeBeamBreakerPort);
 
                 coralDetection = new CoralDetection(new CoralDetectionIOCamera());
                 driverController = new LoggedCommandController(new LoggedCommandControllerIOPS5(Constants.kDriverControllerPort));
@@ -89,9 +89,9 @@ public class RobotContainer {
             case REPLAY:
                 arm = new Arm(false, new ArmIO() {});
                 elevator = new Elevator(false, new ElevatorIO() {});
-                intake = new Intake(true, new IntakeIO() {}, new LoggedDigitalInputIO() {}, Constants.kIntakeBeamBreakerPort);
-                intakeAngle = new IntakeAngle(true, new IntakeAngleIO() {});
-                intakeAligner = new IntakeAligner(true, new IntakeAlignerIO() {});
+                intake = new Intake(false, new IntakeIO() {}, new LoggedDigitalInputIO() {}, Constants.kIntakeBeamBreakerPort);
+                intakeAngle = new IntakeAngle(false, new IntakeAngleIO() {});
+                intakeAligner = new IntakeAligner(false, new IntakeAlignerIO() {});
                 outtake = new Outtake(false, new OuttakeIO() {});
                 climber = new Climber(false, new ClimberIO() {});
                 swerveSubsystem = new SwerveSubsystem(true);
