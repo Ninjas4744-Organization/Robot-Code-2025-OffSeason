@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("ALL")
 public class Constants {
     public enum RobotMode {
         /**
@@ -47,7 +48,7 @@ public class Constants {
         REPLAY
     }
 
-    static class General {
+    public static class General {
         public static final RobotMode kSimMode = RobotMode.SIM;
         public static final RobotMode kRobotMode = Robot.isReal() ? RobotMode.REAL : kSimMode;
         public static final int kDriverControllerPort = 0;
@@ -55,7 +56,7 @@ public class Constants {
     }
 
     //region Subsystems
-    static class Arm {
+    public static class Arm {
         public static final int kArmCanCoderID = 0;
         public static final double kArmCanCoderOffset = 0;
         public static final SensorDirectionValue kArmCanCoderReversed = SensorDirectionValue.Clockwise_Positive;
@@ -118,7 +119,7 @@ public class Constants {
         }
     }
 
-    static class Elevator {
+    public static class Elevator {
         public static final ControllerConstants kElevatorControllerConstants = new ControllerConstants();
 
         static {
@@ -176,7 +177,7 @@ public class Constants {
         }
     }
 
-     static class Outtake {
+     public static class Outtake {
         public static final double kOuttakeCurrentThreshold = 65;
         public static final ControllerConstants kOuttakeControllerConstants = new ControllerConstants();
 
@@ -207,7 +208,7 @@ public class Constants {
         }
     }
 
-    static class Intake {
+    public static class Intake {
         public static final int kIntakeBeamBreakerPort = 4;
         public static final ControllerConstants kIntakeControllerConstants = new ControllerConstants();
 
@@ -237,7 +238,7 @@ public class Constants {
         }
     }
 
-     static class IntakeAngle {
+     public static class IntakeAngle {
         public static final ControllerConstants kIntakeAngleControllerConstants = new ControllerConstants();
 
         static {
@@ -284,7 +285,7 @@ public class Constants {
         }
     }
 
-    static class IntakeAligner {
+    public static class IntakeAligner {
         public static final ControllerConstants kIntakeAlignerControllerConstants = new ControllerConstants();
 
         static {
@@ -313,7 +314,7 @@ public class Constants {
         }
     }
 
-    static class Climber {
+    public static class Climber {
         public static final ControllerConstants kClimberControllerConstants = new ControllerConstants();
 
         static {
@@ -336,92 +337,96 @@ public class Constants {
     //endregion
 
 
-    static class Swerve {
+    public static class Swerve {
         public static final double kDriverSpeedFactor = 1;
         public static final double kDriverRotationSpeedFactor = 1;
-
         public static final double kJoystickDeadband = 0.05;
-        public static final boolean kInvertGyro = false;
         public static final boolean kDriverFieldRelative = false;
 
         public static final SwerveConstants kSwerveConstants = new SwerveConstants();
-
         static {
-            kSwerveConstants.openLoop = true;
-            kSwerveConstants.trackWidth = 0.735;
-            kSwerveConstants.wheelBase = 0.735;
-            kSwerveConstants.bumperLength = 0.896;
-            kSwerveConstants.bumperWidth = 0.896;
-            kSwerveConstants.kinematics = new SwerveDriveKinematics(
-                    new Translation2d(kSwerveConstants.wheelBase / 2.0, kSwerveConstants.trackWidth / 2.0),
-                    new Translation2d(kSwerveConstants.wheelBase / 2.0, -kSwerveConstants.trackWidth / 2.0),
-                    new Translation2d(-kSwerveConstants.wheelBase / 2.0, kSwerveConstants.trackWidth / 2.0),
-                    new Translation2d(-kSwerveConstants.wheelBase / 2.0, -kSwerveConstants.trackWidth / 2.0)
+            // Move chassis-related settings to chassis subclass
+            kSwerveConstants.chassis.trackWidth = 0.735;
+            kSwerveConstants.chassis.wheelBase = 0.735;
+            kSwerveConstants.chassis.bumperLength = 0.896;
+            kSwerveConstants.chassis.bumperWidth = 0.896;
+            kSwerveConstants.chassis.kinematics = new SwerveDriveKinematics(
+                    new Translation2d(kSwerveConstants.chassis.wheelBase / 2.0, kSwerveConstants.chassis.trackWidth / 2.0),
+                    new Translation2d(kSwerveConstants.chassis.wheelBase / 2.0, -kSwerveConstants.chassis.trackWidth / 2.0),
+                    new Translation2d(-kSwerveConstants.chassis.wheelBase / 2.0, kSwerveConstants.chassis.trackWidth / 2.0),
+                    new Translation2d(-kSwerveConstants.chassis.wheelBase / 2.0, -kSwerveConstants.chassis.trackWidth / 2.0)
             );
 
-            kSwerveConstants.maxSpeed = 4.5;
-            kSwerveConstants.maxAngularVelocity = 9.2;
+            // Move limits-related settings to limits subclass
+            kSwerveConstants.limits.maxSpeed = 4.5;
+            kSwerveConstants.limits.maxAngularVelocity = 9.2;
+            kSwerveConstants.limits.speedLimit = Double.MAX_VALUE;
+            kSwerveConstants.limits.rotationSpeedLimit = Double.MAX_VALUE;
+            kSwerveConstants.limits.accelerationLimit = Double.MAX_VALUE;
+            kSwerveConstants.limits.rotationAccelerationLimit = Double.MAX_VALUE;
+            kSwerveConstants.limits.maxSkidAcceleration = Double.MAX_VALUE;
 
-            kSwerveConstants.speedLimit = Double.MAX_VALUE;
-            kSwerveConstants.rotationSpeedLimit = Double.MAX_VALUE;
-            kSwerveConstants.accelerationLimit = Double.MAX_VALUE;
-            kSwerveConstants.rotationAccelerationLimit = Double.MAX_VALUE;
-            kSwerveConstants.maxSkidAcceleration = Double.MAX_VALUE;
-
+            // Move modules-related settings to modules subclass
+            kSwerveConstants.modules.openLoop = true;
             double wheelRadius = 0.048;
+            kSwerveConstants.modules.driveMotorConstants = new ControllerConstants();
+            kSwerveConstants.modules.driveMotorConstants.real.currentLimit = 100;
+            kSwerveConstants.modules.driveMotorConstants.real.gearRatio = 5.9;
+            kSwerveConstants.modules.driveMotorConstants.real.conversionFactor = wheelRadius * 2 * Math.PI;
+            kSwerveConstants.modules.driveMotorConstants.real.conversionFactor = wheelRadius * 2 * Math.PI;
+            kSwerveConstants.modules.driveMotorConstants.real.controlConstants = ControlConstants.createTorqueCurrent(90,0.19);
 
-            kSwerveConstants.moduleConstants = new SwerveModuleConstants[4];
+            kSwerveConstants.modules.steerMotorConstants = new ControllerConstants();
+            kSwerveConstants.modules.steerMotorConstants.real.currentLimit = 60;
+            kSwerveConstants.modules.steerMotorConstants.real.gearRatio = 18.75;
+            kSwerveConstants.modules.steerMotorConstants.real.conversionFactor = 2 * Math.PI;
+            kSwerveConstants.modules.steerMotorConstants.real.controlConstants = ControlConstants.createPID(10,0,0,0);
+
+            kSwerveConstants.modules.driveControllerType = Controller.ControllerType.TalonFX;
+            kSwerveConstants.modules.steerControllerType = Controller.ControllerType.TalonFX;
+            kSwerveConstants.modules.moduleConstants = new SwerveModuleConstants[4];
+
             for (int i = 0; i < 4; i++) {
-                kSwerveConstants.moduleConstants[i] = new SwerveModuleConstants(i,
-                        new ControllerConstants(),
-                        new ControllerConstants(),
-                        kSwerveConstants.maxSpeed, 6 + i,
-                        Controller.ControllerType.TalonFX,
-                        Controller.ControllerType.TalonFX,
-                        false, 0);
-
-                kSwerveConstants.moduleConstants[i].driveMotorConstants.real.main.id = 10 + i * 2;
-                kSwerveConstants.moduleConstants[i].driveMotorConstants.real.currentLimit = 100;
-                kSwerveConstants.moduleConstants[i].driveMotorConstants.real.gearRatio = 5.9;
-                kSwerveConstants.moduleConstants[i].driveMotorConstants.real.conversionFactor = wheelRadius * 2 * Math.PI;
-                kSwerveConstants.moduleConstants[i].driveMotorConstants.real.controlConstants = ControlConstants.createTorqueCurrent(90, 0.19);
-
-                kSwerveConstants.moduleConstants[i].angleMotorConstants.real.main.id = 11 + i * 2;
-                kSwerveConstants.moduleConstants[i].angleMotorConstants.real.currentLimit = 60;
-                kSwerveConstants.moduleConstants[i].angleMotorConstants.real.gearRatio = 18.75;
-                kSwerveConstants.moduleConstants[i].angleMotorConstants.real.conversionFactor = 2 * Math.PI;
-                kSwerveConstants.moduleConstants[i].angleMotorConstants.real.controlConstants = ControlConstants.createPID(10, 0, 0, 0);
+                kSwerveConstants.modules.moduleConstants[i].moduleNumber = i;
+                kSwerveConstants.modules.moduleConstants[i].driveMotorID = 10 + i * 2;
+                kSwerveConstants.modules.moduleConstants[i].driveMotorInverted = false;
+                kSwerveConstants.modules.moduleConstants[i].steerMotorID = 11 + i * 2;
+                kSwerveConstants.modules.moduleConstants[i].steerMotorInverted = false;
+                kSwerveConstants.modules.moduleConstants[i].canCoderID = 6 + i;
+                kSwerveConstants.modules.moduleConstants[i].invertCANCoder = false;
             }
 
-            kSwerveConstants.moduleConstants[0].CANCoderOffset = -0.289307;
-            kSwerveConstants.moduleConstants[1].CANCoderOffset = -0.261963;
-            kSwerveConstants.moduleConstants[2].CANCoderOffset = -0.270020;
-            kSwerveConstants.moduleConstants[3].CANCoderOffset = 0.281250;
+            kSwerveConstants.modules.moduleConstants[0].CANCoderOffset = -0.218750;
+            kSwerveConstants.modules.moduleConstants[1].CANCoderOffset = 0.232422;
+            kSwerveConstants.modules.moduleConstants[2].CANCoderOffset = 0.229248;
+            kSwerveConstants.modules.moduleConstants[3].CANCoderOffset = 0.210938;
+
+            // Move gyro-related settings to gyro subclass
+            kSwerveConstants.gyro.gyroID = 45;
+            kSwerveConstants.gyro.gyroInverted = false;
+            kSwerveConstants.gyro.gyroType = SwerveConstants.Gyro.GyroType.Pigeon2;
+
+            // Move simulation-related settings to simulation subclass
+            kSwerveConstants.simulation.driveMotorType = DCMotor.getKrakenX60Foc(1);
+            kSwerveConstants.simulation.steerMotorType = DCMotor.getKrakenX60Foc(1);
+
+            // Move special-related settings to special subclass
+            kSwerveConstants.special.enableOdometryThread = true;
+            kSwerveConstants.special.odometryThreadFrequency = 250;
+            kSwerveConstants.special.isReplay = Constants.General.kRobotMode == RobotMode.REPLAY;
+            kSwerveConstants.special.robotStartPose = new Pose2d(3, 3, Rotation2d.kZero);
+
+            // Move CAN-related settings
+            kSwerveConstants.modules.CANBus = "Swerve Bus";
 
             try {
-                kSwerveConstants.robotConfig = RobotConfig.fromGUISettings();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (ParseException e) {
+                kSwerveConstants.special.robotConfig = RobotConfig.fromGUISettings();
+            } catch (IOException | ParseException e) {
                 throw new RuntimeException(e);
             }
-
-            kSwerveConstants.driveMotorType = DCMotor.getKrakenX60Foc(1);
-            kSwerveConstants.steerMotorType = DCMotor.getKrakenX60Foc(1);
-
-            kSwerveConstants.enableOdometryThread = false;
-            kSwerveConstants.odometryThreadFrequency = 50;
-            kSwerveConstants.isReplay = kRobotMode == RobotMode.REPLAY;
-            kSwerveConstants.robotStartPose = new Pose2d(3, 3, Rotation2d.kZero);
-            kSwerveConstants.CANivore = "Swerve Bus";
-
-            kSwerveConstants.gyroID = 45;
-            kSwerveConstants.gyroInverted = kInvertGyro;
-            kSwerveConstants.gyroType = SwerveConstants.GyroType.Pigeon2;
         }
 
         public static final SwerveControllerConstants kSwerveControllerConstants = new SwerveControllerConstants();
-
         static {
             kSwerveControllerConstants.swerveConstants = kSwerveConstants;
             kSwerveControllerConstants.drivePIDConstants = ControlConstants.createPID(6, 0, 0.2, 0);
@@ -436,7 +441,7 @@ public class Constants {
             );
     }
 
-    static class Vision {
+    public static class Vision {
         public static final VisionConstants kVisionConstants = new VisionConstants();
 
         static {
@@ -457,7 +462,7 @@ public class Constants {
         }
     }
 
-    static class Field {
+    public static class Field {
         public static AprilTagFieldLayout kBlueFieldLayout;
         public static AprilTagFieldLayout kRedFieldLayout;
 
@@ -525,7 +530,7 @@ public class Constants {
 //    public static final double kVisionSTDAngularSpeedMultiplier = 1;
 //    public static final double kVisionSTDGoodAngularSpeed = 2;
 
-    static class AutoDrive {
+    public static class AutoDrive {
         public static final double kAutoDriveDistFromReef = 0.5;
         public static final double kAutoDriveRightSideOffset = 0.25;
         public static final double kAutoDriveLeftSideOffset = 0.25;

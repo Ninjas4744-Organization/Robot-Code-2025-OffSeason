@@ -42,25 +42,25 @@ public class Elevator extends SubsystemBase {
     }
 
     public Command goToFloor() {
-        return setHeight(Constants.ElevatorPositions.Close::get);
+        return setHeight(Constants.Elevator.ElevatorPositions.Close::get);
     }
 
     public Command goToLHeight(int L) {
         return switch (L) {
-            case 1 -> setHeight(Constants.ElevatorPositions.Close::get);
-            case 2 -> setHeight(Constants.ElevatorPositions.L2::get);
-            case 3 -> setHeight(Constants.ElevatorPositions.L3::get);
-            case 4-> setHeight(Constants.ElevatorPositions.L4::get);
+            case 1 -> setHeight(Constants.Elevator.ElevatorPositions.Close::get);
+            case 2 -> setHeight(Constants.Elevator.ElevatorPositions.L2::get);
+            case 3 -> setHeight(Constants.Elevator.ElevatorPositions.L3::get);
+            case 4-> setHeight(Constants.Elevator.ElevatorPositions.L4::get);
             default -> Commands.none();
         };
     }
 
     public Command goToAlgaeReefHeight() {
-        return setHeight(Constants.ElevatorPositions.AlgaeReef::get);
+        return setHeight(Constants.Elevator.ElevatorPositions.AlgaeReef::get);
     }
 
     public Command goToNetHeight() {
-        return setHeight(Constants.ElevatorPositions.Net::get);
+        return setHeight(Constants.Elevator.ElevatorPositions.Net::get);
     }
 
     public boolean atGoal() {

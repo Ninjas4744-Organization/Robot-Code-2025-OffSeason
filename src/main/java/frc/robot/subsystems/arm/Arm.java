@@ -39,28 +39,28 @@ public class Arm extends SubsystemBase {
     }
 
     public Command lookDown() {
-        return setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Close.get()));
+        return setAngle(Rotation2d.fromDegrees(Constants.Arm.ArmPositions.Close.get()));
     }
 
     public Command lookAtCoralReef(int L) {
         return switch (L) {
-            case 2 -> setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.L4.get()));
-            case 3 -> setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.L3.get()));
-            case 4 -> setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.L2.get()));
-            default -> setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Close.get()));
+            case 2 -> setAngle(Rotation2d.fromDegrees(Constants.Arm.ArmPositions.L4.get()));
+            case 3 -> setAngle(Rotation2d.fromDegrees(Constants.Arm.ArmPositions.L3.get()));
+            case 4 -> setAngle(Rotation2d.fromDegrees(Constants.Arm.ArmPositions.L2.get()));
+            default -> setAngle(Rotation2d.fromDegrees(Constants.Arm.ArmPositions.Close.get()));
         };
     }
 
     public Command lookAtAlgaeReef() {
-        return setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.HighAlgaeOut.get()));
+        return setAngle(Rotation2d.fromDegrees(Constants.Arm.ArmPositions.HighAlgaeOut.get()));
     }
 
     public Command lookAtAlgaeFloor() {
-        return setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.LowAlgaeOut.get()));
+        return setAngle(Rotation2d.fromDegrees(Constants.Arm.ArmPositions.LowAlgaeOut.get()));
     }
 
     public Command lookAtBarge() {
-        return setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Net.get()));
+        return setAngle(Rotation2d.fromDegrees(Constants.Arm.ArmPositions.Net.get()));
     }
 
     public Rotation2d getAngle(){
@@ -81,14 +81,14 @@ public class Arm extends SubsystemBase {
         if (!enabled){
             return Commands.none();
         }
-        return Commands.runOnce(() -> io.setEncoder(inputs.AbsoluteAngle.getRadians())).andThen(setAngle(Rotation2d.fromDegrees(Constants.ArmPositions.Close.get())));
+        return Commands.runOnce(() -> io.setEncoder(inputs.AbsoluteAngle.getRadians())).andThen(setAngle(Rotation2d.fromDegrees(Constants.Arm.ArmPositions.Close.get())));
     }
 
     public boolean isReset(){
        if (!enabled){
             return true;
        }
-       return Math.abs(inputs.AbsoluteAngle.getDegrees() - Constants.ArmPositions.Close.get()) < Constants.kArmControllerConstants.real.positionGoalTolerance;
+       return Math.abs(inputs.AbsoluteAngle.getDegrees() - Constants.Arm.ArmPositions.Close.get()) < Constants.Arm.kArmControllerConstants.real.positionGoalTolerance;
     }
 
     public boolean isEnabled() {

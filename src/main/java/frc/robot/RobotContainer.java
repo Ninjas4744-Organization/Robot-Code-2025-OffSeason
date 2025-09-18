@@ -67,7 +67,7 @@ public class RobotContainer {
     private LoggedDashboardChooser<Command> autoChooser;
 
     public RobotContainer() {
-        switch (Constants.kRobotMode) {
+        switch (Constants.General.kRobotMode) {
             case REAL, SIM:
                 arm = new Arm(false, new ArmIOController());
                 elevator = new Elevator(false, new ElevatorIOController());
@@ -77,19 +77,19 @@ public class RobotContainer {
                 climber = new Climber(false, new ClimberIOController());
                 swerveSubsystem = new SwerveSubsystem(true);
 
-                if(Constants.kRobotMode == Constants.RobotMode.REAL)
-                    intake = new Intake(false, new IntakeIOController(), new LoggedDigitalInputIOReal(), Constants.kIntakeBeamBreakerPort);
+                if(Constants.General.kRobotMode == Constants.RobotMode.REAL)
+                    intake = new Intake(false, new IntakeIOController(), new LoggedDigitalInputIOReal(), Constants.Intake.kIntakeBeamBreakerPort);
                 else
-                    intake = new Intake(false, new IntakeIOController(), new LoggedDigitalInputIOSim(() -> driverController.options().getAsBoolean()), Constants.kIntakeBeamBreakerPort);
+                    intake = new Intake(false, new IntakeIOController(), new LoggedDigitalInputIOSim(() -> driverController.options().getAsBoolean()), Constants.Intake.kIntakeBeamBreakerPort);
 
                 coralDetection = new CoralDetection(new CoralDetectionIOCamera());
-                driverController = new LoggedCommandController(new LoggedCommandControllerIOPS5(Constants.kDriverControllerPort));
+                driverController = new LoggedCommandController(new LoggedCommandControllerIOPS5(Constants.General.kDriverControllerPort));
                 break;
 
             case REPLAY:
                 arm = new Arm(false, new ArmIO() {});
                 elevator = new Elevator(false, new ElevatorIO() {});
-                intake = new Intake(false, new IntakeIO() {}, new LoggedDigitalInputIO() {}, Constants.kIntakeBeamBreakerPort);
+                intake = new Intake(false, new IntakeIO() {}, new LoggedDigitalInputIO() {}, Constants.Intake.kIntakeBeamBreakerPort);
                 intakeAngle = new IntakeAngle(false, new IntakeAngleIO() {});
                 intakeAligner = new IntakeAligner(false, new IntakeAlignerIO() {});
                 outtake = new Outtake(false, new OuttakeIO() {});
@@ -101,7 +101,7 @@ public class RobotContainer {
                 break;
         }
 
-        RobotStateBase.setInstance(new RobotState(Constants.kSwerveConstants.kinematics));
+        RobotStateBase.setInstance(new RobotState(Constants.Swerve.kSwerveConstants.kinematics));
         StateMachineBase.setInstance(new StateMachine());
 //        Vision.setInstance(new Vision(Constants.kVisionConstants));
 
@@ -129,7 +129,7 @@ public class RobotContainer {
             drive -> SwerveController.getInstance().setControl(new SwerveInput(drive, false), "Auto"),
 
             Constants.kAutonomyConfig, //Autonomy config
-            Constants.kSwerveConstants.robotConfig, //Robot config
+            Constants.Swerve.kSwerveConstants.robotConfig, //Robot config
 
             () -> false
         );

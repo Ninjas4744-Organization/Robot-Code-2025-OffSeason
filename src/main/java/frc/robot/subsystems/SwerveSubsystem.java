@@ -32,11 +32,11 @@ public class SwerveSubsystem extends SubsystemBase {
         this.enabled = enabled;
 
         if (enabled) {
-            Swerve.setInstance(new Swerve(Constants.kSwerveConstants));
-            SwerveController.setInstance(new SwerveController(Constants.kSwerveControllerConstants));
+            Swerve.setInstance(new Swerve(Constants.Swerve.kSwerveConstants));
+            SwerveController.setInstance(new SwerveController(Constants.Swerve.kSwerveControllerConstants));
             SwerveController.getInstance().setChannel("Driver");
 
-            AprilTagFieldLayout layout = Constants.getFieldLayout();
+            AprilTagFieldLayout layout = Constants.Field.getFieldLayout();
             reefAprilTags = List.of(
                     layout.getTagPose(6).get().toPose2d(),
                     layout.getTagPose(7).get().toPose2d(),
@@ -57,10 +57,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void swerveDrive(LoggedCommandController controller) {
         SwerveController.getInstance().setControl(SwerveController.getInstance().fromPercent(
-                new SwerveInput(-MathUtil.applyDeadband(controller.getLeftY(), Constants.kJoystickDeadband) * Constants.kDriverSpeedFactor,
-                        -MathUtil.applyDeadband(controller.getLeftX(), Constants.kJoystickDeadband) * Constants.kDriverSpeedFactor,
-                        -MathUtil.applyDeadband(controller.getRightX(), Constants.kJoystickDeadband) * Constants.kDriverRotationSpeedFactor,
-                        Constants.kDriverFieldRelative
+                new SwerveInput(-MathUtil.applyDeadband(controller.getLeftY(), Constants.Swerve.kJoystickDeadband) * Constants.Swerve.kDriverSpeedFactor,
+                        -MathUtil.applyDeadband(controller.getLeftX(), Constants.Swerve.kJoystickDeadband) * Constants.Swerve.kDriverSpeedFactor,
+                        -MathUtil.applyDeadband(controller.getRightX(), Constants.Swerve.kJoystickDeadband) * Constants.Swerve.kDriverRotationSpeedFactor,
+                        Constants.Swerve.kDriverFieldRelative
                 )), "Driver");
     }
 
@@ -76,7 +76,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 SwerveController.getInstance().setChannel("AutoReef");
                 target = RobotState.getInstance().getRobotPose().nearest(reefAprilTags);
                 target = new Pose2d(target.getTranslation(), target.getRotation().rotateBy(Rotation2d.k180deg));
-                target = target.transformBy(new Transform2d(-Constants.kAutoDriveDistFromReef, isRightSide.getAsBoolean() ? -Constants.kAutoDriveRightSideOffset : Constants.kAutoDriveLeftSideOffset, Rotation2d.kZero));
+                target = target.transformBy(new Transform2d(-Constants.AutoDrive.kAutoDriveDistFromReef, isRightSide.getAsBoolean() ? -Constants.AutoDrive.kAutoDriveRightSideOffset : Constants.AutoDrive.kAutoDriveLeftSideOffset, Rotation2d.kZero));
 
 //                pidRotation.reset(RobotState.getInstance().getRobotPose().getRotation().getRadians());
             }),
@@ -153,7 +153,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public boolean atGoal() {
-        return Math.abs(RobotState.getInstance().getDistance(target))  < Constants.kAutoDriveDistThreshold;
+        return Math.abs(RobotState.getInstance().getDistance(target))  < Constants.AutoDrive.kAutoDriveDistThreshold;
     }
 
     public Command close() {

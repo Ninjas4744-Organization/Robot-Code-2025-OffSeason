@@ -60,15 +60,15 @@ public class IntakeAngle extends SubsystemBase {
     }
 
     public Command lookDown() {
-        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAnglePositions.LOOK_DOWN.get()));
+        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.IntakeAnglePositions.LOOK_DOWN.get()));
     }
 
     public Command lookAtL1() {
-        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAnglePositions.LOOK_AT_L1.get()));
+        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.IntakeAnglePositions.LOOK_AT_L1.get()));
     }
 
     public Command lookAtArm() {
-        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAnglePositions.LOOK_AT_ARM.get()));
+        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.IntakeAnglePositions.LOOK_AT_ARM.get()));
     }
 
     public boolean atGoal(){

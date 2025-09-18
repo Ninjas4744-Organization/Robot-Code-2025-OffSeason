@@ -55,11 +55,11 @@ public class Intake extends SubsystemBase {
     }
 
     public Command intake() {
-        return setPercent(Constants.IntakeSpeeds.Intake::get);
+        return setPercent(Constants.Intake.IntakeSpeeds.Intake::get);
     }
 
     public Command outtake() {
-        return setPercent(Constants.IntakeSpeeds.Outtake::get);
+        return setPercent(Constants.Intake.IntakeSpeeds.Outtake::get);
     }
 
     public Command stop() {
