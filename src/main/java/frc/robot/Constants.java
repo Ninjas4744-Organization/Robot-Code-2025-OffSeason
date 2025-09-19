@@ -13,6 +13,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -25,6 +26,7 @@ import frc.lib.NinjasLib.controllers.constants.ControllerConstants;
 import frc.lib.NinjasLib.controllers.constants.RealControllerConstants.SimpleControllerConstants;
 import frc.lib.NinjasLib.localization.vision.VisionConstants;
 import frc.lib.NinjasLib.localization.vision.VisionOutput;
+import frc.lib.NinjasLib.swerve.Swerve;
 import frc.lib.NinjasLib.swerve.constants.SwerveConstants;
 import frc.lib.NinjasLib.swerve.constants.SwerveControllerConstants;
 import frc.lib.NinjasLib.swerve.constants.SwerveModuleConstants;
@@ -458,7 +460,15 @@ public class Constants {
     }
 
     public static Matrix<N3, N1> getVisionSTD(VisionOutput output) {
-        return VecBuilder.fill(output.closestTargetDist, output.closestTargetDist, output.closestTargetDist * 2);
+        double distStd = Math.pow(0.4 * output.closestTargetDist, 2) + 0.3;
+
+        ChassisSpeeds speed = Swerve.getInstance().getChassisSpeeds(false);
+        double latMs = 50; //40ms lat + 10ms from 40fps
+
+        double xyStd = distStd + 2 * (latMs / 1000) * Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond);
+        double angleStd = distStd + 2 * (latMs / 1000) * speed.omegaRadiansPerSecond;
+
+        return VecBuilder.fill(xyStd, xyStd, angleStd);
     }
     //endregion
 

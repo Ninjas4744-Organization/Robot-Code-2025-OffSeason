@@ -263,7 +263,7 @@ public class RobotContainer {
     }
     //endregion
 
-    private Pose2d lastVisionPose = new Pose2d();
+//    private Pose2d lastVisionPose = new Pose2d();
 //    private List<Double> robotSpeed = new ArrayList<>();
 //    private List<Double> delayMeters = new ArrayList<>();
     public void periodic() {
@@ -277,7 +277,7 @@ public class RobotContainer {
 //            visionPose = estimation.robotPose;
             if(estimation.hasTargets){
                 Logger.recordOutput("Vision Robot Pose", estimation.robotPose);
-                lastVisionPose = estimation.robotPose;
+//                lastVisionPose = estimation.robotPose;
                 break;
             }
         }
