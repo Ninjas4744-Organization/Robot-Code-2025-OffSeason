@@ -103,7 +103,7 @@ public class RobotContainer {
                 break;
         }
 
-        RobotStateBase.setInstance(new RobotState(Constants.Swerve.kSwerveConstants.kinematics));
+        RobotStateBase.setInstance(new RobotState(Constants.Swerve.kSwerveConstants.chassis.kinematics));
         StateMachineBase.setInstance(new StateMachine());
         Vision.setInstance(new Vision(Constants.Vision.kVisionConstants));
 
@@ -131,7 +131,7 @@ public class RobotContainer {
             drive -> SwerveController.getInstance().setControl(new SwerveInput(drive, false), "Auto"),
 
             Constants.Swerve.kAutonomyConfig, //Autonomy config
-            Constants.Swerve.kSwerveConstants.robotConfig, //Robot config
+            Constants.Swerve.kSwerveConstants.special.robotConfig, //Robot config
 
             () -> false
         );

@@ -81,7 +81,7 @@ public class Arm extends SubsystemBase {
         if (!enabled){
             return Commands.none();
         }
-        return Commands.runOnce(() -> io.setEncoder(inputs.AbsoluteAngle.getRadians())).andThen(setAngle(Rotation2d.fromDegrees(Constants.Arm.ArmPositions.Close.get())));
+        return Commands.runOnce(() -> io.setEncoder(inputs.AbsoluteAngle.getRadians())).andThen(setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get())));
     }
 
     public boolean isReset(){

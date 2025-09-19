@@ -8,7 +8,7 @@ public class IntakeAlignerIOController implements IntakeAlignerIO {
 
     @Override
     public void setup() {
-        controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.kIntakeAlignerControllerConstants);
+        controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.IntakeAligner.kControllerConstants);
     }
 
     @Override

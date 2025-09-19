@@ -43,7 +43,7 @@ public class IntakeAligner extends SubsystemBase {
     }
 
     public Command align() {
-        return setPercent(Constants.IntakeAlignerSpeeds.Align::get);
+        return setPercent(Constants.IntakeAligner.Speeds.Align::get);
     }
 
     public Command stop() {

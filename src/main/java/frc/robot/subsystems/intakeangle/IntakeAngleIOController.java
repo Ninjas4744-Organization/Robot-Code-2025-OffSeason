@@ -13,12 +13,12 @@ public class IntakeAngleIOController implements IntakeAngleIO {
 
     @Override
     public void setup() {
-        controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.kIntakeAngleControllerConstants);
+        controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.IntakeAngle.kControllerConstants);
 
-        canCoder = new CANcoder(Constants.kIntakeAngleCanCoderID);
+        canCoder = new CANcoder(Constants.IntakeAngle.kCanCoderID);
         CANcoderConfiguration config = new CANcoderConfiguration();
-        config.MagnetSensor.MagnetOffset = Constants.kIntakeAngleCanCoderOffset;
-        config.MagnetSensor.SensorDirection = Constants.kIntakeAngleCanCoderReversed;
+        config.MagnetSensor.MagnetOffset = Constants.IntakeAngle.kCanCoderOffset;
+        config.MagnetSensor.SensorDirection = Constants.IntakeAngle.kCanCoderReversed;
         canCoder.getConfigurator().apply(config);
     }
 

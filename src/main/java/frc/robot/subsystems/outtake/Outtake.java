@@ -30,7 +30,7 @@ public class Outtake extends SubsystemBase {
         if (!enabled)
             return;
 
-        if (Math.abs(inputs.Current) > Constants.Outtake.kOuttakeCurrentThreshold && inputs.Output < 0) {
+        if (Math.abs(inputs.Current) > Constants.Outtake.kCurrentThreshold && inputs.Output < 0) {
             if (!currentTimer.isRunning())
                 currentTimer.restart();
         } else {
@@ -61,7 +61,7 @@ public class Outtake extends SubsystemBase {
         if (!enabled)
             return Commands.none();
 
-        return Commands.runOnce(() -> io.setPercent(Constants.Outtake.OuttakeSpeeds.Intake.get()));
+        return Commands.runOnce(() -> io.setPercent(Constants.Outtake.Speeds.Intake.get()));
     }
 
     public Command outtake() {
@@ -69,7 +69,7 @@ public class Outtake extends SubsystemBase {
             return Commands.none();
 
         return Commands.runOnce(() -> {
-            io.setPercent(Constants.Outtake.OuttakeSpeeds.Outtake.get());
+            io.setPercent(Constants.Outtake.Speeds.Outtake.get());
             isAlgaeInside = false;
             isCoralInside = false;
         });
@@ -99,7 +99,7 @@ public class Outtake extends SubsystemBase {
                 intake(),
                 Commands.race(
                         Commands.waitUntil(() -> {
-                            if (Math.abs(inputs.Current) > Constants.Outtake.kOuttakeCurrentThreshold) {
+                            if (Math.abs(inputs.Current) > Constants.Outtake.kCurrentThreshold) {
                                 if (!currentTimer.isRunning())
                                     currentTimer.restart();
                             } else {

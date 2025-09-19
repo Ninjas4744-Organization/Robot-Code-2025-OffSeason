@@ -8,7 +8,7 @@ public class ElevatorIOController implements ElevatorIO {
 
     @Override
     public void setup() {
-        controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.kElevatorControllerConstants);
+        controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.Elevator.kControllerConstants);
     }
 
     @Override
