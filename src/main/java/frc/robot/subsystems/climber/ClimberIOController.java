@@ -8,7 +8,7 @@ public class ClimberIOController implements ClimberIO {
 
     @Override
     public void setup() {
-        controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.kClimberControllerConstants);
+        controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.Climber.kControllerConstants);
     }
 
     @Override

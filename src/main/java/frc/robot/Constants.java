@@ -26,7 +26,6 @@ import frc.lib.NinjasLib.controllers.constants.ControllerConstants;
 import frc.lib.NinjasLib.controllers.constants.RealControllerConstants.SimpleControllerConstants;
 import frc.lib.NinjasLib.localization.vision.VisionConstants;
 import frc.lib.NinjasLib.localization.vision.VisionOutput;
-import frc.lib.NinjasLib.swerve.Swerve;
 import frc.lib.NinjasLib.swerve.constants.SwerveConstants;
 import frc.lib.NinjasLib.swerve.constants.SwerveControllerConstants;
 import frc.lib.NinjasLib.swerve.constants.SwerveModuleConstants;
@@ -50,500 +49,482 @@ public class Constants {
         REPLAY
     }
 
-    //region General
-    public static final RobotMode kSimMode = RobotMode.SIM;
-    public static final RobotMode kRobotMode = Robot.isReal() ? RobotMode.REAL : kSimMode;
-    public static final int kDriverControllerPort = 0;
-    public static final int kOperatorControllerPort = 1;
-    //endregion
-
-    //region Arm
-    public static final int kArmCanCoderID = 0;
-    public static final double kArmCanCoderOffset = 0;
-    public static final SensorDirectionValue kArmCanCoderReversed = SensorDirectionValue.Clockwise_Positive;
-
-    public static final ControllerConstants kArmControllerConstants = new ControllerConstants();
-    //endregion
-    static {
-        /* Base */
-        kArmControllerConstants.real.main.id = 40;
-        kArmControllerConstants.real.main.inverted = false;
-        kArmControllerConstants.real.currentLimit = 60;
-        kArmControllerConstants.real.isBrakeMode = true;
-
-        /* Followers */
-        kArmControllerConstants.real.followers = new SimpleControllerConstants[1];
-        kArmControllerConstants.real.followers[0] = new SimpleControllerConstants();
-        kArmControllerConstants.real.followers[0].id = 41;
-        kArmControllerConstants.real.followers[0].inverted = true;
-
-        /* Control */
-        kArmControllerConstants.real.controlConstants = ControlConstants.createPID(1, 0, 0, 0);
-        kArmControllerConstants.real.gearRatio = 50;
-        kArmControllerConstants.real.conversionFactor = 2 * Math.PI;
-        kArmControllerConstants.real.homePosition = Units.degreesToRadians(-90);
-        kArmControllerConstants.real.positionGoalTolerance = Units.degreesToRadians(3);
-
-        /* Soft Limits */
-        kArmControllerConstants.real.maxSoftLimit = Units.degreesToRadians(360);
-        kArmControllerConstants.real.minSoftLimit = Units.degreesToRadians(-360);
-
-        /* Hard Limit */
-        kArmControllerConstants.real.isLimitSwitch = true;
-        kArmControllerConstants.real.limitSwitchID = 1;
-        kArmControllerConstants.real.limitSwitchDirection = -1;
-        kArmControllerConstants.real.limitSwitchAutoStopReset = true;
-        kArmControllerConstants.real.limitSwitchInverted = true;
-
-        /* Simulation */
-        kArmControllerConstants.motorType = DCMotor.getKrakenX60(2);
+    public static class General {
+        public static final RobotMode kSimMode = RobotMode.SIM;
+        public static final RobotMode kRobotMode = Robot.isReal() ? RobotMode.REAL : kSimMode;
+        public static final int kDriverControllerPort = 0;
+        public static final int kOperatorControllerPort = 1;
     }
-    //endregion
 
-    //region Elevator
-    public static final ControllerConstants kElevatorControllerConstants = new ControllerConstants();
-    static {
-        /* Base */
-        kElevatorControllerConstants.real.main.id = 30;
-        kElevatorControllerConstants.real.main.inverted = false;
-        kElevatorControllerConstants.real.currentLimit = 60;
-        kElevatorControllerConstants.real.isBrakeMode = true;
+    //region Subsystems
+    public static class Arm {
+        public static final int kCanCoderID = 0;
+        public static final double kCanCoderOffset = 0;
+        public static final SensorDirectionValue kCanCoderReversed = SensorDirectionValue.Clockwise_Positive;
 
-        /* Followers */
-        kElevatorControllerConstants.real.followers = new SimpleControllerConstants[1];
-        kElevatorControllerConstants.real.followers[0] = new SimpleControllerConstants();
-        kElevatorControllerConstants.real.followers[0].id = 31;
-        kElevatorControllerConstants.real.followers[0].inverted = true;
+        public static final ControllerConstants kControllerConstants = new ControllerConstants();
+        static {
+            /* Base */
+            kControllerConstants.real.main.id = 40;
+            kControllerConstants.real.main.inverted = false;
+            kControllerConstants.real.currentLimit = 60;
+            kControllerConstants.real.isBrakeMode = true;
 
-        /* Control */
-        kElevatorControllerConstants.real.controlConstants = ControlConstants.createPID(10, 0, 0, 0);
-        kElevatorControllerConstants.real.gearRatio = 5;
-        kElevatorControllerConstants.real.conversionFactor = Math.PI * 0.05;
-        kElevatorControllerConstants.real.homePosition = 0;
-        kElevatorControllerConstants.real.positionGoalTolerance = 0.01;
+            /* Followers */
+            kControllerConstants.real.followers = new SimpleControllerConstants[1];
+            kControllerConstants.real.followers[0] = new SimpleControllerConstants();
+            kControllerConstants.real.followers[0].id = 41;
+            kControllerConstants.real.followers[0].inverted = true;
 
-        /* Soft Limits */
-        kElevatorControllerConstants.real.maxSoftLimit = 1.6;
+            /* Control */
+            kControllerConstants.real.controlConstants = ControlConstants.createPID(1, 0, 0, 0);
+            kControllerConstants.real.gearRatio = 50;
+            kControllerConstants.real.conversionFactor = 2 * Math.PI;
+            kControllerConstants.real.homePosition = Units.degreesToRadians(-90);
+            kControllerConstants.real.positionGoalTolerance = Units.degreesToRadians(3);
 
-        /* Hard Limit */
-        kElevatorControllerConstants.real.isLimitSwitch = true;
-        kElevatorControllerConstants.real.isVirtualLimit = true;
-        kElevatorControllerConstants.real.virtualLimitStallThreshold = 30 / 12.0;
-        kElevatorControllerConstants.real.limitSwitchID = 2;
-        kElevatorControllerConstants.real.limitSwitchDirection = -1;
-        kElevatorControllerConstants.real.limitSwitchAutoStopReset = true;
-        kElevatorControllerConstants.real.limitSwitchInverted = true;
+            /* Soft Limits */
+            kControllerConstants.real.maxSoftLimit = Units.degreesToRadians(360);
+            kControllerConstants.real.minSoftLimit = Units.degreesToRadians(-360);
 
-        /* Simulation */
-        kElevatorControllerConstants.motorType = DCMotor.getKrakenX60(2);
-    }
-    //endregion
+            /* Hard Limit */
+            kControllerConstants.real.isLimitSwitch = true;
+            kControllerConstants.real.limitSwitchID = 1;
+            kControllerConstants.real.limitSwitchDirection = -1;
+            kControllerConstants.real.limitSwitchAutoStopReset = true;
+            kControllerConstants.real.limitSwitchInverted = true;
 
-    //region Outtake
-    public static final double kOuttakeCurrentThreshold = 65;
-    public static final ControllerConstants kOuttakeControllerConstants = new ControllerConstants();
-    static {
-        /* Base */
-        kOuttakeControllerConstants.real.main.id = 50;
-        kOuttakeControllerConstants.real.main.inverted = false;
-        kOuttakeControllerConstants.real.currentLimit = 60;
-        kOuttakeControllerConstants.real.isBrakeMode = false;
-
-        /* Simulation */
-        kOuttakeControllerConstants.motorType = DCMotor.getKrakenX60(1);
-    }
-    //endregion
-
-    //region Intake
-    public static final int kIntakeBeamBreakerPort = 4;
-    public static final ControllerConstants kIntakeControllerConstants = new ControllerConstants();
-    static {
-        /* Base */
-        kIntakeControllerConstants.real.main.id = 20;
-        kIntakeControllerConstants.real.main.inverted = false;
-        kIntakeControllerConstants.real.currentLimit = 80;
-        kIntakeControllerConstants.real.isBrakeMode = true;
-
-        /* Simulation */
-        kIntakeControllerConstants.motorType = DCMotor.getKrakenX60(1);
-    }
-    //endregion
-
-    //region Intake Angle
-    public static final int kIntakeAngleCanCoderID = 23;
-    public static final double kIntakeAngleCanCoderOffset = -0.441650;
-    public static final SensorDirectionValue kIntakeAngleCanCoderReversed = SensorDirectionValue.CounterClockwise_Positive;
-    public static final ControllerConstants kIntakeAngleControllerConstants = new ControllerConstants();
-    static {
-        /* Base */
-        kIntakeAngleControllerConstants.real.main.id = 21;
-        kIntakeAngleControllerConstants.real.main.inverted = true;
-        kIntakeAngleControllerConstants.real.currentLimit = 50;
-        kIntakeAngleControllerConstants.real.isBrakeMode = true;
-
-        /* Control */
-        kIntakeAngleControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(40, 0, 0, 0, 20, 25, 0, 0, 0, 0, GravityTypeValue.Arm_Cosine);
-        kIntakeAngleControllerConstants.real.gearRatio = 65 + 1 / 3.0;
-        kIntakeAngleControllerConstants.real.conversionFactor = 2 * Math.PI;
-        kIntakeAngleControllerConstants.real.homePosition = Units.degreesToRadians(0);
-        kIntakeAngleControllerConstants.real.positionGoalTolerance = Units.degreesToRadians(7);
-
-        /* Soft Limits */
-//        kIntakeAngleControllerConstants.real.maxSoftLimit = Units.degreesToRadians(90);
-
-        /* Hard Limit */
-//        kIntakeAngleControllerConstants.real.isLimitSwitch = true;
-//        kIntakeAngleControllerConstants.real.limitSwitchID = 3;
-//        kIntakeAngleControllerConstants.real.limitSwitchDirection = -1;
-//        kIntakeAngleControllerConstants.real.limitSwitchAutoStopReset = true;
-//        kIntakeAngleControllerConstants.real.limitSwitchInverted = true;
-
-        /* Simulation */
-        kIntakeAngleControllerConstants.motorType = DCMotor.getKrakenX60(2);
-    }
-    //endregion
-
-    //region Intake Aligner
-
-
-    public static final ControllerConstants kIntakeAlignerControllerConstants = new ControllerConstants();
-    static {
-        /* Base */
-        kIntakeAlignerControllerConstants.real.main.id = 22;
-        kIntakeAlignerControllerConstants.real.main.inverted = true;
-        kIntakeAlignerControllerConstants.real.currentLimit = 80;
-        kIntakeAlignerControllerConstants.real.isBrakeMode = true;
-
-        /* Simulation */
-        kIntakeAlignerControllerConstants.motorType = DCMotor.getKrakenX60(1);
-    }
-    //endregion
-
-    //region Climber
-    public static final ControllerConstants kClimberControllerConstants = new ControllerConstants();
-    static {
-        /* Base */
-        kClimberControllerConstants.real.main.id = 60;
-        kClimberControllerConstants.real.main.inverted = false;
-        kClimberControllerConstants.real.currentLimit = 80;
-        kClimberControllerConstants.real.isBrakeMode = true;
-
-        /* Followers */
-        kClimberControllerConstants.real.followers = new SimpleControllerConstants[1];
-        kClimberControllerConstants.real.followers[0] = new SimpleControllerConstants();
-        kClimberControllerConstants.real.followers[0].id = 61;
-        kClimberControllerConstants.real.followers[0].inverted = true;
-
-        /* Simulation */
-        kClimberControllerConstants.motorType = DCMotor.getKrakenX60(2);
-    }
-    //endregion
-
-
-    //region Positions
-    public enum ArmPositions {
-        Close(-90),
-        L2(0),
-        L3(0),
-        L4(0),
-        LowAlgaeOut(0),
-        HighAlgaeOut(0),
-        Net(70),
-        Processor(0);
-
-        final double angle;
-
-        ArmPositions(double angle) {
-            this.angle = angle;
+            /* Simulation */
+            kControllerConstants.motorType = DCMotor.getKrakenX60(2);
         }
 
-        public double get() {
-            return angle;
+        public enum Positions {
+            Close(-90),
+            L2(0),
+            L3(0),
+            L4(0),
+            LowAlgaeOut(0),
+            HighAlgaeOut(0),
+            Net(70),
+            Processor(0);
+
+            final double angle;
+
+            Positions(double angle) {
+                this.angle = angle;
+            }
+
+            public double get() {
+                return angle;
+            }
         }
     }
 
-    public enum ElevatorPositions {
-        Close(0),
-        L2(0.2),
-        L3(0.6),
-        L4(1),
-        AlgaeReef(0.8),
-        Net(1.2);
+    public static class Elevator {
+        public static final ControllerConstants kControllerConstants = new ControllerConstants();
+        static {
+            /* Base */
+            kControllerConstants.real.main.id = 30;
+            kControllerConstants.real.main.inverted = false;
+            kControllerConstants.real.currentLimit = 60;
+            kControllerConstants.real.isBrakeMode = true;
 
-        final double height;
+            /* Followers */
+            kControllerConstants.real.followers = new SimpleControllerConstants[1];
+            kControllerConstants.real.followers[0] = new SimpleControllerConstants();
+            kControllerConstants.real.followers[0].id = 31;
+            kControllerConstants.real.followers[0].inverted = true;
 
-        ElevatorPositions(double height) {
-            this.height = height;
+            /* Control */
+            kControllerConstants.real.controlConstants = ControlConstants.createPID(10, 0, 0, 0);
+            kControllerConstants.real.gearRatio = 5;
+            kControllerConstants.real.conversionFactor = Math.PI * 0.05;
+            kControllerConstants.real.homePosition = 0;
+            kControllerConstants.real.positionGoalTolerance = 0.01;
+
+            /* Soft Limits */
+            kControllerConstants.real.maxSoftLimit = 1.6;
+
+            /* Hard Limit */
+            kControllerConstants.real.isLimitSwitch = true;
+            kControllerConstants.real.isVirtualLimit = true;
+            kControllerConstants.real.virtualLimitStallThreshold = 30 / 12.0;
+            kControllerConstants.real.limitSwitchID = 2;
+            kControllerConstants.real.limitSwitchDirection = -1;
+            kControllerConstants.real.limitSwitchAutoStopReset = true;
+            kControllerConstants.real.limitSwitchInverted = true;
+
+            /* Simulation */
+            kControllerConstants.motorType = DCMotor.getKrakenX60(2);
         }
 
-        public double get() {
-            return height;
-        }
-    }
+        public enum Positions {
+            Close(0),
+            L2(0.2),
+            L3(0.6),
+            L4(1),
+            AlgaeReef(0.8),
+            Net(1.2);
 
-    public enum IntakeAnglePositions {
-        LOOK_DOWN(-16),
-        LOOK_AT_L1(60),
-        LOOK_AT_ARM(90);
+            final double height;
 
-        final double degrees;
+            Positions(double height) {
+                this.height = height;
+            }
 
-        IntakeAnglePositions(double degrees) {
-            this.degrees = degrees;
-        }
-
-        public double get() {
-            return degrees;
-        }
-    }
-
-    public enum OuttakeSpeeds {
-        Intake(-1),
-        Outtake(1),
-        OuttakeAlgae(1);
-
-        final double speed;
-
-        OuttakeSpeeds(double speed) {
-            this.speed = speed;
-        }
-
-        public double get() {
-            return speed;
-        }
-    }
-
-    public enum IntakeSpeeds {
-        Intake(-0.3),
-        Outtake(0.6);
-
-        final double speed;
-
-        IntakeSpeeds(double speed) {
-            this.speed = speed;
-        }
-
-        public double get() {
-            return speed;
+            public double get() {
+                return height;
+            }
         }
     }
 
-    public enum IntakeAlignerSpeeds {
-        Align(0.6);
+     public static class Outtake {
+        public static final double kCurrentThreshold = 65;
 
-        final double speed;
+        public static final ControllerConstants kControllerConstants = new ControllerConstants();
+        static {
+            /* Base */
+            kControllerConstants.real.main.id = 50;
+            kControllerConstants.real.main.inverted = false;
+            kControllerConstants.real.currentLimit = 60;
+            kControllerConstants.real.isBrakeMode = false;
 
-        IntakeAlignerSpeeds(double speed) {
-            this.speed = speed;
+            /* Simulation */
+            kControllerConstants.motorType = DCMotor.getKrakenX60(1);
         }
 
-        public double get() {
-            return speed;
+        public enum Speeds {
+            Intake(-1),
+            Outtake(1),
+            OuttakeAlgae(1);
+
+            final double speed;
+
+            Speeds(double speed) {
+                this.speed = speed;
+            }
+
+            public double get() {
+                return speed;
+            }
+        }
+    }
+
+    public static class Intake {
+        public static final int kBeamBreakerPort = 4;
+        public static final ControllerConstants kControllerConstants = new ControllerConstants();
+        static {
+            /* Base */
+            kControllerConstants.real.main.id = 20;
+            kControllerConstants.real.main.inverted = false;
+            kControllerConstants.real.currentLimit = 80;
+            kControllerConstants.real.isBrakeMode = true;
+
+            /* Simulation */
+            kControllerConstants.motorType = DCMotor.getKrakenX60(1);
+        }
+
+        public enum Speeds {
+            Intake(-0.3),
+            Outtake(0.6);
+
+            final double speed;
+
+            Speeds(double speed) {
+                this.speed = speed;
+            }
+
+            public double get() {
+                return speed;
+            }
+        }
+    }
+
+     public static class IntakeAngle {
+        public static final int kCanCoderID = 23;
+        public static final double kCanCoderOffset = -0.441650;
+        public static final SensorDirectionValue kCanCoderReversed = SensorDirectionValue.CounterClockwise_Positive;
+
+        public static final ControllerConstants kControllerConstants = new ControllerConstants();
+        static {
+            /* Base */
+            kControllerConstants.real.main.id = 21;
+            kControllerConstants.real.main.inverted = true;
+            kControllerConstants.real.currentLimit = 50;
+            kControllerConstants.real.isBrakeMode = true;
+
+            /* Control */
+            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(40, 0, 0, 0, 20, 25, 0, 0, 0, 0, GravityTypeValue.Arm_Cosine);
+            kControllerConstants.real.gearRatio = 65 + 1 / 3.0;
+            kControllerConstants.real.conversionFactor = 2 * Math.PI;
+            kControllerConstants.real.homePosition = Units.degreesToRadians(0);
+            kControllerConstants.real.positionGoalTolerance = Units.degreesToRadians(7);
+
+            /* Soft Limits */
+    //        kIntakeAngleControllerConstants.real.maxSoftLimit = Units.degreesToRadians(90);
+
+            /* Hard Limit */
+    //        kIntakeAngleControllerConstants.real.isLimitSwitch = true;
+    //        kIntakeAngleControllerConstants.real.limitSwitchID = 3;
+    //        kIntakeAngleControllerConstants.real.limitSwitchDirection = -1;
+    //        kIntakeAngleControllerConstants.real.limitSwitchAutoStopReset = true;
+    //        kIntakeAngleControllerConstants.real.limitSwitchInverted = true;
+
+            /* Simulation */
+            kControllerConstants.motorType = DCMotor.getKrakenX60(2);
+        }
+
+        public enum Positions {
+            LOOK_DOWN(0),
+            LOOK_AT_L1(45),
+            LOOK_AT_ARM(90);
+
+            final double degrees;
+
+            Positions(double degrees) {
+                this.degrees = degrees;
+            }
+
+            public double get() {
+                return degrees;
+            }
+        }
+    }
+
+    public static class IntakeAligner {
+        public static final ControllerConstants kControllerConstants = new ControllerConstants();
+        static {
+            /* Base */
+            kControllerConstants.real.main.id = 22;
+            kControllerConstants.real.main.inverted = true;
+            kControllerConstants.real.currentLimit = 80;
+            kControllerConstants.real.isBrakeMode = true;
+
+            /* Simulation */
+            kControllerConstants.motorType = DCMotor.getKrakenX60(1);
+        }
+
+        public enum Speeds {
+            Align(0.6);
+
+            final double speed;
+
+            Speeds(double speed) {
+                this.speed = speed;
+            }
+
+            public double get() {
+                return speed;
+            }
+        }
+    }
+
+    public static class Climber {
+        public static final ControllerConstants kControllerConstants = new ControllerConstants();
+        static {
+            /* Base */
+            kControllerConstants.real.main.id = 60;
+            kControllerConstants.real.main.inverted = false;
+            kControllerConstants.real.currentLimit = 80;
+            kControllerConstants.real.isBrakeMode = true;
+
+            /* Followers */
+            kControllerConstants.real.followers = new SimpleControllerConstants[1];
+            kControllerConstants.real.followers[0] = new SimpleControllerConstants();
+            kControllerConstants.real.followers[0].id = 61;
+            kControllerConstants.real.followers[0].inverted = true;
+
+            /* Simulation */
+            kControllerConstants.motorType = DCMotor.getKrakenX60(2);
         }
     }
     //endregion
 
-    //region Swerve
-    public static final double kDriverSpeedFactor = 1;
-    public static final double kDriverRotationSpeedFactor = 1;
+    public static class Swerve {
+        public static final double kDriverSpeedFactor = 1;
+        public static final double kDriverRotationSpeedFactor = 1;
+        public static final double kJoystickDeadband = 0.05;
+        public static final boolean kDriverFieldRelative = true;
 
-    public static final double kJoystickDeadband = 0.05;
-    public static final boolean kInvertGyro = false;
-    public static final boolean kDriverFieldRelative = true;
+        public static final SwerveConstants kSwerveConstants = new SwerveConstants();
+        static {
+            /* Chassis */
+            kSwerveConstants.chassis.trackWidth = 0.735;
+            kSwerveConstants.chassis.wheelBase = 0.735;
+            kSwerveConstants.chassis.bumperLength = 0.896;
+            kSwerveConstants.chassis.bumperWidth = 0.896;
+            kSwerveConstants.chassis.kinematics = new SwerveDriveKinematics(
+                    new Translation2d(kSwerveConstants.chassis.wheelBase / 2.0, kSwerveConstants.chassis.trackWidth / 2.0),
+                    new Translation2d(kSwerveConstants.chassis.wheelBase / 2.0, -kSwerveConstants.chassis.trackWidth / 2.0),
+                    new Translation2d(-kSwerveConstants.chassis.wheelBase / 2.0, kSwerveConstants.chassis.trackWidth / 2.0),
+                    new Translation2d(-kSwerveConstants.chassis.wheelBase / 2.0, -kSwerveConstants.chassis.trackWidth / 2.0)
+            );
 
-    public static final SwerveConstants kSwerveConstants = new SwerveConstants();
-    static {
-        kSwerveConstants.openLoop = true;
-        kSwerveConstants.trackWidth = 0.735;
-        kSwerveConstants.wheelBase = 0.735;
-        kSwerveConstants.bumperLength = 0.896;
-        kSwerveConstants.bumperWidth = 0.896;
-        kSwerveConstants.kinematics = new SwerveDriveKinematics(
-            new Translation2d(kSwerveConstants.wheelBase / 2.0, kSwerveConstants.trackWidth / 2.0),
-            new Translation2d(kSwerveConstants.wheelBase / 2.0, -kSwerveConstants.trackWidth / 2.0),
-            new Translation2d(-kSwerveConstants.wheelBase / 2.0, kSwerveConstants.trackWidth / 2.0),
-            new Translation2d(-kSwerveConstants.wheelBase / 2.0, -kSwerveConstants.trackWidth / 2.0)
-        );
+            /* Limits */
+            kSwerveConstants.limits.maxSpeed = 4.5;
+            kSwerveConstants.limits.maxAngularVelocity = 9.2;
+            kSwerveConstants.limits.speedLimit = Double.MAX_VALUE;
+            kSwerveConstants.limits.rotationSpeedLimit = Double.MAX_VALUE;
+            kSwerveConstants.limits.accelerationLimit = Double.MAX_VALUE;
+            kSwerveConstants.limits.rotationAccelerationLimit = Double.MAX_VALUE;
+            kSwerveConstants.limits.maxSkidAcceleration = Double.MAX_VALUE;
 
-        kSwerveConstants.maxSpeed = 4.5;
-        kSwerveConstants.maxAngularVelocity = 9.2;
+            /* Modules */
+            double wheelRadius = 0.048;
+            kSwerveConstants.modules.openLoop = true;
+            kSwerveConstants.modules.driveMotorConstants = new ControllerConstants();
+            kSwerveConstants.modules.driveMotorConstants.real.currentLimit = 100;
+            kSwerveConstants.modules.driveMotorConstants.real.gearRatio = 5.9;
+            kSwerveConstants.modules.driveMotorConstants.real.conversionFactor = wheelRadius * 2 * Math.PI;
+            kSwerveConstants.modules.driveMotorConstants.real.controlConstants = ControlConstants.createTorqueCurrent(90, 0.19);
 
-        kSwerveConstants.speedLimit = Double.MAX_VALUE;
-        kSwerveConstants.rotationSpeedLimit = Double.MAX_VALUE;
-        kSwerveConstants.accelerationLimit = Double.MAX_VALUE;
-        kSwerveConstants.rotationAccelerationLimit = Double.MAX_VALUE;
-        kSwerveConstants.maxSkidAcceleration = Double.MAX_VALUE;
+            kSwerveConstants.modules.steerMotorConstants = new ControllerConstants();
+            kSwerveConstants.modules.steerMotorConstants.real.currentLimit = 60;
+            kSwerveConstants.modules.steerMotorConstants.real.gearRatio = 18.75;
+            kSwerveConstants.modules.steerMotorConstants.real.conversionFactor = 2 * Math.PI;
+            kSwerveConstants.modules.steerMotorConstants.real.controlConstants = ControlConstants.createPID(10, 0, 0, 0);
 
-        double wheelRadius = 0.048;
+            kSwerveConstants.modules.driveControllerType = Controller.ControllerType.TalonFX;
+            kSwerveConstants.modules.steerControllerType = Controller.ControllerType.TalonFX;
+            kSwerveConstants.modules.moduleConstants = new SwerveModuleConstants[4];
 
-        kSwerveConstants.moduleConstants = new SwerveModuleConstants[4];
-        for (int i = 0; i < 4; i++) {
-            kSwerveConstants.moduleConstants[i] = new SwerveModuleConstants(i,
-                    new ControllerConstants(),
-                    new ControllerConstants(),
-                    kSwerveConstants.maxSpeed, 6 + i,
-                    Controller.ControllerType.TalonFX,
-                    Controller.ControllerType.TalonFX,
-                    false, 0);
+            for (int i = 0; i < 4; i++) {
+                kSwerveConstants.modules.moduleConstants[i].moduleNumber = i;
+                kSwerveConstants.modules.moduleConstants[i].driveMotorID = 10 + i * 2;
+                kSwerveConstants.modules.moduleConstants[i].driveMotorInverted = false;
+                kSwerveConstants.modules.moduleConstants[i].steerMotorID = 11 + i * 2;
+                kSwerveConstants.modules.moduleConstants[i].steerMotorInverted = false;
+                kSwerveConstants.modules.moduleConstants[i].canCoderID = 6 + i;
+                kSwerveConstants.modules.moduleConstants[i].invertCANCoder = false;
+            }
 
-            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.main.id = 10 + i * 2;
-//            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.main.inverted = i % 2 == 0;
-            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.main.inverted = false;
-            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.currentLimit = 100;
-            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.gearRatio = 5.9;
-            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.conversionFactor = wheelRadius * 2 * Math.PI;
-            kSwerveConstants.moduleConstants[i].driveMotorConstants.real.controlConstants = ControlConstants.createTorqueCurrent(90, 0.19);
+            kSwerveConstants.modules.moduleConstants[0].CANCoderOffset = -0.218750;
+            kSwerveConstants.modules.moduleConstants[1].CANCoderOffset = 0.232422;
+            kSwerveConstants.modules.moduleConstants[2].CANCoderOffset = 0.229248;
+            kSwerveConstants.modules.moduleConstants[3].CANCoderOffset = 0.210938;
 
-            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.main.id = 11 + i * 2;
-            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.currentLimit = 60;
-            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.gearRatio = 18.75;
-            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.conversionFactor = 2 * Math.PI;
-            kSwerveConstants.moduleConstants[i].angleMotorConstants.real.controlConstants = ControlConstants.createPID(10, 0, 0, 0);
+            /* Gyro */
+            kSwerveConstants.gyro.gyroID = 45;
+            kSwerveConstants.gyro.gyroInverted = false;
+            kSwerveConstants.gyro.gyroType = SwerveConstants.Gyro.GyroType.Pigeon2;
+
+            /* Simulation */
+            kSwerveConstants.simulation.driveMotorType = DCMotor.getKrakenX60Foc(1);
+            kSwerveConstants.simulation.steerMotorType = DCMotor.getKrakenX60Foc(1);
+
+            /* Special */
+            kSwerveConstants.special.enableOdometryThread = true;
+            kSwerveConstants.special.odometryThreadFrequency = 250;
+            kSwerveConstants.special.isReplay = Constants.General.kRobotMode == RobotMode.REPLAY;
+            kSwerveConstants.special.robotStartPose = new Pose2d(3, 3, Rotation2d.kZero);
+            kSwerveConstants.special.CANBus = "Swerve Bus";
+
+            try {
+                kSwerveConstants.special.robotConfig = RobotConfig.fromGUISettings();
+            } catch (IOException | ParseException e) {
+                throw new RuntimeException(e);
+            }
         }
 
-        kSwerveConstants.moduleConstants[0].CANCoderOffset = -0.218750;
-        kSwerveConstants.moduleConstants[1].CANCoderOffset = 0.232422;
-        kSwerveConstants.moduleConstants[2].CANCoderOffset = 0.229248;
-        kSwerveConstants.moduleConstants[3].CANCoderOffset = 0.210938;
-
-        try {
-            kSwerveConstants.robotConfig = RobotConfig.fromGUISettings();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
+        public static final SwerveControllerConstants kSwerveControllerConstants = new SwerveControllerConstants();
+        static {
+            kSwerveControllerConstants.swerveConstants = kSwerveConstants;
+            kSwerveControllerConstants.drivePIDConstants = ControlConstants.createPID(6, 0, 0.2, 0);
+            kSwerveControllerConstants.rotationPIDConstants = ControlConstants.createPID(3, 0.5, 0.2, Units.degreesToRadians(15));
+            kSwerveControllerConstants.rotationPIDContinuousConnections = Pair.of(-Math.PI, Math.PI);
         }
 
-        kSwerveConstants.driveMotorType = DCMotor.getKrakenX60Foc(1);
-        kSwerveConstants.steerMotorType = DCMotor.getKrakenX60Foc(1);
-
-        kSwerveConstants.enableOdometryThread = true;
-        kSwerveConstants.odometryThreadFrequency = 250;
-        kSwerveConstants.isReplay = kRobotMode == RobotMode.REPLAY;
-        kSwerveConstants.robotStartPose = new Pose2d(3, 3, Rotation2d.kZero);
-        kSwerveConstants.CANivore = "Swerve Bus";
-
-        kSwerveConstants.gyroID = 45;
-        kSwerveConstants.gyroInverted = kInvertGyro;
-        kSwerveConstants.gyroType = SwerveConstants.GyroType.Pigeon2;
-    }
-
-    public static final SwerveControllerConstants kSwerveControllerConstants = new SwerveControllerConstants();
-    static {
-        kSwerveControllerConstants.swerveConstants = kSwerveConstants;
-        kSwerveControllerConstants.drivePIDConstants = ControlConstants.createPID(6, 0, 0.2, 0);
-        kSwerveControllerConstants.rotationPIDConstants = ControlConstants.createPID(3, 0.5, 0.2, Units.degreesToRadians(15));
-        kSwerveControllerConstants.rotationPIDContinuousConnections = Pair.of(-Math.PI, Math.PI);
-    }
-
-    public static final PathFollowingController kAutonomyConfig =
-        new PPHolonomicDriveController(
+        public static final PathFollowingController kAutonomyConfig = new PPHolonomicDriveController(
             new PIDConstants(kSwerveControllerConstants.drivePIDConstants.P, kSwerveControllerConstants.drivePIDConstants.I, kSwerveControllerConstants.drivePIDConstants.D),
             new PIDConstants(kSwerveControllerConstants.rotationPIDConstants.P, kSwerveControllerConstants.rotationPIDConstants.I, kSwerveControllerConstants.rotationPIDConstants.D)
         );
-    //endregion
+    }
 
-    //region Vision
-    public static final VisionConstants kVisionConstants = new VisionConstants();
-    static {
-        kVisionConstants.cameras = Map.of(
-//            "FrontRight", Pair.of(new Transform3d(0.0815 + 0.1054, -0.0745, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(-7.5 - 1.5))), VisionConstants.CameraType.PhotonVision),
-//            "FrontLeft", Pair.of(new Transform3d(0.0815 + 0.1054, 0.0755, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(7.5 - 1.5))), VisionConstants.CameraType.PhotonVision)
+    public static class Vision {
+        public static final VisionConstants kVisionConstants = new VisionConstants();
+        static {
+            kVisionConstants.cameras = Map.of(
+        //            "FrontRight", Pair.of(new Transform3d(0.0815 + 0.1054, -0.0745, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(-7.5 - 1.5))), VisionConstants.CameraType.PhotonVision),
+        //            "FrontLeft", Pair.of(new Transform3d(0.0815 + 0.1054, 0.0755, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(7.5 - 1.5))), VisionConstants.CameraType.PhotonVision)
             "Right", Pair.of(new Transform3d(0.735 / 2, -0.03, 0, new Rotation3d(0, 0, 0)), VisionConstants.CameraType.PhotonVision)
         );
 
-        kVisionConstants.maxAmbiguity = 0.2;
-        kVisionConstants.maxDistance = 5;
-        kVisionConstants.fieldLayoutGetter = Constants::getFieldLayoutWithIgnored;
-        kVisionConstants.isReplay = kRobotMode == RobotMode.REPLAY;
-        kVisionConstants.robotPoseSupplier = () -> RobotState.getInstance().getRobotPose();
-    }
+            kVisionConstants.maxAmbiguity = 0.2;
+            kVisionConstants.maxDistance = 5;
+            kVisionConstants.fieldLayoutGetter = Constants.Field::getFieldLayoutWithIgnored;
+            kVisionConstants.isReplay = Constants.General.kRobotMode == RobotMode.REPLAY;
+            kVisionConstants.robotPoseSupplier = () -> RobotState.getInstance().getRobotPose();
+        }
 
-    public static Matrix<N3, N1> getVisionSTD(VisionOutput output) {
-        double distStd = Math.pow(0.4 * output.closestTargetDist, 2) + 0.3;
+        public static Matrix<N3, N1> getVisionSTD(VisionOutput output) {
+            double distStd = Math.pow(0.4 * output.closestTargetDist, 2) + 0.3;
 
-        ChassisSpeeds speed = Swerve.getInstance().getChassisSpeeds(false);
-        double latMs = 50; //40ms lat + 10ms from 40fps
+            ChassisSpeeds speed = frc.lib.NinjasLib.swerve.Swerve.getInstance().getChassisSpeeds(false);
+            double latMs = 50; //40ms lat + 10ms from 40fps
 
-        double xyStd = distStd + 2 * (latMs / 1000) * Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond);
-        double angleStd = distStd + 2 * (latMs / 1000) * speed.omegaRadiansPerSecond;
+            double xyStd = distStd + 2 * (latMs / 1000) * Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond);
+            double angleStd = distStd + 2 * (latMs / 1000) * speed.omegaRadiansPerSecond;
 
-        return VecBuilder.fill(xyStd, xyStd, angleStd);
-    }
-    //endregion
-
-    //region Field
-    public static AprilTagFieldLayout kBlueFieldLayout;
-    public static AprilTagFieldLayout kRedFieldLayout;
-
-    static {
-        try {
-            kBlueFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025ReefscapeWelded.m_resourceFile);
-            kBlueFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
-
-            kRedFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025ReefscapeWelded.m_resourceFile);
-            kRedFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to load field layout");
+            return VecBuilder.fill(xyStd, xyStd, angleStd);
         }
     }
 
-    public static AprilTagFieldLayout getFieldLayoutWithIgnored(List<Integer> ignoredTags) {
-        AprilTagFieldLayout layout;
+    public static class Field {
+        public static AprilTagFieldLayout kBlueFieldLayout;
+        public static AprilTagFieldLayout kRedFieldLayout;
 
-        layout = RobotState.getAlliance() == DriverStation.Alliance.Blue
-                ? kBlueFieldLayout
-                : kRedFieldLayout;
+        static {
+            try {
+                kBlueFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025ReefscapeWelded.m_resourceFile);
+                kBlueFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
 
-        if (!ignoredTags.isEmpty()) {
-            List<AprilTag> tags = layout.getTags();
-            tags.removeIf(tag -> ignoredTags.contains(tag.ID));
-            layout = new AprilTagFieldLayout(tags, layout.getFieldLength(), layout.getFieldWidth());
+                kRedFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025ReefscapeWelded.m_resourceFile);
+                kRedFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to load field layout");
+            }
         }
 
-        return layout;
-    }
+        public static AprilTagFieldLayout getFieldLayoutWithIgnored(List<Integer> ignoredTags) {
+            AprilTagFieldLayout layout;
 
-    public static AprilTagFieldLayout getFieldLayoutWithAllowed(List<Integer> allowedTags) {
-        AprilTagFieldLayout layout = getFieldLayout();
-        if (!allowedTags.isEmpty()) {
-            List<AprilTag> tags = layout.getTags();
-            tags.removeIf(tag -> !allowedTags.contains(tag.ID));
-            layout = new AprilTagFieldLayout(tags, layout.getFieldLength(), layout.getFieldWidth());
+            layout = RobotState.getAlliance() == DriverStation.Alliance.Blue
+                    ? kBlueFieldLayout
+                    : kRedFieldLayout;
+
+            if (!ignoredTags.isEmpty()) {
+                List<AprilTag> tags = layout.getTags();
+                tags.removeIf(tag -> ignoredTags.contains(tag.ID));
+                layout = new AprilTagFieldLayout(tags, layout.getFieldLength(), layout.getFieldWidth());
+            }
+
+            return layout;
         }
 
-        return layout;
+        public static AprilTagFieldLayout getFieldLayoutWithAllowed(List<Integer> allowedTags) {
+            AprilTagFieldLayout layout = getFieldLayout();
+            if (!allowedTags.isEmpty()) {
+                List<AprilTag> tags = layout.getTags();
+                tags.removeIf(tag -> !allowedTags.contains(tag.ID));
+                layout = new AprilTagFieldLayout(tags, layout.getFieldLength(), layout.getFieldWidth());
+            }
+
+            return layout;
+        }
+
+        public static AprilTagFieldLayout getFieldLayout() {
+            return getFieldLayoutWithIgnored(List.of());
+        }
+
+        public static Pose3d getTagPose(int id) {
+            return getFieldLayout().getTagPose(id).get();
+        }
     }
 
-    public static AprilTagFieldLayout getFieldLayout() {
-        return getFieldLayoutWithIgnored(List.of());
+    public static class AutoDrive {
+        public static final double kAutoDriveDistFromReef = 0.5;
+        public static final double kAutoDriveRightSideOffset = 0.25;
+        public static final double kAutoDriveLeftSideOffset = 0.25;
+        public static final double kAutoDriveDistThreshold = 0.3;
     }
-
-    public static Pose3d getTagPose(int id) {
-        return getFieldLayout().getTagPose(id).get();
-    }
-    //endregion
-
-//    //region Standard Deviations
-//    public static final double kOdometrySTDPerMeter = 0.02;
-//    public static final double kCrashedAccelerationThreshold = 15;
-//    public static final double kCrashedOdometrySTDBonus = 4;
-//    public static final double kResetOdometrySTDThreshold = 2.5;
-//    public static final double kOdometrySTDResetValue = 0.1;
-//    public static final int kCyclesToOdometrySTDReset = 35;
-//
-//    public static final double kVisionSTDGood = 0.9;
-//    public static final double kVisionSTDDistMultiplier = 1;
-//    public static final double kVisionSTDGoodDist = 1.5;
-//    public static final double kVisionSTDSpeedMultiplier = 1;
-//    public static final double kVisionSTDGoodSpeed = 2;
-//    public static final double kVisionSTDAngularSpeedMultiplier = 1;
-//    public static final double kVisionSTDGoodAngularSpeed = 2;
-
-    //region Auto Drive
-    public static final double kAutoDriveDistFromReef = 0.5;
-    public static final double kAutoDriveRightSideOffset = 0.25;
-    public static final double kAutoDriveLeftSideOffset = 0.25;
-    public static final double kAutoDriveDistThreshold = 0.3;
-    //endregion
 }

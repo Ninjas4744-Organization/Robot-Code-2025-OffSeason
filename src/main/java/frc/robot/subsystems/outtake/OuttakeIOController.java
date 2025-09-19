@@ -8,7 +8,7 @@ public class OuttakeIOController implements OuttakeIO{
 
     @Override
     public void setup() {
-        controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.kOuttakeControllerConstants);
+        controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.Outtake.kControllerConstants);
     }
 
     @Override

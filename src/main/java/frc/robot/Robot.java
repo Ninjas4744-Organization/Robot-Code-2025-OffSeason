@@ -36,10 +36,10 @@ public class Robot extends LoggedRobot {
                  Logger.recordMetadata("GitDirty", "Unknown");
                  break;
          }
-         Logger.recordMetadata("RobotMode", Constants.kRobotMode.toString());
+         Logger.recordMetadata("RobotMode", Constants.General.kRobotMode.toString());
 
         // Set up data receivers & replay source
-        switch (Constants.kRobotMode) {
+        switch (Constants.General.kRobotMode) {
             case REAL:
                 // A FAT32 formatted USB stick must be connected to one of the roboRIO USB ports.
                 // Running on a real robot, log to a USB stick ("/U/logs")

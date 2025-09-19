@@ -12,12 +12,12 @@ public class ArmIOController implements ArmIO {
 
     @Override
     public void setup() {
-        controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.kArmControllerConstants);
+        controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.Arm.kControllerConstants);
 
-        canCoder = new CANcoder(Constants.kArmCanCoderID);
+        canCoder = new CANcoder(Constants.Arm.kCanCoderID);
         CANcoderConfiguration config = new CANcoderConfiguration();
-        config.MagnetSensor.MagnetOffset = Constants.kArmCanCoderOffset;
-        config.MagnetSensor.SensorDirection = Constants.kArmCanCoderReversed;
+        config.MagnetSensor.MagnetOffset = Constants.Arm.kCanCoderOffset;
+        config.MagnetSensor.SensorDirection = Constants.Arm.kCanCoderReversed;
         canCoder.getConfigurator().apply(config);
     }
 

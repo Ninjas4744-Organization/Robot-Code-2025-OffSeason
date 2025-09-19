@@ -8,7 +8,7 @@ public class IntakeIOController implements IntakeIO {
 
     @Override
     public void setup() {
-        controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.kIntakeControllerConstants);
+        controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.Intake.kControllerConstants);
     }
 
     @Override

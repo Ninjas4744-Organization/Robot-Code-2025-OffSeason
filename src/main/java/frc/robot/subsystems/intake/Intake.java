@@ -74,13 +74,13 @@ public class Intake extends SubsystemBase {
     }
 
     public Command intake() {
-        return setPercent(Constants.IntakeSpeeds.Intake::get);
+        return setPercent(Constants.Intake.Speeds.Intake::get);
     }
 
     public Command outtake() {
         return Commands.sequence(
                 Commands.runOnce(() -> isCoralInside = false),
-                setPercent(Constants.IntakeSpeeds.Outtake::get)
+                setPercent(Constants.Intake.Speeds.Outtake::get)
         );
     }
 
@@ -99,7 +99,7 @@ public class Intake extends SubsystemBase {
                 intake(),
                 Commands.race(
                         Commands.waitUntil(() -> {
-                            if (Math.abs(inputs.Current) > Constants.kOuttakeCurrentThreshold) {
+                            if (Math.abs(inputs.Current) > 65) {
                                 if (!currentTimer.isRunning())
                                     currentTimer.restart();
                             } else {
