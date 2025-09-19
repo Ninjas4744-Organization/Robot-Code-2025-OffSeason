@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.NinjasLib.commands.DetachedCommand;
+import frc.lib.NinjasLib.localization.vision.Vision;
+import frc.lib.NinjasLib.localization.vision.VisionOutput;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandController;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandControllerIO;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandControllerIOPS5;
@@ -71,16 +73,16 @@ public class RobotContainer {
             case REAL, SIM:
                 arm = new Arm(false, new ArmIOController());
                 elevator = new Elevator(false, new ElevatorIOController());
-                intakeAngle = new IntakeAngle(false, new IntakeAngleIOController());
-                intakeAligner = new IntakeAligner(false, new IntakeAlignerIOController());
+                intakeAngle = new IntakeAngle(true, new IntakeAngleIOController());
+                intakeAligner = new IntakeAligner(true, new IntakeAlignerIOController());
                 outtake = new Outtake(false, new OuttakeIOController());
                 climber = new Climber(false, new ClimberIOController());
                 swerveSubsystem = new SwerveSubsystem(true);
 
                 if(Constants.General.kRobotMode == Constants.RobotMode.REAL)
-                    intake = new Intake(false, new IntakeIOController(), new LoggedDigitalInputIOReal(), Constants.Intake.kIntakeBeamBreakerPort);
+                    intake = new Intake(true, new IntakeIOController(), new LoggedDigitalInputIOReal(), Constants.Intake.kBeamBreakerPort);
                 else
-                    intake = new Intake(false, new IntakeIOController(), new LoggedDigitalInputIOSim(() -> driverController.options().getAsBoolean()), Constants.Intake.kIntakeBeamBreakerPort);
+                    intake = new Intake(true, new IntakeIOController(), new LoggedDigitalInputIOSim(() -> driverController.options().getAsBoolean()), Constants.Intake.kBeamBreakerPort);
 
                 coralDetection = new CoralDetection(new CoralDetectionIOCamera());
                 driverController = new LoggedCommandController(new LoggedCommandControllerIOPS5(Constants.General.kDriverControllerPort));
@@ -89,7 +91,7 @@ public class RobotContainer {
             case REPLAY:
                 arm = new Arm(false, new ArmIO() {});
                 elevator = new Elevator(false, new ElevatorIO() {});
-                intake = new Intake(false, new IntakeIO() {}, new LoggedDigitalInputIO() {}, Constants.Intake.kIntakeBeamBreakerPort);
+                intake = new Intake(false, new IntakeIO() {}, new LoggedDigitalInputIO() {}, Constants.Intake.kBeamBreakerPort);
                 intakeAngle = new IntakeAngle(false, new IntakeAngleIO() {});
                 intakeAligner = new IntakeAligner(false, new IntakeAlignerIO() {});
                 outtake = new Outtake(false, new OuttakeIO() {});
@@ -103,7 +105,7 @@ public class RobotContainer {
 
         RobotStateBase.setInstance(new RobotState(Constants.Swerve.kSwerveConstants.kinematics));
         StateMachineBase.setInstance(new StateMachine());
-//        Vision.setInstance(new Vision(Constants.kVisionConstants));
+        Vision.setInstance(new Vision(Constants.Vision.kVisionConstants));
 
         if (Robot.isSimulation()) {
             for (int i = 0; i < 10; i++)
@@ -128,7 +130,7 @@ public class RobotContainer {
 
             drive -> SwerveController.getInstance().setControl(new SwerveInput(drive, false), "Auto"),
 
-            Constants.kAutonomyConfig, //Autonomy config
+            Constants.Swerve.kAutonomyConfig, //Autonomy config
             Constants.Swerve.kSwerveConstants.robotConfig, //Robot config
 
             () -> false
@@ -161,8 +163,8 @@ public class RobotContainer {
         StateMachine stateMachine = StateMachine.getInstance();
 
         //region Driver buttons
-//        driverController.R1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(Rotation2d.kZero)));
-//        driverController.L1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(RobotState.getInstance().getRobotPose().getRotation())));
+        driverController.R1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(Rotation2d.kZero)));
+        driverController.L1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(RobotState.getInstance().getRobotPose().getRotation())));
 
         driverController.R2().onTrue(Commands.runOnce(
                 () -> stateMachine.changeRobotState(States.DRIVE_RIGHT_REEF)
@@ -182,6 +184,7 @@ public class RobotContainer {
                 () -> stateMachine.changeRobotState(States.INTAKE_CORAL)
         ));
 
+//        driverController.square().onTrue(Commands.runOnce(() -> RobotState.getInstance().setRobotPose(lastVisionPose)));
 //        driverController.square().onTrue(Commands.either(
 //                Commands.runOnce(() ->  stateMachine.changeRobotState(States.PREPARE_ALGAE_OUTTAKE)),
 //                Commands.runOnce(() -> stateMachine.changeRobotState(States.INTAKE_ALGAE_HIGH)) ,
@@ -194,13 +197,17 @@ public class RobotContainer {
         //endregion
 
         //region Operator Buttons
-        driverController.R1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() + 1)));
-        driverController.L1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() - 1)));
+//        driverController.R1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() + 1)));
+//        driverController.L1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() - 1)));
 
         new Trigger(() -> RobotState.getL() > 1 && RobotState.getInstance().getRobotState() == States.CORAL_IN_INTAKE)
                 .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_TO_OUTTAKE)));
         new Trigger(() -> RobotState.getL() == 1 && RobotState.getInstance().getRobotState() == States.CORAL_IN_OUTTAKE)
                 .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_TO_INTAKE)));
+
+//        driverController.square().onTrue(Commands.runOnce(() ->
+//                CSVWriter.writeCsv("Robot Speed", "Delay Meters", robotSpeed, delayMeters, "Vision Delay test 1, FPS=25.csv")
+//        ));
 
 //        operatorController.square().onTrue(Commands.runOnce(() ->
 //                stateMachine.changeRobotState(States.INTAKE_ALGAE_LOW)
@@ -256,14 +263,25 @@ public class RobotContainer {
     }
     //endregion
 
+//    private Pose2d lastVisionPose = new Pose2d();
+//    private List<Double> robotSpeed = new ArrayList<>();
+//    private List<Double> delayMeters = new ArrayList<>();
     public void periodic() {
         swerveSubsystem.swerveDrive(driverController);
 
-//        VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
-////        stdCalculator.update(estimations);
-//        for (VisionOutput estimation : estimations)
-//            RobotState.getInstance().updateRobotPose(estimation, Constants.getVisionSTD(estimation));
-//
+//        Pose2d visionPose = new Pose2d();
+        VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
+        for (VisionOutput estimation : estimations)
+            RobotState.getInstance().updateRobotPose(estimation, Constants.Vision.getVisionSTD(estimation));
+        for (VisionOutput estimation : estimations){
+//            visionPose = estimation.robotPose;
+            if(estimation.hasTargets){
+                Logger.recordOutput("Vision Robot Pose", estimation.robotPose);
+//                lastVisionPose = estimation.robotPose;
+                break;
+            }
+        }
+
 //        coralDetection.periodic();
 //        if (coralDetection.hasTargets()) {
 //            Pose2d robotPose = RobotState.getInstance().getRobotPose();
@@ -273,6 +291,12 @@ public class RobotContainer {
 //                    robotPose.getY() + dir.getY() / 2,
 //                    dir.getAngle()
 //            ));
+//        }
+
+//        if(!visionPose.equals(Pose2d.kZero)){
+//            ChassisSpeeds speed = Swerve.getInstance().getChassisSpeeds(false);
+//            robotSpeed.add(Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond));
+//            delayMeters.add(RobotState.getInstance().getDistance(visionPose));
 //        }
 
         driverController.periodic();

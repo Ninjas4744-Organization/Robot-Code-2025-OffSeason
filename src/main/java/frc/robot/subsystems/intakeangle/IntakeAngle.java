@@ -83,19 +83,13 @@ public class IntakeAngle extends SubsystemBase {
             return Commands.none();
         }
 
-        return Commands.run(() -> {
-            io.setPercent(-0.2);
-        }).until(() -> inputs.LimitSwitch);
+        return Commands.runOnce(() -> io.setEncoder(inputs.AbsoluteAngle.getRadians())).andThen(setAngle(Rotation2d.fromDegrees(Constants.IntakeAnglePositions.LOOK_DOWN.get())));
     }
 
     public boolean isReset() {
         if (!enabled) {
             return true;
         }
-        return inputs.LimitSwitch;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
+        return inputs.AtGoal;
     }
 }

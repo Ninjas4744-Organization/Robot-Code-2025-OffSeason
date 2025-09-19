@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -12,6 +13,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -24,6 +26,7 @@ import frc.lib.NinjasLib.controllers.constants.ControllerConstants;
 import frc.lib.NinjasLib.controllers.constants.RealControllerConstants.SimpleControllerConstants;
 import frc.lib.NinjasLib.localization.vision.VisionConstants;
 import frc.lib.NinjasLib.localization.vision.VisionOutput;
+import frc.lib.NinjasLib.swerve.Swerve;
 import frc.lib.NinjasLib.swerve.constants.SwerveConstants;
 import frc.lib.NinjasLib.swerve.constants.SwerveControllerConstants;
 import frc.lib.NinjasLib.swerve.constants.SwerveModuleConstants;
@@ -33,7 +36,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings("ALL")
 public class Constants {
     public enum RobotMode {
         /**
@@ -63,7 +65,7 @@ public class Constants {
 
         public static final ControllerConstants kArmControllerConstants = new ControllerConstants();
 
-        static {
+    //endregion    static {
             /* Base */
             kArmControllerConstants.real.main.id = 40;
             kArmControllerConstants.real.main.inverted = false;
@@ -239,31 +241,34 @@ public class Constants {
     }
 
      public static class IntakeAngle {
-        public static final ControllerConstants kIntakeAngleControllerConstants = new ControllerConstants();
+        public static final int kIntakeAngleCanCoderID = 23;
+    public static final double kIntakeAngleCanCoderOffset = -0.441650;
+    public static final SensorDirectionValue kIntakeAngleCanCoderReversed = SensorDirectionValue.CounterClockwise_Positive;
+    public static final ControllerConstants kIntakeAngleControllerConstants = new ControllerConstants();
 
         static {
             /* Base */
             kIntakeAngleControllerConstants.real.main.id = 21;
-            kIntakeAngleControllerConstants.real.main.inverted = false;
-            kIntakeAngleControllerConstants.real.currentLimit = 80;
+            kIntakeAngleControllerConstants.real.main.inverted = true;
+            kIntakeAngleControllerConstants.real.currentLimit = 50;
             kIntakeAngleControllerConstants.real.isBrakeMode = true;
 
             /* Control */
-            kIntakeAngleControllerConstants.real.controlConstants = ControlConstants.createPID(1, 0, 0, 0);
-            kIntakeAngleControllerConstants.real.gearRatio = 50;
+            kIntakeAngleControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(40, 0, 0, 0, 20, 25, 0, 0, 0, 0, GravityTypeValue.Arm_Cosine);
+            kIntakeAngleControllerConstants.real.gearRatio = 65 + 1 / 3.0;
             kIntakeAngleControllerConstants.real.conversionFactor = 2 * Math.PI;
             kIntakeAngleControllerConstants.real.homePosition = Units.degreesToRadians(0);
-            kIntakeAngleControllerConstants.real.positionGoalTolerance = Units.degreesToRadians(1.5);
+            kIntakeAngleControllerConstants.real.positionGoalTolerance = Units.degreesToRadians(7);
 
             /* Soft Limits */
-            kIntakeAngleControllerConstants.real.maxSoftLimit = Units.degreesToRadians(90);
+    //        kIntakeAngleControllerConstants.real.maxSoftLimit = Units.degreesToRadians(90);
 
             /* Hard Limit */
-            kIntakeAngleControllerConstants.real.isLimitSwitch = true;
-            kIntakeAngleControllerConstants.real.limitSwitchID = 3;
-            kIntakeAngleControllerConstants.real.limitSwitchDirection = -1;
-            kIntakeAngleControllerConstants.real.limitSwitchAutoStopReset = true;
-            kIntakeAngleControllerConstants.real.limitSwitchInverted = true;
+    //        kIntakeAngleControllerConstants.real.isLimitSwitch = true;
+    //        kIntakeAngleControllerConstants.real.limitSwitchID = 3;
+    //        kIntakeAngleControllerConstants.real.limitSwitchDirection = -1;
+    //        kIntakeAngleControllerConstants.real.limitSwitchAutoStopReset = true;
+    //        kIntakeAngleControllerConstants.real.limitSwitchInverted = true;
 
             /* Simulation */
             kIntakeAngleControllerConstants.motorType = DCMotor.getKrakenX60(2);
@@ -335,13 +340,117 @@ public class Constants {
         }
     }
     //endregion
+    //endregion
+
+
+    //region Positions
+    public enum ArmPositions {
+        Close(-90),
+        L2(0),
+        L3(0),
+        L4(0),
+        LowAlgaeOut(0),
+        HighAlgaeOut(0),
+        Net(70),
+        Processor(0);
+
+        final double angle;
+
+        ArmPositions(double angle) {
+            this.angle = angle;
+        }
+
+        public double get() {
+            return angle;
+        }
+    }
+
+    public enum ElevatorPositions {
+        Close(0),
+        L2(0.2),
+        L3(0.6),
+        L4(1),
+        AlgaeReef(0.8),
+        Net(1.2);
+
+        final double height;
+
+        ElevatorPositions(double height) {
+            this.height = height;
+        }
+
+        public double get() {
+            return height;
+        }
+    }
+
+    public enum IntakeAnglePositions {
+        LOOK_DOWN(-16),
+        LOOK_AT_L1(60),
+        LOOK_AT_ARM(90);
+
+        final double degrees;
+
+        IntakeAnglePositions(double degrees) {
+            this.degrees = degrees;
+        }
+
+        public double get() {
+            return degrees;
+        }
+    }
+
+    public enum OuttakeSpeeds {
+        Intake(-1),
+        Outtake(1),
+        OuttakeAlgae(1);
+
+        final double speed;
+
+        OuttakeSpeeds(double speed) {
+            this.speed = speed;
+        }
+
+        public double get() {
+            return speed;
+        }
+    }
+
+    public enum IntakeSpeeds {
+        Intake(-0.3),
+        Outtake(0.6);
+
+        final double speed;
+
+        IntakeSpeeds(double speed) {
+            this.speed = speed;
+        }
+
+        public double get() {
+            return speed;
+        }
+    }
+
+    public enum IntakeAlignerSpeeds {
+        Align(0.6);
+
+        final double speed;
+
+        IntakeAlignerSpeeds(double speed) {
+            this.speed = speed;
+        }
+
+        public double get() {
+            return speed;
+        }
+    }
 
 
     public static class Swerve {
         public static final double kDriverSpeedFactor = 1;
         public static final double kDriverRotationSpeedFactor = 1;
         public static final double kJoystickDeadband = 0.05;
-        public static final boolean kDriverFieldRelative = false;
+        public static final boolean kDriverFieldRelative = true;
 
         public static final SwerveConstants kSwerveConstants = new SwerveConstants();
         static {
@@ -374,13 +483,13 @@ public class Constants {
             kSwerveConstants.modules.driveMotorConstants.real.gearRatio = 5.9;
             kSwerveConstants.modules.driveMotorConstants.real.conversionFactor = wheelRadius * 2 * Math.PI;
             kSwerveConstants.modules.driveMotorConstants.real.conversionFactor = wheelRadius * 2 * Math.PI;
-            kSwerveConstants.modules.driveMotorConstants.real.controlConstants = ControlConstants.createTorqueCurrent(90,0.19);
+            kSwerveConstants.modules.driveMotorConstants.real.controlConstants = ControlConstants.createTorqueCurrent(90, 0.19);
 
             kSwerveConstants.modules.steerMotorConstants = new ControllerConstants();
             kSwerveConstants.modules.steerMotorConstants.real.currentLimit = 60;
             kSwerveConstants.modules.steerMotorConstants.real.gearRatio = 18.75;
             kSwerveConstants.modules.steerMotorConstants.real.conversionFactor = 2 * Math.PI;
-            kSwerveConstants.modules.steerMotorConstants.real.controlConstants = ControlConstants.createPID(10,0,0,0);
+            kSwerveConstants.modules.steerMotorConstants.real.controlConstants = ControlConstants.createPID(10, 0, 0, 0);
 
             kSwerveConstants.modules.driveControllerType = Controller.ControllerType.TalonFX;
             kSwerveConstants.modules.steerControllerType = Controller.ControllerType.TalonFX;
@@ -417,7 +526,7 @@ public class Constants {
             kSwerveConstants.special.robotStartPose = new Pose2d(3, 3, Rotation2d.kZero);
 
             // Move CAN-related settings
-            kSwerveConstants.modules.CANBus = "Swerve Bus";
+            kSwerveConstants.special.CANBus = "Swerve Bus";
 
             try {
                 kSwerveConstants.special.robotConfig = RobotConfig.fromGUISettings();
@@ -446,9 +555,10 @@ public class Constants {
 
         static {
             kVisionConstants.cameras = Map.of(
-                    "FrontRight", Pair.of(new Transform3d(0.0815 + 0.1054, -0.0745, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(-7.5 - 1.5))), VisionConstants.CameraType.PhotonVision),
-                    "FrontLeft", Pair.of(new Transform3d(0.0815 + 0.1054, 0.0755, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(7.5 - 1.5))), VisionConstants.CameraType.PhotonVision)
-            );
+        //            "FrontRight", Pair.of(new Transform3d(0.0815 + 0.1054, -0.0745, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(-7.5 - 1.5))), VisionConstants.CameraType.PhotonVision),
+        //            "FrontLeft", Pair.of(new Transform3d(0.0815 + 0.1054, 0.0755, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(7.5 - 1.5))), VisionConstants.CameraType.PhotonVision)
+            "Right", Pair.of(new Transform3d(0.735 / 2, -0.03, 0, new Rotation3d(0, 0, 0)), VisionConstants.CameraType.PhotonVision)
+        );
 
             kVisionConstants.maxAmbiguity = 0.2;
             kVisionConstants.maxDistance = 5;
@@ -458,7 +568,15 @@ public class Constants {
         }
 
         public static Matrix<N3, N1> getVisionSTD(VisionOutput output) {
-            return VecBuilder.fill(output.closestTargetDist, output.closestTargetDist, output.closestTargetDist * 2);
+            double distStd = Math.pow(0.4 * output.closestTargetDist, 2) + 0.3;
+
+        ChassisSpeeds speed = Swerve.getInstance().getChassisSpeeds(false);
+        double latMs = 50; //40ms lat + 10ms from 40fps
+
+        double xyStd = distStd + 2 * (latMs / 1000) * Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond);
+        double angleStd = distStd + 2 * (latMs / 1000) * speed.omegaRadiansPerSecond;
+
+        return VecBuilder.fill(xyStd, xyStd, angleStd);
         }
     }
 
