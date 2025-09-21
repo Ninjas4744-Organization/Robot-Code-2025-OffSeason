@@ -4,6 +4,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -209,6 +210,10 @@ public class RobotContainer {
 //                CSVWriter.writeCsv("Robot Speed", "Delay Meters", robotSpeed, delayMeters, "Vision Delay test 1, FPS=25.csv")
 //        ));
 
+        driverController.square().onTrue(Commands.runOnce(() ->
+                RobotState.getInstance().setRobotPose(lastVisionPose)
+        ));
+
 //        operatorController.square().onTrue(Commands.runOnce(() ->
 //                stateMachine.changeRobotState(States.INTAKE_ALGAE_LOW)
 //        ));
@@ -263,7 +268,7 @@ public class RobotContainer {
     }
     //endregion
 
-//    private Pose2d lastVisionPose = new Pose2d();
+    private Pose2d lastVisionPose = new Pose2d();
 //    private List<Double> robotSpeed = new ArrayList<>();
 //    private List<Double> delayMeters = new ArrayList<>();
     public void periodic() {
@@ -271,13 +276,16 @@ public class RobotContainer {
 
 //        Pose2d visionPose = new Pose2d();
         VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
-        for (VisionOutput estimation : estimations)
-            RobotState.getInstance().updateRobotPose(estimation, Constants.Vision.getVisionSTD(estimation));
+        for (VisionOutput estimation : estimations) {
+            ChassisSpeeds speed = Swerve.getInstance().getChassisSpeeds(false);
+            if (Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond) <= 3.5)
+                RobotState.getInstance().updateRobotPose(estimation, Constants.Vision.getVisionSTD(estimation));
+        }
         for (VisionOutput estimation : estimations){
 //            visionPose = estimation.robotPose;
             if(estimation.hasTargets){
                 Logger.recordOutput("Vision Robot Pose", estimation.robotPose);
-//                lastVisionPose = estimation.robotPose;
+                lastVisionPose = estimation.robotPose;
                 break;
             }
         }
@@ -298,6 +306,8 @@ public class RobotContainer {
 //            robotSpeed.add(Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond));
 //            delayMeters.add(RobotState.getInstance().getDistance(visionPose));
 //        }
+
+        Logger.recordOutput("Odometry Pose", RobotState.getInstance().getOnlyOdometryRobotPose());
 
         driverController.periodic();
 

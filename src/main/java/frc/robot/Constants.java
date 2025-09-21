@@ -30,6 +30,7 @@ import frc.lib.NinjasLib.swerve.constants.SwerveConstants;
 import frc.lib.NinjasLib.swerve.constants.SwerveControllerConstants;
 import frc.lib.NinjasLib.swerve.constants.SwerveModuleConstants;
 import org.json.simple.parser.ParseException;
+import org.littletonrobotics.junction.Logger;
 
 import java.io.IOException;
 import java.util.List;
@@ -242,7 +243,7 @@ public class Constants {
 
      public static class IntakeAngle {
         public static final int kCanCoderID = 23;
-        public static final double kCanCoderOffset = -0.441650;
+        public static final double kCanCoderOffset = 1.331543;
         public static final SensorDirectionValue kCanCoderReversed = SensorDirectionValue.CounterClockwise_Positive;
 
         public static final ControllerConstants kControllerConstants = new ControllerConstants();
@@ -271,12 +272,12 @@ public class Constants {
     //        kIntakeAngleControllerConstants.real.limitSwitchInverted = true;
 
             /* Simulation */
-            kControllerConstants.motorType = DCMotor.getKrakenX60(2);
+            kControllerConstants.motorType = DCMotor.getKrakenX60(1);
         }
 
         public enum Positions {
-            LOOK_DOWN(0),
-            LOOK_AT_L1(45),
+            LOOK_DOWN(-23),
+            LOOK_AT_L1(60),
             LOOK_AT_ARM(90);
 
             final double degrees;
@@ -389,13 +390,16 @@ public class Constants {
             kSwerveConstants.modules.moduleConstants = new SwerveModuleConstants[4];
 
             for (int i = 0; i < 4; i++) {
-                kSwerveConstants.modules.moduleConstants[i].moduleNumber = i;
-                kSwerveConstants.modules.moduleConstants[i].driveMotorID = 10 + i * 2;
-                kSwerveConstants.modules.moduleConstants[i].driveMotorInverted = false;
-                kSwerveConstants.modules.moduleConstants[i].steerMotorID = 11 + i * 2;
-                kSwerveConstants.modules.moduleConstants[i].steerMotorInverted = false;
-                kSwerveConstants.modules.moduleConstants[i].canCoderID = 6 + i;
-                kSwerveConstants.modules.moduleConstants[i].invertCANCoder = false;
+                kSwerveConstants.modules.moduleConstants[i] = new SwerveModuleConstants(
+                        i,
+                        10 + i * 2,
+                        11 + i * 2,
+                        false,
+                        false,
+                        6 + i,
+                        false,
+                        0
+                );
             }
 
             kSwerveConstants.modules.moduleConstants[0].CANCoderOffset = -0.218750;
@@ -450,21 +454,29 @@ public class Constants {
         );
 
             kVisionConstants.maxAmbiguity = 0.2;
-            kVisionConstants.maxDistance = 5;
+            kVisionConstants.maxDistance = 3.5;
             kVisionConstants.fieldLayoutGetter = Constants.Field::getFieldLayoutWithIgnored;
             kVisionConstants.isReplay = Constants.General.kRobotMode == RobotMode.REPLAY;
             kVisionConstants.robotPoseSupplier = () -> RobotState.getInstance().getRobotPose();
         }
 
         public static Matrix<N3, N1> getVisionSTD(VisionOutput output) {
-            double distStd = Math.pow(0.4 * output.closestTargetDist, 2) + 0.3;
+            double distStd = Math.pow(0.8 * output.closestTargetDist, 2) + 0.3;
 
             ChassisSpeeds speed = frc.lib.NinjasLib.swerve.Swerve.getInstance().getChassisSpeeds(false);
-            double latMs = 50; //40ms lat + 10ms from 40fps
+            double latMs = 30;
 
-            double xyStd = distStd + 2 * (latMs / 1000) * Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond);
-            double angleStd = distStd + 2 * (latMs / 1000) * speed.omegaRadiansPerSecond;
+            double xyStd = distStd + 6 * (latMs / 1000) * Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond);
+            double angleStd = distStd + 6 * (latMs / 1000) * speed.omegaRadiansPerSecond;
 
+            Logger.recordOutput("Vision Stds/" + output.cameraName + "/ dist", output.closestTargetDist);
+            Logger.recordOutput("Vision Stds/" + output.cameraName + "/ distStd", distStd);
+            Logger.recordOutput("Vision Stds/" + output.cameraName + "/ vel", Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond));
+            Logger.recordOutput("Vision Stds/" + output.cameraName + "/ velStd", 6 * (latMs / 1000) * Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond));
+            Logger.recordOutput("Vision Stds/" + output.cameraName + "/ angleVelStd", 6 * (latMs / 1000) * speed.omegaRadiansPerSecond);
+            Logger.recordOutput("Vision Stds/" + output.cameraName + "/ angleVel", speed.omegaRadiansPerSecond);
+            Logger.recordOutput("Vision Stds/" + output.cameraName + "/ xyStd", xyStd);
+            Logger.recordOutput("Vision Stds/" + output.cameraName + "/ angleStd", angleStd);
             return VecBuilder.fill(xyStd, xyStd, angleStd);
         }
     }

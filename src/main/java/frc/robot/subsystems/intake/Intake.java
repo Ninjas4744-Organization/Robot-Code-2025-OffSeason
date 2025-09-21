@@ -70,7 +70,8 @@ public class Intake extends SubsystemBase {
             return true;
 
 //        return beamBreaker.get();
-        return isCoralInside;
+//        return isCoralInside;
+        return false;
     }
 
     public Command intake() {
