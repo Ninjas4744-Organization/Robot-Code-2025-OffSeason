@@ -52,6 +52,9 @@ import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFie
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
 public class RobotContainer {
     private LoggedCommandController driverController;
 //    private CommandPS5Controller operatorController;
@@ -267,7 +270,10 @@ public class RobotContainer {
 //    private List<Double> robotSpeed = new ArrayList<>();
 //    private List<Double> delayMeters = new ArrayList<>();
     public void periodic() {
-        swerveSubsystem.swerveDrive(driverController);
+        DoubleSupplier leftX = () -> driverController.getLeftX();
+        DoubleSupplier leftY = () -> driverController.getLeftX();
+        DoubleSupplier rightX = () ->  driverController.getLeftX();
+        swerveSubsystem.swerveDrive(leftX,leftY,rightX);
 
 //        Pose2d visionPose = new Pose2d();
         VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();

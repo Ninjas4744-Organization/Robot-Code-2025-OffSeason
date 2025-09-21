@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.NinjasLib.loggedcontroller.LoggedCommandController;
 import frc.lib.NinjasLib.swerve.Swerve;
 import frc.lib.NinjasLib.swerve.SwerveController;
 import frc.lib.NinjasLib.swerve.SwerveInput;
@@ -20,6 +19,7 @@ import org.littletonrobotics.junction.Logger;
 
 import java.util.List;
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 public class SwerveSubsystem extends SubsystemBase {
     private boolean enabled;
@@ -55,11 +55,11 @@ public class SwerveSubsystem extends SubsystemBase {
         }
     }
 
-    public void swerveDrive(LoggedCommandController controller) {
+    public void swerveDrive(DoubleSupplier leftX, DoubleSupplier leftY, DoubleSupplier rightX) {
         SwerveController.getInstance().setControl(SwerveController.getInstance().fromPercent(
-                new SwerveInput(-MathUtil.applyDeadband(controller.getLeftY(), Constants.Swerve.kJoystickDeadband) * Constants.Swerve.kDriverSpeedFactor,
-                        -MathUtil.applyDeadband(controller.getLeftX(), Constants.Swerve.kJoystickDeadband) * Constants.Swerve.kDriverSpeedFactor,
-                        -MathUtil.applyDeadband(controller.getRightX(), Constants.Swerve.kJoystickDeadband) * Constants.Swerve.kDriverRotationSpeedFactor,
+                new SwerveInput(-MathUtil.applyDeadband(leftY.getAsDouble(), Constants.Swerve.kJoystickDeadband) * Constants.Swerve.kDriverSpeedFactor,
+                        -MathUtil.applyDeadband(leftX.getAsDouble(), Constants.Swerve.kJoystickDeadband) * Constants.Swerve.kDriverSpeedFactor,
+                        -MathUtil.applyDeadband(rightX.getAsDouble(), Constants.Swerve.kJoystickDeadband) * Constants.Swerve.kDriverRotationSpeedFactor,
                         Constants.Swerve.kDriverFieldRelative
                 )), "Driver");
     }

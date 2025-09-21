@@ -353,7 +353,9 @@ public class Constants {
             kSwerveConstants.chassis.wheelBase = 0.735;
             kSwerveConstants.chassis.bumperLength = 0.896;
             kSwerveConstants.chassis.bumperWidth = 0.896;
-            kSwerveConstants.chassis.kinematics = new SwerveDriveKinematics(
+            kSwerveConstants.angleMotorConstants;
+        kSwerveConstants.driveMotorConstants;
+        kSwerveConstants.chassis.kinematics = new SwerveDriveKinematics(
                     new Translation2d(kSwerveConstants.chassis.wheelBase / 2.0, kSwerveConstants.chassis.trackWidth / 2.0),
                     new Translation2d(kSwerveConstants.chassis.wheelBase / 2.0, -kSwerveConstants.chassis.trackWidth / 2.0),
                     new Translation2d(-kSwerveConstants.chassis.wheelBase / 2.0, kSwerveConstants.chassis.trackWidth / 2.0),
