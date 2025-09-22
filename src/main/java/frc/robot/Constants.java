@@ -445,6 +445,14 @@ public class Constants {
     }
 
     public static class Vision {
+        public static final double kMaxDistanceFilter = 3;
+        public static final double kMaxSpeedFilter = 3;
+        public static final double kMaxAngularSpeedFilter = 7;
+        public static final double kMaxAmbiguityFilter = 0.2;
+        public static final double kOdometryDriftPerMeter = 0.02;
+        public static final double kCrashAcceleration = 15;
+        public static final double kOdometryDriftPerCrash = 0.5;
+
         public static final VisionConstants kVisionConstants = new VisionConstants();
         static {
             kVisionConstants.cameras = Map.of(
@@ -453,8 +461,6 @@ public class Constants {
             "Right", Pair.of(new Transform3d(0.735 / 2, -0.03, 0, new Rotation3d(0, 0, 0)), VisionConstants.CameraType.PhotonVision)
         );
 
-            kVisionConstants.maxAmbiguity = 0.2;
-            kVisionConstants.maxDistance = 3.5;
             kVisionConstants.fieldLayoutGetter = Constants.Field::getFieldLayoutWithIgnored;
             kVisionConstants.isReplay = Constants.General.kRobotMode == RobotMode.REPLAY;
             kVisionConstants.robotPoseSupplier = () -> RobotState.getInstance().getRobotPose();
@@ -464,19 +470,21 @@ public class Constants {
             double distStd = Math.pow(0.8 * output.closestTargetDist, 2) + 0.3;
 
             ChassisSpeeds speed = frc.lib.NinjasLib.swerve.Swerve.getInstance().getChassisSpeeds(false);
-            double latMs = 30;
+            double xySpeedStd = 6 * output.latency * Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond);
+            double angleSpeedStd = 6 * output.latency * speed.omegaRadiansPerSecond;
 
-            double xyStd = distStd + 6 * (latMs / 1000) * Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond);
-            double angleStd = distStd + 6 * (latMs / 1000) * speed.omegaRadiansPerSecond;
+            double xyStd = distStd + xySpeedStd;
+            double angleStd = distStd + angleSpeedStd;
 
-            Logger.recordOutput("Vision Stds/" + output.cameraName + "/ dist", output.closestTargetDist);
-            Logger.recordOutput("Vision Stds/" + output.cameraName + "/ distStd", distStd);
-            Logger.recordOutput("Vision Stds/" + output.cameraName + "/ vel", Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond));
-            Logger.recordOutput("Vision Stds/" + output.cameraName + "/ velStd", 6 * (latMs / 1000) * Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond));
-            Logger.recordOutput("Vision Stds/" + output.cameraName + "/ angleVelStd", 6 * (latMs / 1000) * speed.omegaRadiansPerSecond);
-            Logger.recordOutput("Vision Stds/" + output.cameraName + "/ angleVel", speed.omegaRadiansPerSecond);
-            Logger.recordOutput("Vision Stds/" + output.cameraName + "/ xyStd", xyStd);
-            Logger.recordOutput("Vision Stds/" + output.cameraName + "/ angleStd", angleStd);
+            Logger.recordOutput("Vision/Stds/" + output.cameraName + "/ latency", output.latency);
+            Logger.recordOutput("Vision/Stds/" + output.cameraName + "/ dist", output.closestTargetDist);
+            Logger.recordOutput("Vision/Stds/" + output.cameraName + "/ distStd", distStd);
+            Logger.recordOutput("Vision/Stds/" + output.cameraName + "/ vel", Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond));
+            Logger.recordOutput("Vision/Stds/" + output.cameraName + "/ velStd", xySpeedStd);
+            Logger.recordOutput("Vision/Stds/" + output.cameraName + "/ angleVel", speed.omegaRadiansPerSecond);
+            Logger.recordOutput("Vision/Stds/" + output.cameraName + "/ angleVelStd", angleSpeedStd);
+            Logger.recordOutput("Vision/Stds/" + output.cameraName + "/ xyStd", xyStd);
+            Logger.recordOutput("Vision/Stds/" + output.cameraName + "/ angleStd", angleStd);
             return VecBuilder.fill(xyStd, xyStd, angleStd);
         }
     }

@@ -4,14 +4,11 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.NinjasLib.commands.DetachedCommand;
-import frc.lib.NinjasLib.localization.vision.Vision;
-import frc.lib.NinjasLib.localization.vision.VisionOutput;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandController;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandControllerIO;
 import frc.lib.NinjasLib.loggedcontroller.LoggedCommandControllerIOPS5;
@@ -27,6 +24,7 @@ import frc.robot.coraldetection.CoralDetection;
 import frc.robot.coraldetection.CoralDetectionIO;
 import frc.robot.coraldetection.CoralDetectionIOCamera;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOController;
@@ -66,6 +64,7 @@ public class RobotContainer {
     private static Climber climber;
     private static CoralDetection coralDetection;
     private static SwerveSubsystem swerveSubsystem;
+    private static VisionSubsystem visionSubsystem;
 
     private LoggedDashboardChooser<Command> autoChooser;
 
@@ -78,7 +77,6 @@ public class RobotContainer {
                 intakeAligner = new IntakeAligner(true, new IntakeAlignerIOController());
                 outtake = new Outtake(false, new OuttakeIOController());
                 climber = new Climber(false, new ClimberIOController());
-                swerveSubsystem = new SwerveSubsystem(true);
 
                 if(Constants.General.kRobotMode == Constants.RobotMode.REAL)
                     intake = new Intake(true, new IntakeIOController(), new LoggedDigitalInputIOReal(), Constants.Intake.kBeamBreakerPort);
@@ -97,16 +95,16 @@ public class RobotContainer {
                 intakeAligner = new IntakeAligner(false, new IntakeAlignerIO() {});
                 outtake = new Outtake(false, new OuttakeIO() {});
                 climber = new Climber(false, new ClimberIO() {});
-                swerveSubsystem = new SwerveSubsystem(true);
 
                 coralDetection = new CoralDetection(new CoralDetectionIO() {});
                 driverController = new LoggedCommandController(new LoggedCommandControllerIO() {});
                 break;
         }
 
+        swerveSubsystem = new SwerveSubsystem(true);
         RobotStateBase.setInstance(new RobotState(Constants.Swerve.kSwerveConstants.chassis.kinematics));
         StateMachineBase.setInstance(new StateMachine());
-        Vision.setInstance(new Vision(Constants.Vision.kVisionConstants));
+        visionSubsystem = new VisionSubsystem();
 
         if (Robot.isSimulation()) {
             for (int i = 0; i < 10; i++)
@@ -269,26 +267,8 @@ public class RobotContainer {
     //endregion
 
     private Pose2d lastVisionPose = new Pose2d();
-//    private List<Double> robotSpeed = new ArrayList<>();
-//    private List<Double> delayMeters = new ArrayList<>();
     public void periodic() {
         swerveSubsystem.swerveDrive(driverController);
-
-//        Pose2d visionPose = new Pose2d();
-        VisionOutput[] estimations = Vision.getInstance().getVisionEstimations();
-        for (VisionOutput estimation : estimations) {
-            ChassisSpeeds speed = Swerve.getInstance().getChassisSpeeds(false);
-            if (Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond) <= 3.5)
-                RobotState.getInstance().updateRobotPose(estimation, Constants.Vision.getVisionSTD(estimation));
-        }
-        for (VisionOutput estimation : estimations){
-//            visionPose = estimation.robotPose;
-            if(estimation.hasTargets){
-                Logger.recordOutput("Vision Robot Pose", estimation.robotPose);
-                lastVisionPose = estimation.robotPose;
-                break;
-            }
-        }
 
 //        coralDetection.periodic();
 //        if (coralDetection.hasTargets()) {
@@ -299,12 +279,6 @@ public class RobotContainer {
 //                    robotPose.getY() + dir.getY() / 2,
 //                    dir.getAngle()
 //            ));
-//        }
-
-//        if(!visionPose.equals(Pose2d.kZero)){
-//            ChassisSpeeds speed = Swerve.getInstance().getChassisSpeeds(false);
-//            robotSpeed.add(Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond));
-//            delayMeters.add(RobotState.getInstance().getDistance(visionPose));
 //        }
 
         Logger.recordOutput("Odometry Pose", RobotState.getInstance().getOnlyOdometryRobotPose());
