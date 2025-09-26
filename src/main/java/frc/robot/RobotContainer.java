@@ -271,10 +271,11 @@ public class RobotContainer {
 
     private Pose2d lastVisionPose = new Pose2d();
     public void periodic() {
-        DoubleSupplier leftX = () -> driverController.getLeftX();
-        DoubleSupplier leftY = () -> driverController.getLeftX();
-        DoubleSupplier rightX = () ->  driverController.getLeftX();
-        swerveSubsystem.swerveDrive(leftX,leftY,rightX);
+        swerveSubsystem.swerveDrive(
+                () -> driverController.getLeftX(),
+                () -> driverController.getLeftY(),
+                () ->  driverController.getRightX()
+        );
 
 //        coralDetection.periodic();
 //        if (coralDetection.hasTargets()) {
