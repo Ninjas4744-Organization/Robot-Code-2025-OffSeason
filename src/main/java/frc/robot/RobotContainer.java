@@ -51,6 +51,9 @@ import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFie
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
 public class RobotContainer {
     private LoggedCommandController driverController;
 //    private CommandPS5Controller operatorController;
@@ -268,7 +271,11 @@ public class RobotContainer {
 
     private Pose2d lastVisionPose = new Pose2d();
     public void periodic() {
-        swerveSubsystem.swerveDrive(driverController);
+        swerveSubsystem.swerveDrive(
+                () -> driverController.getLeftX(),
+                () -> driverController.getLeftY(),
+                () ->  driverController.getRightX()
+        );
 
 //        coralDetection.periodic();
 //        if (coralDetection.hasTargets()) {
