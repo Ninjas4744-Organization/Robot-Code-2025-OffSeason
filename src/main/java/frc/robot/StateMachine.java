@@ -28,7 +28,8 @@ public class StateMachine extends StateMachineBase<States> {
                     States.INTAKE_CORAL,
                     States.INTAKE_ALGAE_HIGH,
                     States.INTAKE_ALGAE_LOW,
-                    States.PREPARE_CLIMB
+                    States.PREPARE_CLIMB,
+                    States.PREPARE_CORAL_OUTTAKE_L1
             ).contains(wantedState);
 
             case INTAKE_CORAL -> Set.of(
@@ -157,7 +158,7 @@ public class StateMachine extends StateMachineBase<States> {
         ));
         addCommand(States.CORAL_OUTTAKE_L1, Commands.sequence(
                 intake.outtake(),
-                Commands.waitSeconds(0.2),
+                Commands.waitSeconds(0.5),
                 intakeAngle.lookDown(),
                 Commands.runOnce(()-> changeRobotState(States.CLOSE))
         ));
