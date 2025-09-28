@@ -226,7 +226,7 @@ public class Constants {
         }
 
         public enum Speeds {
-            Intake(-0.3),
+            Intake(-0.7),
             Outtake(0.6);
 
             final double speed;
@@ -306,7 +306,7 @@ public class Constants {
         }
 
         public enum Speeds {
-            Align(0.6);
+            Align(0.8);
 
             final double speed;
 

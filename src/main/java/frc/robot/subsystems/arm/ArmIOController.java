@@ -39,6 +39,11 @@ public class ArmIOController implements ArmIO {
     }
 
     @Override
+    public void stop() {
+        controller.stop();
+    }
+
+    @Override
     public void setEncoder(double position) {
         controller.setEncoder(position);
     }

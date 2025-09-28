@@ -63,6 +63,10 @@ public class Elevator extends SubsystemBase {
         return setHeight(Constants.Elevator.Positions.Net::get);
     }
 
+    public double getHeight() {
+        return inputs.Position;
+    }
+
     public boolean atGoal() {
         if (!enabled) {
             return true;
@@ -84,9 +88,5 @@ public class Elevator extends SubsystemBase {
             return true;
         }
         return inputs.LimitSwitch;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
     }
 }

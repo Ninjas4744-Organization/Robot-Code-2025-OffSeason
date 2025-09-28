@@ -1,10 +1,13 @@
 package frc.robot.subsystems.arm;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import org.littletonrobotics.junction.Logger;
 
 public class Arm extends SubsystemBase {
@@ -25,10 +28,34 @@ public class Arm extends SubsystemBase {
         if (!enabled)
             return;
 
+        if (isArmUnsafe())
+            io.stop();
+
         io.periodic();
 
         io.updateInputs(inputs);
         Logger.processInputs("Arm", inputs);
+    }
+
+    public boolean isArmUnsafe() {
+        boolean isIntakeClosed = RobotContainer.getIntakeAngle().getAngle().getDegrees() > 45;
+        double angle = MathUtil.inputModulus(Units.radiansToDegrees(inputs.Goal), -180, 180);
+        double elevatorHeight = RobotContainer.getElevator().getHeight();
+
+        if (isIntakeClosed) {
+            if (angle <= 0 && angle >= -180) {
+                if (angle <= -45 && angle >= -135) {
+                    return elevatorHeight < 0.4;
+                } else {
+                    return elevatorHeight < 0.7;
+                }
+            }
+        } else {
+            if (angle <= -45 && angle >= -135)
+                return elevatorHeight < 0.5;
+        }
+
+        return false;
     }
 
     public Command setAngle(Rotation2d angle){

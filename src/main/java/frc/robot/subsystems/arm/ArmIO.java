@@ -23,6 +23,9 @@ public interface ArmIO {
     default void setPosition(Rotation2d position){
     }
 
+    default void stop() {
+    }
+
     default void setEncoder(double position){
     }
 }

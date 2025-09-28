@@ -153,13 +153,16 @@ public class StateMachine extends StateMachineBase<States> {
         //region outtake coral
         addCommand(States.PREPARE_CORAL_OUTTAKE_L1, Commands.sequence(
                 intakeAngle.lookAtL1(),
+                intakeAligner.align(),
+                intake.intake(),
                 Commands.waitUntil(intakeAngle::atGoal),
+                intakeAligner.stop(),
+                intake.stop(),
                 Commands.runOnce(() -> changeRobotState(States.CORAL_OUTTAKE_L1))
         ));
         addCommand(States.CORAL_OUTTAKE_L1, Commands.sequence(
                 intake.outtake(),
                 Commands.waitSeconds(0.5),
-                intakeAngle.lookDown(),
                 Commands.runOnce(()-> changeRobotState(States.CLOSE))
         ));
         addCommand(States.TRANSFER_CORAL_TO_OUTTAKE, Commands.sequence(
@@ -210,7 +213,7 @@ public class StateMachine extends StateMachineBase<States> {
         ));
         addCommand(States.CORAL_OUTTAKE, Commands.sequence(
                 outtake.outtake(),
-                Commands.waitSeconds(0.2),
+                Commands.waitSeconds(0.5),
                 Commands.runOnce(()-> changeRobotState(States.CLOSE))
         ));
         //endregion
