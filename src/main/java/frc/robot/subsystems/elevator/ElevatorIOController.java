@@ -30,4 +30,9 @@ public class ElevatorIOController implements ElevatorIO {
     public void setPercent(double position) {
         controller.setPercent(position);
     }
+
+    @Override
+    public void setEncoder(double position) {
+        controller.setEncoder(position);
+    }
 }

@@ -56,12 +56,12 @@ public class Intake extends SubsystemBase {
         Logger.processInputs("Intake", inputs);
     }
 
-    public Command setPercent(DoubleSupplier percent) {
+    public Command setVelocity(DoubleSupplier velocity) {
         if (!enabled)
             return Commands.none();
 
         return Commands.runOnce(
-            () -> io.setPercent(percent.getAsDouble())
+            () -> io.setVelocity(velocity.getAsDouble())
         );
     }
 
@@ -75,13 +75,13 @@ public class Intake extends SubsystemBase {
     }
 
     public Command intake() {
-        return setPercent(Constants.Intake.Speeds.Intake::get);
+        return setVelocity(Constants.Intake.Speeds.Intake::get);
     }
 
     public Command outtake() {
         return Commands.sequence(
                 Commands.runOnce(() -> isCoralInside = false),
-                setPercent(Constants.Intake.Speeds.Outtake::get)
+                setVelocity(Constants.Intake.Speeds.Outtake::get)
         );
     }
 

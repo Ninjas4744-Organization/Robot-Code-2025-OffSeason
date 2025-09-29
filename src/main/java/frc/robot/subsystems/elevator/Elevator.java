@@ -37,7 +37,7 @@ public class Elevator extends SubsystemBase {
             return Commands.none();
         }
         return Commands.runOnce(() -> {
-            io.setPosition(wantedHeight.getAsDouble());
+            //io.setPosition(wantedHeight.getAsDouble());
         });
     }
 
@@ -78,9 +78,15 @@ public class Elevator extends SubsystemBase {
         if (!enabled) {
             return Commands.none();
         }
-        return Commands.run(() -> {
-            io.setPercent(-0.2);
+
+        return Commands.runOnce(() -> {
+//            io.setEncoder(0);
         }).until(() -> inputs.LimitSwitch);
+
+        //fixme: temp
+//        return Commands.run(() -> {
+//            io.setPercent(-0.2);
+//        }).until(() -> inputs.LimitSwitch);
     }
 
     public boolean isReset() {

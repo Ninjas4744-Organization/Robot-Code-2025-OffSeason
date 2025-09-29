@@ -24,7 +24,7 @@ public class ArmIOController implements ArmIO {
     @Override
     public void updateInputs(ArmIOInputsAutoLogged inputs) {
         controller.updateInputs(inputs);
-        inputs.AbsoluteAngle = Rotation2d.fromRotations(canCoder.getAbsolutePosition().getValueAsDouble());
+        inputs.AbsoluteAngle = Rotation2d.fromRotations(canCoder.getAbsolutePosition().getValueAsDouble() * 2);
         inputs.AtGoal = controller.atGoal();
     }
 
@@ -35,7 +35,7 @@ public class ArmIOController implements ArmIO {
 
     @Override
     public void setPosition(Rotation2d position) {
-        controller.setPosition(position.getRadians());
+        controller.setPosition(position.getRotations());
     }
 
     @Override

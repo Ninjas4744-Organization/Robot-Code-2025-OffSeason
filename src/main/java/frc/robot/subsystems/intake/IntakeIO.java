@@ -11,7 +11,11 @@ public interface IntakeIO {
     default void setup() {
     }
 
-    default void setPercent(double percent) { }
+    default void setPercent(double percent) {
+    }
+
+    default void setVelocity(double velocity) {
+    }
 
     default void updateInputs(IntakeIOInputsAutoLogged inputs) {
     }

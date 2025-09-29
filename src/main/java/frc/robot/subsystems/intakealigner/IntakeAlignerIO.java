@@ -19,4 +19,7 @@ public interface IntakeAlignerIO {
 
     default void setPercent(double percent){
     }
+
+    default void setVelocity(double velocity){
+    }
 }

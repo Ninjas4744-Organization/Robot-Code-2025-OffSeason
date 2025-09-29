@@ -51,9 +51,6 @@ import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFie
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-
 public class RobotContainer {
     private LoggedCommandController driverController;
 //    private CommandPS5Controller operatorController;
@@ -74,7 +71,7 @@ public class RobotContainer {
     public RobotContainer() {
         switch (Constants.General.kRobotMode) {
             case REAL, SIM:
-                arm = new Arm(false, new ArmIOController());
+                arm = new Arm(true, new ArmIOController());
                 elevator = new Elevator(false, new ElevatorIOController());
                 intakeAngle = new IntakeAngle(true, new IntakeAngleIOController());
                 intakeAligner = new IntakeAligner(true, new IntakeAlignerIOController());

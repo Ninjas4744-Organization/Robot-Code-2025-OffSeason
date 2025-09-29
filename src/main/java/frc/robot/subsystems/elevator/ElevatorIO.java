@@ -23,4 +23,7 @@ public interface ElevatorIO {
 
     default void setPercent(double position) {
     }
+
+    default void setEncoder(double position) {
+    }
 }

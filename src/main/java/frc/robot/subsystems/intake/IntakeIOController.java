@@ -25,4 +25,9 @@ public class IntakeIOController implements IntakeIO {
     public void setPercent(double percent) {
         controller.setPercent(percent);
     }
+
+    @Override
+    public void setVelocity(double velocity) {
+        controller.setVelocity(velocity);
+    }
 }

@@ -59,30 +59,24 @@ public class Constants {
 
     //region Subsystems
     public static class Arm {
-        public static final int kCanCoderID = 0;
-        public static final double kCanCoderOffset = 0;
-        public static final SensorDirectionValue kCanCoderReversed = SensorDirectionValue.Clockwise_Positive;
+        public static final int kCanCoderID = 42;
+        public static final double kCanCoderOffset = -0.049561;
+        public static final SensorDirectionValue kCanCoderReversed = SensorDirectionValue.CounterClockwise_Positive;
 
         public static final ControllerConstants kControllerConstants = new ControllerConstants();
         static {
             /* Base */
             kControllerConstants.real.main.id = 40;
-            kControllerConstants.real.main.inverted = false;
+            kControllerConstants.real.main.inverted = true;
             kControllerConstants.real.currentLimit = 60;
             kControllerConstants.real.isBrakeMode = true;
 
-            /* Followers */
-            kControllerConstants.real.followers = new SimpleControllerConstants[1];
-            kControllerConstants.real.followers[0] = new SimpleControllerConstants();
-            kControllerConstants.real.followers[0].id = 41;
-            kControllerConstants.real.followers[0].inverted = true;
-
             /* Control */
-            kControllerConstants.real.controlConstants = ControlConstants.createPID(1, 0, 0, 0);
-            kControllerConstants.real.gearRatio = 50;
-            kControllerConstants.real.conversionFactor = 2 * Math.PI;
-            kControllerConstants.real.homePosition = Units.degreesToRadians(-90);
-            kControllerConstants.real.positionGoalTolerance = Units.degreesToRadians(3);
+            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(6, 0, 0, 0, 1, 4, 0, 10, 0, 0.3, GravityTypeValue.Arm_Cosine);
+            kControllerConstants.real.gearRatio = 86.4;
+//            kControllerConstants.real.conversionFactor = 2 * Math.PI;
+            kControllerConstants.real.homePosition = Units.degreesToRotations(90);
+            kControllerConstants.real.positionGoalTolerance = Units.degreesToRotations(10);
 
             /* Soft Limits */
             kControllerConstants.real.maxSoftLimit = Units.degreesToRadians(360);
@@ -100,7 +94,7 @@ public class Constants {
         }
 
         public enum Positions {
-            Close(-90),
+            Close(90),
             L2(0),
             L3(0),
             L4(0),
@@ -137,9 +131,9 @@ public class Constants {
             kControllerConstants.real.followers[0].inverted = true;
 
             /* Control */
-            kControllerConstants.real.controlConstants = ControlConstants.createPID(10, 0, 0, 0);
-            kControllerConstants.real.gearRatio = 5;
-            kControllerConstants.real.conversionFactor = Math.PI * 0.05;
+            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(0, 0, 0, 0, 0, 0, 0, 0, 0.3, 0, GravityTypeValue.Elevator_Static);
+            kControllerConstants.real.gearRatio = 6;
+            kControllerConstants.real.conversionFactor = Math.PI * 0.05; // Fix
             kControllerConstants.real.homePosition = 0;
             kControllerConstants.real.positionGoalTolerance = 0.01;
 
@@ -221,13 +215,16 @@ public class Constants {
             kControllerConstants.real.currentLimit = 80;
             kControllerConstants.real.isBrakeMode = true;
 
+            /* Control */
+            kControllerConstants.real.controlConstants = ControlConstants.createTorqueCurrent(20, 0);
+
             /* Simulation */
             kControllerConstants.motorType = DCMotor.getKrakenX60(1);
         }
 
         public enum Speeds {
-            Intake(-0.7),
-            Outtake(0.6);
+            Intake(-70),
+            Outtake(60);
 
             final double speed;
 
@@ -243,7 +240,7 @@ public class Constants {
 
      public static class IntakeAngle {
         public static final int kCanCoderID = 23;
-        public static final double kCanCoderOffset = 1.331543;
+        public static final double kCanCoderOffset = 1.322266;
         public static final SensorDirectionValue kCanCoderReversed = SensorDirectionValue.CounterClockwise_Positive;
 
         public static final ControllerConstants kControllerConstants = new ControllerConstants();
@@ -301,12 +298,15 @@ public class Constants {
             kControllerConstants.real.currentLimit = 80;
             kControllerConstants.real.isBrakeMode = true;
 
+            /* Control */
+            kControllerConstants.real.controlConstants = ControlConstants.createTorqueCurrent(20, 0);
+
             /* Simulation */
             kControllerConstants.motorType = DCMotor.getKrakenX60(1);
         }
 
         public enum Speeds {
-            Align(0.8);
+            Align(85);
 
             final double speed;
 
@@ -402,10 +402,10 @@ public class Constants {
                 );
             }
 
-            kSwerveConstants.modules.moduleConstants[0].CANCoderOffset = -0.218750;
-            kSwerveConstants.modules.moduleConstants[1].CANCoderOffset = 0.232422;
-            kSwerveConstants.modules.moduleConstants[2].CANCoderOffset = 0.229248;
-            kSwerveConstants.modules.moduleConstants[3].CANCoderOffset = 0.210938;
+            kSwerveConstants.modules.moduleConstants[0].CANCoderOffset = -0.292480;
+            kSwerveConstants.modules.moduleConstants[1].CANCoderOffset = -0.270996;
+            kSwerveConstants.modules.moduleConstants[2].CANCoderOffset = -0.266602;
+            kSwerveConstants.modules.moduleConstants[3].CANCoderOffset = 0.280029;
 
             /* Gyro */
             kSwerveConstants.gyro.gyroID = 45;

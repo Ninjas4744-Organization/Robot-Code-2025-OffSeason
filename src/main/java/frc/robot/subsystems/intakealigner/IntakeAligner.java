@@ -6,8 +6,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.function.DoubleSupplier;
-
 public class IntakeAligner extends SubsystemBase {
     private IntakeAlignerIO io;
     private final IntakeAlignerIOInputsAutoLogged inputs = new IntakeAlignerIOInputsAutoLogged();
@@ -32,25 +30,27 @@ public class IntakeAligner extends SubsystemBase {
         Logger.processInputs("IntakeAligner", inputs);
     }
 
-    public Command setPercent(DoubleSupplier percent) {
-        if (!enabled) {
-            return Commands.none();
-        }
-
-        return Commands.runOnce(
-                () -> io.setPercent(percent.getAsDouble())
-        );
-    }
+//    public Command setPercent(DoubleSupplier percent) {
+//        if (!enabled) {
+//            return Commands.none();
+//        }
+//
+//        return Commands.runOnce(
+//                () -> io.setPercent(percent.getAsDouble())
+//        );
+//    }
 
     public Command align() {
-        return setPercent(Constants.IntakeAligner.Speeds.Align::get);
+        if(!enabled)
+            return Commands.none();
+//        return setPercent(Constants.IntakeAligner.Speeds.Align::get);
+        return Commands.runOnce(() -> io.setVelocity(Constants.IntakeAligner.Speeds.Align.get()));
     }
 
     public Command stop() {
-        return setPercent(() -> 0);
-    }
+        if(!enabled)
+            return Commands.none();
 
-    public boolean isEnabled() {
-        return enabled;
+        return Commands.runOnce(() -> io.setPercent(0));
     }
 }
