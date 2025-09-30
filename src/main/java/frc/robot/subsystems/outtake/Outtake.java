@@ -38,7 +38,7 @@ public class Outtake extends SubsystemBase {
             currentTimer.reset();
         }
 
-        if(currentTimer.get() > 0.08){
+        if(currentTimer.get() > 0.125){
             if (RobotState.getInstance().getRobotState() == States.TRANSFER_CORAL_TO_OUTTAKE)
                 isCoralInside = true;
 //            else if (RobotState.getInstance().getRobotState() == States.INTAKE_ALGAE_HIGH || RobotState.getInstance().getRobotState() == States.INTAKE_ALGAE_LOW)
@@ -110,7 +110,7 @@ public class Outtake extends SubsystemBase {
                                 currentTimer.reset();
                             }
 
-                            if(currentTimer.get() > 0.08)
+                            if(currentTimer.get() > 0.125)
                                 hadObjectInside = true;
                             return hadObjectInside;
                         }),

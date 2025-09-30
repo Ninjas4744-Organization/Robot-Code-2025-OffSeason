@@ -7,7 +7,6 @@ import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.function.DoubleSupplier;
-import java.util.function.IntSupplier;
 
 public class Elevator extends SubsystemBase {
     private ElevatorIO io;
@@ -46,31 +45,31 @@ public class Elevator extends SubsystemBase {
         return setHeight(Constants.Elevator.Positions.Close::get);
     }
 
-    public Command goToLHeight(IntSupplier L) {
-        return switch (L.getAsInt()) {
-            case 1 -> setHeight(Constants.Elevator.Positions.Close::get);
-            case 2 -> setHeight(Constants.Elevator.Positions.L2::get);
-            case 3 -> setHeight(Constants.Elevator.Positions.L3::get);
-            case 4-> setHeight(Constants.Elevator.Positions.L4::get);
-            default -> Commands.none();
-        };
-    }
+//    public Command goToLHeight(IntSupplier L) {
+//        return switch (L.getAsInt()) {
+//            case 1 -> setHeight(Constants.Elevator.Positions.Close::get);
+//            case 2 -> setHeight(Constants.Elevator.Positions.L2::get);
+//            case 3 -> setHeight(Constants.Elevator.Positions.L3::get);
+//            case 4-> setHeight(Constants.Elevator.Positions.L4::get);
+//            default -> Commands.none();
+//        };
+//    }
 
-    public Command goToAlgaeReefHeight() {
-        return setHeight(Constants.Elevator.Positions.AlgaeReef::get);
-    }
-
-    public Command goToNetHeight() {
-        return setHeight(Constants.Elevator.Positions.Net::get);
-    }
-
-    public Command goToSafeHeight() {
-        return setHeight(Constants.Elevator.Positions.Safe::get);
-    }
-
-    public Command goToIntakeHeight() {
-        return setHeight(Constants.Elevator.Positions.Intake::get);
-    }
+//    public Command goToAlgaeReefHeight() {
+//        return setHeight(Constants.Elevator.Positions.AlgaeReef::get);
+//    }
+//
+//    public Command goToNetHeight() {
+//        return setHeight(Constants.Elevator.Positions.Net::get);
+//    }
+//
+//    public Command goToSafeHeight() {
+//        return setHeight(Constants.Elevator.Positions.Safe::get);
+//    }
+//
+//    public Command goToIntakeHeight() {
+//        return setHeight(Constants.Elevator.Positions.Intake::get);
+//    }
 
     public double getHeight() {
         return inputs.Position;
@@ -95,6 +94,7 @@ public class Elevator extends SubsystemBase {
         if (!enabled) {
             return true;
         }
-        return inputs.LimitSwitch;
+//        return inputs.LimitSwitch;
+        return atGoal();
     }
 }

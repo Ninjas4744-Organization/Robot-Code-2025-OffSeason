@@ -93,17 +93,17 @@ public class Constants {
             kControllerConstants.motorType = DCMotor.getKrakenX60(2);
         }
 
+        public static final Rotation2d[] LPositions = { Rotation2d.fromDegrees(Arm.Positions.Close.get()), Rotation2d.fromDegrees(Arm.Positions.L2.get()), Rotation2d.fromDegrees(Arm.Positions.L3.get()), Rotation2d.fromDegrees(Arm.Positions.L4.get()) };
+        public static final Rotation2d[] LPositionsDown = { Rotation2d.fromDegrees(Arm.Positions.Close.get()), Rotation2d.fromDegrees(Arm.Positions.L2.get() - 30), Rotation2d.fromDegrees(Arm.Positions.L3.get() - 30), Rotation2d.fromDegrees(Arm.Positions.L4.get() - 30) };
         public enum Positions {
-            Close(90),
-            L2(0),
-            L3(0),
-            L4(0),
-            LowAlgaeOut(0),
-            HighAlgaeOut(0),
+            Close(-90),
+            L2(45),
+            L3(45),
+            L4(45),
+            IntakeAlgae(0),
             Net(70),
             Processor(0),
-            Intake(-90),
-            IntakeHalfWay(15);
+            IntakeCoral(-90);
 
             final double angle;
 
@@ -140,7 +140,7 @@ public class Constants {
             kControllerConstants.real.positionGoalTolerance = 0.5;
 
             /* Soft Limits */
-            kControllerConstants.real.maxSoftLimit = 9;
+            kControllerConstants.real.maxSoftLimit = 10.8;
 
             /* Hard Limit */
             kControllerConstants.real.isLimitSwitch = true;
@@ -155,14 +155,16 @@ public class Constants {
             kControllerConstants.motorType = DCMotor.getKrakenX60(2);
         }
 
+        public static final double[] LPositions = { Elevator.Positions.Close.get(), Elevator.Positions.L2.get(), Elevator.Positions.L3.get(), Elevator.Positions.L4.get() };
+        public static final double[] LPositionsDown = { Elevator.Positions.Close.get(), Elevator.Positions.L2.get() - 1, Elevator.Positions.L3.get() - 1, Elevator.Positions.L4.get() - 1 };
         public enum Positions {
-            Close(0),
-            L2(2),
-            L3(4),
-            L4(6),
+            Close(6.5),
+            L2(5),
+            L3(7),
+            L4(10.7),
             AlgaeReef(7),
             Net(9),
-            Safe(8),
+//            Safe(8),
             Intake(6);
 
             final double height;
@@ -178,7 +180,7 @@ public class Constants {
     }
 
      public static class Outtake {
-        public static final double kCurrentThreshold = 45;
+        public static final double kCurrentThreshold = 55;
 
         public static final ControllerConstants kControllerConstants = new ControllerConstants();
         static {
@@ -194,7 +196,7 @@ public class Constants {
 
         public enum Speeds {
             Intake(-1),
-            Outtake(1),
+            Outtake(0.25),
             OuttakeAlgae(1);
 
             final double speed;

@@ -6,8 +6,13 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.*;
+import frc.robot.RobotContainer;
+import frc.robot.RobotState;
+import frc.robot.StateMachine;
+import frc.robot.States;
 import org.littletonrobotics.junction.Logger;
+
+import java.util.function.Supplier;
 
 public class Arm extends SubsystemBase {
     private ArmIO io;
@@ -57,45 +62,45 @@ public class Arm extends SubsystemBase {
         return false;
     }
 
-    public Command setAngle(Rotation2d angle){
+    public Command setAngle(Supplier<Rotation2d> angle){
         if (!enabled) {
             return Commands.none();
         }
-        return Commands.runOnce(() -> io.setPosition(angle));
+        return Commands.runOnce(() -> io.setPosition(angle.get()));
     }
 
-    public Command home() {
-        return setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get()));
-    }
+//    public Command home() {
+//        return setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get()));
+//    }
+//
+//    public Command lookAtIntake() {
+//        return setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.Intake.get()));
+//    }
+//
+//    public Command lookAtIntakeHalfWay() {
+//        return setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.IntakeHalfWay.get()));
+//    }
 
-    public Command lookAtIntake() {
-        return setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.Intake.get()));
-    }
+//    public Command lookAtCoralReef(int L) {
+//        return switch (L) {
+//            case 2 -> setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.L4.get()));
+//            case 3 -> setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.L3.get()));
+//            case 4 -> setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.L2.get()));
+//            default -> setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get()));
+//        };
+//    }
 
-    public Command lookAtIntakeHalfWay() {
-        return setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.IntakeHalfWay.get()));
-    }
-
-    public Command lookAtCoralReef(int L) {
-        return switch (L) {
-            case 2 -> setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.L4.get()));
-            case 3 -> setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.L3.get()));
-            case 4 -> setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.L2.get()));
-            default -> setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get()));
-        };
-    }
-
-    public Command lookAtAlgaeReef() {
-        return setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.HighAlgaeOut.get()));
-    }
-
-    public Command lookAtAlgaeFloor() {
-        return setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.LowAlgaeOut.get()));
-    }
-
-    public Command lookAtBarge() {
-        return setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.Net.get()));
-    }
+//    public Command lookAtAlgaeReef() {
+//        return setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.HighAlgaeOut.get()));
+//    }
+//
+//    public Command lookAtAlgaeFloor() {
+//        return setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.LowAlgaeOut.get()));
+//    }
+//
+//    public Command lookAtBarge() {
+//        return setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.Net.get()));
+//    }
 
     public Rotation2d getAngle(){
         if (!enabled) {

@@ -208,10 +208,12 @@ public class RobotContainer {
 //                CSVWriter.writeCsv("Robot Speed", "Delay Meters", robotSpeed, delayMeters, "Vision Delay test 1, FPS=25.csv")
 //        ));
 
-//        driverController.square().onTrue(Commands.runOnce(() ->
-////                RobotState.getInstance().setRobotPose(lastVisionPose)
+        driverController.square().onTrue(Commands.runOnce(() ->
+//                RobotState.getInstance().setRobotPose(lastVisionPose)
 //                StateMachine.getInstance().changeRobotState(States.TRANSFER_CORAL_TO_OUTTAKE)
-//        ));
+//                StateMachine.getInstance().changeRobotState(States.INTAKE_ALGAE_LOW)
+                StateMachine.getInstance().changeRobotState(States.CORAL_OUTTAKE)
+        ));
 
 //        operatorController.square().onTrue(Commands.runOnce(() ->
 //                stateMachine.changeRobotState(States.INTAKE_ALGAE_LOW)
