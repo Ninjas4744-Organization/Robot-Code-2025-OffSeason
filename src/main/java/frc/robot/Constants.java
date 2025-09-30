@@ -33,6 +33,7 @@ import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -100,7 +101,9 @@ public class Constants {
             L2(45),
             L3(45),
             L4(45),
-            IntakeAlgae(0),
+            IntakeAlgaeFromFloor(-30),
+            IntakeAlgaeFromReefLow(10),
+            IntakeAlgaeFromReefHigh(30),
             Net(70),
             Processor(0),
             IntakeCoral(-90);
@@ -162,7 +165,8 @@ public class Constants {
             L2(5),
             L3(7),
             L4(10.7),
-            AlgaeReef(7),
+            AlgaeReefLow(7),
+            AlgaeReefHigh(7),
             Net(9),
 //            Safe(8),
             Intake(6);
@@ -180,6 +184,7 @@ public class Constants {
     }
 
      public static class Outtake {
+        public static final double ALGAE_OUTPUT_WAIT_TIME = 0.2;
         public static final double kCurrentThreshold = 55;
 
         public static final ControllerConstants kControllerConstants = new ControllerConstants();
@@ -549,6 +554,34 @@ public class Constants {
         public static Pose3d getTagPose(int id) {
             return getFieldLayout().getTagPose(id).get();
         }
+
+        //region Methods used for which angle the arm should aim for, for the 2 heights of algae positions
+        public static AprilTag getTagFromPose(Pose2d pose) {
+            List<AprilTag> tags = getFieldLayout().getTags();
+            for (AprilTag tag : tags)
+                if (tag.pose.toPose2d().equals(pose))
+                    return tag;
+
+            return null;
+        }
+
+        public static Pose2d getClosestReefTag(){
+            List<AprilTag> tags = getFieldLayoutWithAllowed(List.of(6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22)).getTags();
+            List<Pose2d> poses = new ArrayList<>();
+            for(AprilTag tag : tags)
+                poses.add(tag.pose.toPose2d());
+
+            return RobotState.getInstance().getRobotPose().nearest(poses);
+        }
+
+        public static int getAlgaeLevel() {
+            return switch (getTagFromPose(getClosestReefTag()).ID) {
+                case 6, 8, 10, 17, 19, 21 -> 1;
+                case 7, 9, 11, 18, 20, 22 -> 2;
+                default -> 1;
+            };
+        }
+        //endregion
     }
 
     public static class AutoDrive {

@@ -16,6 +16,8 @@ import frc.robot.subsystems.outtake.Outtake;
 
 import java.util.Set;
 
+import static frc.robot.Constants.Outtake.ALGAE_OUTPUT_WAIT_TIME;
+
 public class StateMachine extends StateMachineBase<States> {
     public static StateMachine getInstance(){
         return (StateMachine) StateMachineBase.getInstance();
@@ -267,7 +269,7 @@ public class StateMachine extends StateMachineBase<States> {
         addCommand(States.INTAKE_ALGAE_LOW, Commands.sequence(
                 intakeAngle.lookDown(),
                 Commands.waitUntil(() -> intakeAngle.getAngle().getRadians() < 0.35),
-                arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.IntakeAlgae.get())),
+                arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.IntakeAlgaeFromFloor.get())),
                 elevator.close(),
                 Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal()),
                 outtake.intake(),
@@ -276,9 +278,18 @@ public class StateMachine extends StateMachineBase<States> {
                 // No need to stop the intaking because we want to keep ahold of the algae. we'll stop only when we outtake.
         ));
         addCommand(States.INTAKE_ALGAE_HIGH, Commands.sequence(
-                //TODO: - There's 2 different heights for Algae in reef, and we need to distinguish the 2 heights. thoughts Eitan?
-//                arm.lookAtAlgaeReef(),
-//                elevator.goToAlgaeReefHeight(),
+                Commands.either(
+                        Commands.sequence(
+                                arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.IntakeAlgaeFromReefLow.get())),
+                                elevator.setHeight(Constants.Elevator.Positions.AlgaeReefLow::get)
+                        ),
+                        Commands.sequence(
+                                arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.IntakeAlgaeFromReefHigh.get())),
+                                elevator.setHeight(Constants.Elevator.Positions.AlgaeReefHigh::get)
+                        ),
+                        // if the level of the algae is 1, it is the low level, otherwise, it is the high level.
+                        () -> Constants.Field.getAlgaeLevel() == 1
+                ),
                 Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal()),
                 outtake.intake(),
                 Commands.waitUntil(outtake::isAlgaeInside),
@@ -290,15 +301,15 @@ public class StateMachine extends StateMachineBase<States> {
 
         //region outtake algae
         addCommand(States.PREPARE_ALGAE_OUTTAKE, Commands.sequence(
-//                elevator.goToNetHeight(),
-//                arm.lookAtBarge(),
+                Commands.runOnce(() -> elevator.setHeight(Constants.Elevator.Positions.Net::get)),
+                Commands.runOnce(() -> arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.Net.get()))),
                 Commands.waitUntil(() -> elevator.atGoal() && arm.atGoal()),
                 Commands.runOnce(()-> changeRobotState(States.ALGAE_OUTTAKE))
         ));
 
         addCommand(States.ALGAE_OUTTAKE, Commands.sequence(
                 outtake.outtake(),
-                Commands.waitSeconds(0.2),
+                Commands.waitSeconds(ALGAE_OUTPUT_WAIT_TIME),
                 outtake.stop(),
                 Commands.runOnce(()-> changeRobotState(States.CLOSE))
         ));
