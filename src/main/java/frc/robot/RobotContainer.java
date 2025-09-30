@@ -72,10 +72,10 @@ public class RobotContainer {
         switch (Constants.General.kRobotMode) {
             case REAL, SIM:
                 arm = new Arm(true, new ArmIOController());
-                elevator = new Elevator(false, new ElevatorIOController());
+                elevator = new Elevator(true, new ElevatorIOController());
                 intakeAngle = new IntakeAngle(true, new IntakeAngleIOController());
                 intakeAligner = new IntakeAligner(true, new IntakeAlignerIOController());
-                outtake = new Outtake(false, new OuttakeIOController());
+                outtake = new Outtake(true, new OuttakeIOController());
                 climber = new Climber(false, new ClimberIOController());
 
                 if(Constants.General.kRobotMode == Constants.RobotMode.REAL)
@@ -165,13 +165,13 @@ public class RobotContainer {
         driverController.R1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(Rotation2d.kZero)));
         driverController.L1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(RobotState.getInstance().getRobotPose().getRotation())));
 
-        driverController.R2().onTrue(Commands.runOnce(
-                () -> stateMachine.changeRobotState(States.DRIVE_RIGHT_REEF)
-        ));
-
-        driverController.L2().onTrue(Commands.runOnce(
-                () -> stateMachine.changeRobotState(States.DRIVE_LEFT_REEF)
-        ));
+//        driverController.R2().onTrue(Commands.runOnce(
+//                () -> stateMachine.changeRobotState(States.DRIVE_RIGHT_REEF)
+//        ));
+//
+//        driverController.L2().onTrue(Commands.runOnce(
+//                () -> stateMachine.changeRobotState(States.DRIVE_LEFT_REEF)
+//        ));
 
         driverController.triangle().onTrue(Commands.either(
                 Commands.runOnce(() -> stateMachine.changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1)),
@@ -196,8 +196,8 @@ public class RobotContainer {
         //endregion
 
         //region Operator Buttons
-//        driverController.R1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() + 1)));
-//        driverController.L1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() - 1)));
+        driverController.R2().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() + 1)));
+        driverController.L2().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() - 1)));
 
         new Trigger(() -> RobotState.getL() > 1 && RobotState.getInstance().getRobotState() == States.CORAL_IN_INTAKE)
                 .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_TO_OUTTAKE)));
@@ -208,9 +208,10 @@ public class RobotContainer {
 //                CSVWriter.writeCsv("Robot Speed", "Delay Meters", robotSpeed, delayMeters, "Vision Delay test 1, FPS=25.csv")
 //        ));
 
-        driverController.square().onTrue(Commands.runOnce(() ->
-                RobotState.getInstance().setRobotPose(lastVisionPose)
-        ));
+//        driverController.square().onTrue(Commands.runOnce(() ->
+////                RobotState.getInstance().setRobotPose(lastVisionPose)
+//                StateMachine.getInstance().changeRobotState(States.TRANSFER_CORAL_TO_OUTTAKE)
+//        ));
 
 //        operatorController.square().onTrue(Commands.runOnce(() ->
 //                stateMachine.changeRobotState(States.INTAKE_ALGAE_LOW)

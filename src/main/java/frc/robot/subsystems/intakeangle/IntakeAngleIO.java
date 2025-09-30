@@ -7,7 +7,6 @@ import org.littletonrobotics.junction.AutoLog;
 public interface IntakeAngleIO {
     @AutoLog
     class IntakeAngleIOInputs extends Controller.ControllerIOInputs {
-        boolean AtGoal;
         Rotation2d AbsoluteAngle;
     }
 

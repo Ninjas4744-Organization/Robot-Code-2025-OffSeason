@@ -38,16 +38,19 @@ public class Outtake extends SubsystemBase {
             currentTimer.reset();
         }
 
-        if(currentTimer.get() > 0.25){
-            if (RobotState.getInstance().getRobotState() == States.INTAKE_CORAL)
+        if(currentTimer.get() > 0.08){
+            if (RobotState.getInstance().getRobotState() == States.TRANSFER_CORAL_TO_OUTTAKE)
                 isCoralInside = true;
-            else if (RobotState.getInstance().getRobotState() == States.INTAKE_ALGAE_HIGH || RobotState.getInstance().getRobotState() == States.INTAKE_ALGAE_LOW)
-                isAlgaeInside = true;
+//            else if (RobotState.getInstance().getRobotState() == States.INTAKE_ALGAE_HIGH || RobotState.getInstance().getRobotState() == States.INTAKE_ALGAE_LOW)
+//                isAlgaeInside = true;
         }
 
         io.periodic();
         io.updateInputs(inputs);
         Logger.processInputs("Outtake", inputs);
+
+        Logger.recordOutput("Outtake/Coral Inside", isCoralInside());
+        Logger.recordOutput("Outtake/Algae Inside", isAlgaeInside());
     }
 
     public Command stop(){
@@ -107,11 +110,11 @@ public class Outtake extends SubsystemBase {
                                 currentTimer.reset();
                             }
 
-                            if(currentTimer.get() > 0.25)
+                            if(currentTimer.get() > 0.08)
                                 hadObjectInside = true;
                             return hadObjectInside;
                         }),
-                        Commands.waitSeconds(0.5)
+                        Commands.waitSeconds(0.3)
                 ),
                 stop(),
                 Commands.runOnce(() -> {

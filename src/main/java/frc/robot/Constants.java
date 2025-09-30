@@ -72,7 +72,7 @@ public class Constants {
             kControllerConstants.real.isBrakeMode = true;
 
             /* Control */
-            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(6, 0, 0, 0, 1, 4, 0, 10, 0, 0.3, GravityTypeValue.Arm_Cosine);
+            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(6, 0, 0, 0, 1, 3, 0, 10, 0, 0.3, GravityTypeValue.Arm_Cosine);
             kControllerConstants.real.gearRatio = 86.4;
 //            kControllerConstants.real.conversionFactor = 2 * Math.PI;
             kControllerConstants.real.homePosition = Units.degreesToRotations(90);
@@ -101,7 +101,9 @@ public class Constants {
             LowAlgaeOut(0),
             HighAlgaeOut(0),
             Net(70),
-            Processor(0);
+            Processor(0),
+            Intake(-90),
+            IntakeHalfWay(15);
 
             final double angle;
 
@@ -131,20 +133,20 @@ public class Constants {
             kControllerConstants.real.followers[0].inverted = true;
 
             /* Control */
-            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(0, 0, 0, 0, 0, 0, 0, 0, 0.3, 0, GravityTypeValue.Elevator_Static);
+            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(0.8, 0, 0, 0, 30, 40, 0, 0.7, 0.3, 0.3, GravityTypeValue.Elevator_Static);
             kControllerConstants.real.gearRatio = 6;
-            kControllerConstants.real.conversionFactor = Math.PI * 0.05; // Fix
+//            kControllerConstants.real.conversionFactor = Math.PI * 0.05; // Fix
             kControllerConstants.real.homePosition = 0;
-            kControllerConstants.real.positionGoalTolerance = 0.01;
+            kControllerConstants.real.positionGoalTolerance = 0.5;
 
             /* Soft Limits */
-            kControllerConstants.real.maxSoftLimit = 1.6;
+            kControllerConstants.real.maxSoftLimit = 9;
 
             /* Hard Limit */
             kControllerConstants.real.isLimitSwitch = true;
-            kControllerConstants.real.isVirtualLimit = true;
-            kControllerConstants.real.virtualLimitStallThreshold = 30 / 12.0;
-            kControllerConstants.real.limitSwitchID = 2;
+//            kControllerConstants.real.isVirtualLimit = true;
+//            kControllerConstants.real.virtualLimitStallThreshold = 30 / 12.0;
+            kControllerConstants.real.limitSwitchID = 7;
             kControllerConstants.real.limitSwitchDirection = -1;
             kControllerConstants.real.limitSwitchAutoStopReset = true;
             kControllerConstants.real.limitSwitchInverted = true;
@@ -155,11 +157,13 @@ public class Constants {
 
         public enum Positions {
             Close(0),
-            L2(0.2),
-            L3(0.6),
-            L4(1),
-            AlgaeReef(0.8),
-            Net(1.2);
+            L2(2),
+            L3(4),
+            L4(6),
+            AlgaeReef(7),
+            Net(9),
+            Safe(8),
+            Intake(6);
 
             final double height;
 
@@ -174,7 +178,7 @@ public class Constants {
     }
 
      public static class Outtake {
-        public static final double kCurrentThreshold = 65;
+        public static final double kCurrentThreshold = 45;
 
         public static final ControllerConstants kControllerConstants = new ControllerConstants();
         static {
@@ -182,7 +186,7 @@ public class Constants {
             kControllerConstants.real.main.id = 50;
             kControllerConstants.real.main.inverted = false;
             kControllerConstants.real.currentLimit = 60;
-            kControllerConstants.real.isBrakeMode = false;
+            kControllerConstants.real.isBrakeMode = true;
 
             /* Simulation */
             kControllerConstants.motorType = DCMotor.getKrakenX60(1);
@@ -206,7 +210,7 @@ public class Constants {
     }
 
     public static class Intake {
-        public static final int kBeamBreakerPort = 4;
+        public static final int kBeamBreakerPort = 8;
         public static final ControllerConstants kControllerConstants = new ControllerConstants();
         static {
             /* Base */
@@ -240,7 +244,7 @@ public class Constants {
 
      public static class IntakeAngle {
         public static final int kCanCoderID = 23;
-        public static final double kCanCoderOffset = 1.322266;
+        public static final double kCanCoderOffset = 1.322266 - 0.268311;
         public static final SensorDirectionValue kCanCoderReversed = SensorDirectionValue.CounterClockwise_Positive;
 
         public static final ControllerConstants kControllerConstants = new ControllerConstants();
@@ -273,9 +277,10 @@ public class Constants {
         }
 
         public enum Positions {
-            LOOK_DOWN(-23),
-            LOOK_AT_L1(60),
-            LOOK_AT_ARM(90);
+            LOOK_DOWN(-23 - 35 - 14 + 5),
+            LOOK_AT_L1(60 - 35 - 14),
+            LOOK_AT_ARM(65),
+            CLOSE(65);
 
             final double degrees;
 
@@ -500,6 +505,9 @@ public class Constants {
 
                 kRedFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025ReefscapeWelded.m_resourceFile);
                 kRedFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
+
+                kBlueFieldLayout.getTags().set(14 + 1, kBlueFieldLayout.getTags().get(18 - 1));
+                kRedFieldLayout.getTags().set(14 + 1, kRedFieldLayout.getTags().get(18 - 1));
             } catch (IOException e) {
                 throw new RuntimeException("Unable to load field layout");
             }

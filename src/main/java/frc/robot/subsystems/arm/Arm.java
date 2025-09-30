@@ -6,8 +6,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.RobotContainer;
+import frc.robot.*;
 import org.littletonrobotics.junction.Logger;
 
 public class Arm extends SubsystemBase {
@@ -28,8 +27,8 @@ public class Arm extends SubsystemBase {
         if (!enabled)
             return;
 
-        if (isArmUnsafe())
-            io.stop();
+        if (isArmUnsafe() && !(RobotState.getInstance().getRobotState() == States.CLOSE || RobotState.getInstance().getRobotState() == States.RESET))
+            StateMachine.getInstance().changeRobotState(States.CLOSE);
 
         io.periodic();
 
@@ -65,8 +64,16 @@ public class Arm extends SubsystemBase {
         return Commands.runOnce(() -> io.setPosition(angle));
     }
 
-    public Command lookDown() {
+    public Command home() {
         return setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get()));
+    }
+
+    public Command lookAtIntake() {
+        return setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.Intake.get()));
+    }
+
+    public Command lookAtIntakeHalfWay() {
+        return setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.IntakeHalfWay.get()));
     }
 
     public Command lookAtCoralReef(int L) {
@@ -94,7 +101,7 @@ public class Arm extends SubsystemBase {
         if (!enabled) {
             return Rotation2d.kZero;
         }
-        return Rotation2d.fromRadians(inputs.Position);
+        return Rotation2d.fromRotations(inputs.Position);
     }
 
     public boolean atGoal(){
@@ -108,7 +115,7 @@ public class Arm extends SubsystemBase {
         if (!enabled){
             return Commands.none();
         }
-        return Commands.runOnce(() -> io.setEncoder(inputs.AbsoluteAngle.getRotations())).andThen(setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get())));
+        return Commands.runOnce(() -> io.setEncoder(inputs.AbsoluteAngle.getRotations()));//.andThen(setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get())));
     }
 
     public boolean isReset(){

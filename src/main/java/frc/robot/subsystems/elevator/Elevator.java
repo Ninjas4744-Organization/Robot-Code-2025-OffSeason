@@ -7,6 +7,7 @@ import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.IntSupplier;
 
 public class Elevator extends SubsystemBase {
     private ElevatorIO io;
@@ -37,16 +38,16 @@ public class Elevator extends SubsystemBase {
             return Commands.none();
         }
         return Commands.runOnce(() -> {
-            //io.setPosition(wantedHeight.getAsDouble());
+            io.setPosition(wantedHeight.getAsDouble());
         });
     }
 
-    public Command goToFloor() {
+    public Command close() {
         return setHeight(Constants.Elevator.Positions.Close::get);
     }
 
-    public Command goToLHeight(int L) {
-        return switch (L) {
+    public Command goToLHeight(IntSupplier L) {
+        return switch (L.getAsInt()) {
             case 1 -> setHeight(Constants.Elevator.Positions.Close::get);
             case 2 -> setHeight(Constants.Elevator.Positions.L2::get);
             case 3 -> setHeight(Constants.Elevator.Positions.L3::get);
@@ -61,6 +62,14 @@ public class Elevator extends SubsystemBase {
 
     public Command goToNetHeight() {
         return setHeight(Constants.Elevator.Positions.Net::get);
+    }
+
+    public Command goToSafeHeight() {
+        return setHeight(Constants.Elevator.Positions.Safe::get);
+    }
+
+    public Command goToIntakeHeight() {
+        return setHeight(Constants.Elevator.Positions.Intake::get);
     }
 
     public double getHeight() {
@@ -79,14 +88,7 @@ public class Elevator extends SubsystemBase {
             return Commands.none();
         }
 
-        return Commands.runOnce(() -> {
-//            io.setEncoder(0);
-        }).until(() -> inputs.LimitSwitch);
-
-        //fixme: temp
-//        return Commands.run(() -> {
-//            io.setPercent(-0.2);
-//        }).until(() -> inputs.LimitSwitch);
+        return Commands.runOnce(() -> io.setPercent(-0.05)).andThen(Commands.waitUntil(() -> inputs.LimitSwitch)).finallyDo(() -> io.setPercent(0));
     }
 
     public boolean isReset() {

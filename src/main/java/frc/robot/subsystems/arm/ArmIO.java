@@ -8,7 +8,6 @@ public interface ArmIO {
     @AutoLog
     class ArmIOInputs extends Controller.ControllerIOInputs {
         Rotation2d AbsoluteAngle;
-        boolean AtGoal;
     }
 
     default void setup() {

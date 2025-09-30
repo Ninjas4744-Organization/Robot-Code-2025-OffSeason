@@ -63,6 +63,10 @@ public class IntakeAngle extends SubsystemBase {
         return setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.Positions.LOOK_DOWN.get()));
     }
 
+    public Command close() {
+        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.Positions.CLOSE.get()));
+    }
+
     public Command lookAtL1() {
         return setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.Positions.LOOK_AT_L1.get()));
     }
@@ -83,7 +87,7 @@ public class IntakeAngle extends SubsystemBase {
             return Commands.none();
         }
 
-        return Commands.runOnce(() -> io.setEncoder(inputs.AbsoluteAngle.getRadians())).andThen(setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.Positions.LOOK_DOWN.get())));
+        return Commands.runOnce(() -> io.setEncoder(inputs.AbsoluteAngle.getRadians())).andThen(setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.Positions.CLOSE.get())));
     }
 
     public boolean isReset() {

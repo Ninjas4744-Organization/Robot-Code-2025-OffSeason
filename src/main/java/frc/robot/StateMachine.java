@@ -28,12 +28,12 @@ public class StateMachine extends StateMachineBase<States> {
                     States.INTAKE_CORAL,
                     States.INTAKE_ALGAE_HIGH,
                     States.INTAKE_ALGAE_LOW,
-                    States.PREPARE_CLIMB,
-                    States.PREPARE_CORAL_OUTTAKE_L1
+                    States.PREPARE_CLIMB
             ).contains(wantedState);
 
             case INTAKE_CORAL -> Set.of(
-                    States.CORAL_IN_INTAKE
+                    States.CORAL_IN_INTAKE,
+                    States.TRANSFER_CORAL_TO_OUTTAKE
             ).contains(wantedState);
 
             case CORAL_IN_INTAKE -> Set.of(
@@ -138,13 +138,27 @@ public class StateMachine extends StateMachineBase<States> {
 
         //region intake coral
         addCommand(States.INTAKE_CORAL, Commands.sequence(
+                Commands.either(
+                        Commands.sequence(
+                                elevator.goToSafeHeight(),
+                                Commands.waitUntil(() -> elevator.getHeight() > 1),
+                                arm.lookAtIntake()
+                        ),
+                        Commands.none(),
+                        () -> RobotState.getL() > 1
+                ),
                 intake.intake(),
                 intakeAngle.lookDown(),
                 intakeAligner.align(),
                 Commands.waitUntil(intake::isCoralInside),
+                Commands.waitSeconds(0.2),
                 intakeAligner.stop(),
                 intake.stop(),
-                Commands.runOnce(() -> changeRobotState(States.CLOSE))
+                Commands.either(
+                        Commands.runOnce(() -> changeRobotState(States.TRANSFER_CORAL_TO_OUTTAKE)),
+                        Commands.runOnce(() -> changeRobotState(States.CLOSE)),
+                        () -> RobotState.getL() > 1
+                )
         ));
 
         addCommand(States.CORAL_IN_INTAKE, Commands.none());
@@ -166,9 +180,22 @@ public class StateMachine extends StateMachineBase<States> {
                 Commands.runOnce(()-> changeRobotState(States.CLOSE))
         ));
         addCommand(States.TRANSFER_CORAL_TO_OUTTAKE, Commands.sequence(
+                intake.intake(),
+                intakeAligner.align(),
+                Commands.either(
+                        Commands.sequence(
+                                arm.lookAtIntakeHalfWay(),
+                                elevator.goToSafeHeight(),
+                                Commands.waitUntil(() -> elevator.getHeight() > 2.5)
+                        ),
+                        Commands.none(),
+                        () -> arm.getAngle().getDegrees() > 0
+                ),
                 intakeAngle.lookAtArm(),
-                arm.lookDown(),
-                Commands.waitUntil(() -> intakeAngle.atGoal() && arm.atGoal()),
+                arm.lookAtIntake(),
+                Commands.waitUntil(() -> elevator.atGoal() && intakeAngle.getAngle().getRadians() > 0.35 && arm.atGoal()),
+                elevator.goToIntakeHeight(),
+                Commands.waitUntil(() -> elevator.atGoal() && intakeAngle.atGoal() && arm.atGoal()),
                 outtake.intake(),
                 intake.outtake(),
                 Commands.waitUntil(outtake::isCoralInside),
@@ -178,7 +205,7 @@ public class StateMachine extends StateMachineBase<States> {
 
         addCommand(States.TRANSFER_CORAL_TO_INTAKE, Commands.sequence(
                 intakeAngle.lookAtArm(),
-                arm.lookDown(),
+                arm.home(),
                 Commands.waitUntil(() -> intakeAngle.atGoal() && arm.atGoal()),
                 intake.intake(),
                 intakeAligner.align(),
@@ -206,11 +233,13 @@ public class StateMachine extends StateMachineBase<States> {
         ));
 
         addCommand(States.PREPARE_CORAL_OUTTAKE, Commands.sequence(
-                elevator.goToLHeight(RobotState.getInstance().getL()),
-                arm.lookAtCoralReef(RobotState.getInstance().getL()),
+                elevator.goToLHeight(RobotState::getL),
+//                arm.lookAtCoralReef(RobotState.getL()),
+                arm.lookAtIntakeHalfWay(),
                 Commands.waitUntil(() -> elevator.atGoal() && arm.atGoal()),
                 Commands.runOnce(() -> changeRobotState(States.CORAL_OUTTAKE))
         ));
+
         addCommand(States.CORAL_OUTTAKE, Commands.sequence(
                 outtake.outtake(),
                 Commands.waitSeconds(0.5),
@@ -221,7 +250,7 @@ public class StateMachine extends StateMachineBase<States> {
         //region intake algae
         addCommand(States.INTAKE_ALGAE_LOW, Commands.sequence(
                 arm.lookAtAlgaeFloor(),
-                elevator.goToFloor(),
+                elevator.close(),
                 Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal()),
                 outtake.intake(),
                 Commands.waitUntil(outtake::isAlgaeInside),
@@ -260,9 +289,21 @@ public class StateMachine extends StateMachineBase<States> {
         //region close + reset
         addCommand(States.CLOSE, Commands.sequence(
                 Commands.parallel(
-                        arm.lookDown(),
-                        elevator.goToFloor(),
-                        intakeAngle.lookDown(),
+                        Commands.either(
+                                Commands.sequence(
+                                        elevator.goToSafeHeight(),
+                                        Commands.waitUntil(elevator::atGoal),
+                                        arm.home(),
+                                        Commands.waitUntil(arm::atGoal),
+                                        elevator.close()
+                                ),
+                                Commands.parallel(
+                                        elevator.close(),
+                                        arm.home()
+                                ),
+                                () -> arm.getAngle().getDegrees() < -45 || arm.getAngle().getDegrees() > 225
+                        ),
+                        intakeAngle.close(),
                         intake.stop(),
                         intakeAligner.stop(),
                         outtake.stop(),
@@ -283,13 +324,27 @@ public class StateMachine extends StateMachineBase<States> {
 
         addCommand(States.RESET, Commands.sequence(
                 Commands.parallel(
-                        elevator.reset(),
-                        arm.reset(),
-                        intake.reset(),
-                        outtake.reset(),
-                        intakeAngle.reset(),
-                        intakeAligner.stop(),
-                        swerve.reset()
+                    arm.reset(),
+                    intake.reset(),
+                    intakeAligner.stop(),
+                    swerve.reset(),
+                    outtake.reset(),
+                    Commands.either(
+                            Commands.sequence(
+                                    elevator.goToSafeHeight(),
+                                    Commands.waitUntil(elevator::atGoal),
+                                    intakeAngle.reset(),
+                                    arm.home(),
+                                    Commands.waitUntil(arm::atGoal),
+                                    elevator.close()
+                            ),
+                            Commands.parallel(
+                                    elevator.close(),
+                                    arm.home(),
+                                    intakeAngle.reset()
+                            ),
+                            () -> arm.getAngle().getDegrees() < -45 || arm.getAngle().getDegrees() > 225
+                    )
                 ),
                 Commands.waitUntil(() -> elevator.isReset() && arm.isReset() && intakeAngle.isReset()),
                 Commands.runOnce(() -> {
