@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.lib.NinjasLib.commands.DetachedCommand;
 import frc.lib.NinjasLib.statemachine.StateMachineBase;
 import frc.lib.NinjasLib.swerve.SwerveController;
 import frc.lib.NinjasLib.swerve.SwerveInput;
@@ -228,25 +229,23 @@ public class StateMachine extends StateMachineBase<States> {
                 Commands.either(
                         Commands.runOnce(() -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1)),
                         Commands.runOnce(() -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE)),
-                        () -> RobotState.getInstance().getL() == 1
+                        () -> RobotState.getL() == 1
                 )
         ));
         addCommand(States.DRIVE_RIGHT_REEF, Commands.sequence(
-                swerve.autoDriveToReef(() -> true),
+                new DetachedCommand(swerve.autoDriveToReef(() -> true)),
                 Commands.either(
                         Commands.runOnce(() -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1)),
                         Commands.runOnce(() -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE)),
-                        () -> RobotState.getInstance().getL() == 1
+                        () -> RobotState.getL() == 1
                 )
         ));
 
         addCommand(States.PREPARE_CORAL_OUTTAKE, Commands.sequence(
                 elevator.setHeight(() -> Constants.Elevator.LPositions[RobotState.getL() - 1]),
-                arm.setAngle(() -> Constants.Arm.LPositions[RobotState.getL() - 1])
-//                Commands.waitUntil(() -> elevator.atGoal() && arm.atGoal()),
-//                Commands.waitSeconds(0.5),
-//                Commands.waitUntil(() -> false),
-//                Commands.runOnce(() -> changeRobotState(States.CORAL_OUTTAKE))
+                arm.setAngle(() -> Constants.Arm.LPositions[RobotState.getL() - 1]),
+                Commands.waitUntil(() -> elevator.atGoal() && arm.atGoal() && swerve.atGoal()),
+                Commands.runOnce(() -> changeRobotState(States.CORAL_OUTTAKE))
         ));
 
         addCommand(States.CORAL_OUTTAKE, Commands.sequence(
@@ -254,11 +253,12 @@ public class StateMachine extends StateMachineBase<States> {
                 elevator.setHeight(() -> Constants.Elevator.LPositionsDown[RobotState.getL() - 1]),
                 Commands.waitUntil(() -> arm.getAngle().getDegrees() < Constants.Arm.LPositions[RobotState.getL() - 1].minus(Rotation2d.fromDegrees(15)).getDegrees()),
                 outtake.outtake(),
+                swerve.close(),
                 Commands.runOnce(() -> {
                     SwerveController.getInstance().setChannel("BackReef");
                     SwerveController.getInstance().setControl(new SwerveInput(-1, 0, 0, false), "BackReef");
                 }),
-                Commands.waitSeconds(0.25),
+                Commands.waitSeconds(0.35),
                 Commands.runOnce(()-> changeRobotState(States.CLOSE))
         ));
         //endregion
@@ -268,12 +268,12 @@ public class StateMachine extends StateMachineBase<States> {
                 intakeAngle.lookDown(),
                 Commands.waitUntil(() -> intakeAngle.getAngle().getRadians() < 0.35),
                 arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.IntakeAlgae.get())),
-                elevator.close(),
+                Commands.waitUntil(() -> arm.getAngle().getDegrees() > 0),
+                elevator.setHeight(Constants.Elevator.Positions.AlgaeLow::get),
                 Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal()),
                 outtake.intake(),
                 Commands.waitUntil(outtake::isAlgaeInside),
                 Commands.runOnce(()-> changeRobotState(States.ALGAE_IN_OUTTAKE))
-                // No need to stop the intaking because we want to keep ahold of the algae. we'll stop only when we outtake.
         ));
         addCommand(States.INTAKE_ALGAE_HIGH, Commands.sequence(
                 //TODO: - There's 2 different heights for Algae in reef, and we need to distinguish the 2 heights. thoughts Eitan?
@@ -283,9 +283,14 @@ public class StateMachine extends StateMachineBase<States> {
                 outtake.intake(),
                 Commands.waitUntil(outtake::isAlgaeInside),
                 Commands.runOnce(()-> changeRobotState(States.ALGAE_IN_OUTTAKE))
-                // No need to stop the intaking because we want to keep ahold of the algae. we'll stop only when we outtake.
         ));
-        addCommand(States.ALGAE_IN_OUTTAKE, outtake.intake());
+        addCommand(States.ALGAE_IN_OUTTAKE, Commands.sequence(
+                outtake.intake(),
+                arm.setAngle(() -> Rotation2d.fromDegrees(90)),
+                elevator.close(),
+                Commands.waitUntil(() -> elevator.getHeight() > 3),
+                intakeAngle.close()
+        ));
         //endregion
 
         //region outtake algae
@@ -307,31 +312,24 @@ public class StateMachine extends StateMachineBase<States> {
         //region close + reset
         addCommand(States.CLOSE, Commands.sequence(
                 Commands.parallel(
-//                        Commands.either(
-//                                Commands.sequence(
-//                                        elevator.goToSafeHeight(),
-//                                        Commands.waitUntil(elevator::atGoal),
-//                                        arm.home(),
-//                                        Commands.waitUntil(arm::atGoal),
-//                                        elevator.close()
-//                                ),
-//                                Commands.parallel(
-//                                        elevator.close(),
-//                                        arm.home()
-//                                ),
-//                                () -> arm.getAngle().getDegrees() < -45 || arm.getAngle().getDegrees() > 225
-//                        ),
                         intakeAngle.close(),
                         intake.stop(),
                         intakeAligner.stop(),
                         outtake.stop(),
                         swerve.close(),
-                        Commands.sequence(
-                                elevator.setHeight(Constants.Elevator.Positions.Close::get),
-                                Commands.waitUntil(elevator::atGoal),
-                                intakeAngle.reset(),
-                                arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get())),
-                                Commands.waitUntil(arm::atGoal)
+                        Commands.either(
+                                Commands.sequence(
+                                        elevator.setHeight(Constants.Elevator.Positions.Close::get),
+                                        intakeAngle.reset(),
+                                        arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get()))
+                                ),
+                                Commands.sequence(
+                                        elevator.setHeight(Constants.Elevator.Positions.Close::get),
+                                        Commands.waitUntil(elevator::atGoal),
+                                        intakeAngle.reset(),
+                                        arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get()))
+                                ),
+                                () -> elevator.getHeight() > Constants.Elevator.Positions.Close.get()
                         )
                 ),
                 Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal() && intakeAngle.atGoal()),
@@ -349,36 +347,54 @@ public class StateMachine extends StateMachineBase<States> {
 
         addCommand(States.RESET, Commands.sequence(
                 Commands.parallel(
-                    arm.reset(),
                     intake.reset(),
                     intakeAligner.stop(),
                     swerve.reset(),
                     outtake.reset(),
-//                    Commands.either(
-//                            Commands.sequence(
-//                                    elevator.goToSafeHeight(),
-//                                    Commands.waitUntil(elevator::atGoal),
-//                                    intakeAngle.reset(),
-//                                    arm.home(),
-//                                    Commands.waitUntil(arm::atGoal),
-//                                    elevator.close()
-//                            ),
-//                            Commands.parallel(
-//                                    elevator.close(),
-//                                    arm.home(),
-//                                    intakeAngle.reset()
-//                            ),
-//                            () -> arm.getAngle().getDegrees() < -45 || arm.getAngle().getDegrees() > 225
-//                    )
-                    Commands.sequence(
-                            elevator.setHeight(Constants.Elevator.Positions.Close::get),
-                            Commands.waitUntil(elevator::atGoal),
-                            intakeAngle.reset(),
-                            arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get())),
-                            Commands.waitUntil(arm::atGoal)
+                    Commands.either(
+                            Commands.sequence(
+                                    arm.reset(),
+                                    intakeAngle.reset(),
+                                    elevator.setHeight(Constants.Elevator.Positions.Close::get),
+//                                    arm.setAngle(() -> {
+//                                        double angle = arm.getAngle().getDegrees();
+//                                        if (angle > 90 || angle < -90)
+//                                            return Rotation2d.fromDegrees(angle - 5);
+//                                        return Rotation2d.fromDegrees(angle + 5);
+//                                    }),
+                                    Commands.waitUntil(elevator::atGoal),
+                                    arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get())),
+                                    intakeAngle.close()
+                            ),
+                            Commands.sequence(
+                                    arm.reset(),
+                                    intakeAngle.reset(),
+//                                    arm.setAngle(() -> {
+//                                        double angle = arm.getAngle().getDegrees();
+//                                        if (angle > 90 || angle < -90)
+//                                            return Rotation2d.fromDegrees(angle - 5);
+//                                        return Rotation2d.fromDegrees(angle + 5);
+//                                    }),
+                                    elevator.specialReset(),
+                                    intakeAngle.lookDown(),
+                                    Commands.waitUntil(intakeAngle::atGoal),
+                                    arm.setAngle(() -> {
+                                        double rawDelta = 90 - arm.getAngle().getDegrees();
+                                        double delta = ((rawDelta % 360.0) + 540.0) % 360.0 - 180.0;
+                                        return Rotation2d.fromDegrees(arm.getAngle().getDegrees() + delta);
+                                    }),
+                                    Commands.waitUntil(arm::atGoal),
+                                    elevator.reset(),
+                                    Commands.waitUntil(elevator::isReset),
+                                    elevator.setHeight(Constants.Elevator.Positions.Close::get),
+                                    Commands.waitUntil(elevator::atGoal),
+                                    arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get())),
+                                    intakeAngle.close()
+                            ),
+                            elevator::isReset
                     )
                 ),
-                Commands.waitUntil(() -> elevator.isReset() && arm.isReset() && intakeAngle.isReset()),
+                Commands.waitUntil(() -> arm.isReset() && intakeAngle.isReset()),
                 Commands.runOnce(() -> {
                     if (outtake.isCoralInside())
                         changeRobotState(States.CORAL_IN_OUTTAKE);

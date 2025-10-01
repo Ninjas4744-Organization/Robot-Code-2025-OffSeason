@@ -87,14 +87,23 @@ public class Elevator extends SubsystemBase {
             return Commands.none();
         }
 
-        return Commands.runOnce(() -> io.setPercent(-0.05)).andThen(Commands.waitUntil(() -> inputs.LimitSwitch)).finallyDo(() -> io.setPercent(0));
+        return Commands.runOnce(() -> io.setPercent(-0.4)).andThen(Commands.waitUntil(() -> inputs.LimitSwitch)).finallyDo(() -> io.setPercent(0));
+    }
+
+    public Command specialReset() {
+        if (!enabled) {
+            return Commands.none();
+        }
+
+        return setHeight(() -> getHeight() + 1.5).until(() -> atGoal() || inputs.Current > 55).andThen(() -> Commands.runOnce(() -> io.setPercent(0)));
     }
 
     public boolean isReset() {
         if (!enabled) {
             return true;
         }
-//        return inputs.LimitSwitch;
-        return atGoal();
+
+        return inputs.LimitSwitch;
+//        return atGoal();
     }
 }

@@ -87,7 +87,7 @@ public class IntakeAngle extends SubsystemBase {
             return Commands.none();
         }
 
-        return Commands.runOnce(() -> io.setEncoder(inputs.AbsoluteAngle.getRadians())).andThen(setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.Positions.CLOSE.get())));
+        return Commands.runOnce(() -> io.setEncoder(inputs.AbsoluteAngle.getRadians()));
     }
 
     public boolean isReset() {

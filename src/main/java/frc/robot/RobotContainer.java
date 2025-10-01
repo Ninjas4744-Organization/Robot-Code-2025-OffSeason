@@ -162,16 +162,16 @@ public class RobotContainer {
         StateMachine stateMachine = StateMachine.getInstance();
 
         //region Driver buttons
-        driverController.R1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(Rotation2d.kZero)));
-        driverController.L1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(RobotState.getInstance().getRobotPose().getRotation())));
+        driverController.povLeft().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(Rotation2d.kZero)));
+        driverController.povRight().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(RobotState.getInstance().getRobotPose().getRotation())));
 
-//        driverController.R2().onTrue(Commands.runOnce(
-//                () -> stateMachine.changeRobotState(States.DRIVE_RIGHT_REEF)
-//        ));
-//
-//        driverController.L2().onTrue(Commands.runOnce(
-//                () -> stateMachine.changeRobotState(States.DRIVE_LEFT_REEF)
-//        ));
+        driverController.R2().onTrue(Commands.runOnce(
+                () -> stateMachine.changeRobotState(States.DRIVE_RIGHT_REEF)
+        ));
+
+        driverController.L2().onTrue(Commands.runOnce(
+                () -> stateMachine.changeRobotState(States.DRIVE_LEFT_REEF)
+        ));
 
         driverController.triangle().onTrue(Commands.either(
                 Commands.runOnce(() -> stateMachine.changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1)),
@@ -196,8 +196,8 @@ public class RobotContainer {
         //endregion
 
         //region Operator Buttons
-        driverController.R2().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() + 1)));
-        driverController.L2().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() - 1)));
+        driverController.R1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() + 1)));
+        driverController.L1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() - 1)));
 
         new Trigger(() -> RobotState.getL() > 1 && RobotState.getInstance().getRobotState() == States.CORAL_IN_INTAKE)
                 .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_TO_OUTTAKE)));
@@ -211,8 +211,8 @@ public class RobotContainer {
         driverController.square().onTrue(Commands.runOnce(() ->
 //                RobotState.getInstance().setRobotPose(lastVisionPose)
 //                StateMachine.getInstance().changeRobotState(States.TRANSFER_CORAL_TO_OUTTAKE)
-//                StateMachine.getInstance().changeRobotState(States.INTAKE_ALGAE_LOW)
-                StateMachine.getInstance().changeRobotState(States.CORAL_OUTTAKE)
+                StateMachine.getInstance().changeRobotState(States.INTAKE_ALGAE_LOW)
+//                StateMachine.getInstance().changeRobotState(States.CORAL_OUTTAKE)
         ));
 
 //        operatorController.square().onTrue(Commands.runOnce(() ->

@@ -60,7 +60,7 @@ public class Constants {
     //region Subsystems
     public static class Arm {
         public static final int kCanCoderID = 42;
-        public static final double kCanCoderOffset = -0.049561;
+        public static final double kCanCoderOffset = 1.010498;
         public static final SensorDirectionValue kCanCoderReversed = SensorDirectionValue.CounterClockwise_Positive;
 
         public static final ControllerConstants kControllerConstants = new ControllerConstants();
@@ -72,7 +72,7 @@ public class Constants {
             kControllerConstants.real.isBrakeMode = true;
 
             /* Control */
-            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(6, 0, 0, 0, 1, 3, 0, 10, 0, 0.3, GravityTypeValue.Arm_Cosine);
+            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(6, 0, 0, 0, 1, 2, 0, 10, 0, 0.3, GravityTypeValue.Arm_Cosine);
             kControllerConstants.real.gearRatio = 86.4;
 //            kControllerConstants.real.conversionFactor = 2 * Math.PI;
             kControllerConstants.real.homePosition = Units.degreesToRotations(90);
@@ -100,7 +100,7 @@ public class Constants {
             L2(45),
             L3(45),
             L4(45),
-            IntakeAlgae(0),
+            IntakeAlgae(200),
             Net(70),
             Processor(0),
             IntakeCoral(-90);
@@ -164,7 +164,7 @@ public class Constants {
             L4(10.7),
             AlgaeReef(7),
             Net(9),
-//            Safe(8),
+            AlgaeLow(0),
             Intake(6);
 
             final double height;
@@ -180,7 +180,7 @@ public class Constants {
     }
 
      public static class Outtake {
-        public static final double kCurrentThreshold = 55;
+        public static final double kCurrentThreshold = 50;
 
         public static final ControllerConstants kControllerConstants = new ControllerConstants();
         static {
@@ -258,11 +258,11 @@ public class Constants {
             kControllerConstants.real.isBrakeMode = true;
 
             /* Control */
-            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(40, 0, 0, 0, 20, 25, 0, 0, 0, 0, GravityTypeValue.Arm_Cosine);
+            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(45, 0, 0, 0, 20, 25, 0, 0, 0, 0, GravityTypeValue.Arm_Cosine);
             kControllerConstants.real.gearRatio = 65 + 1 / 3.0;
             kControllerConstants.real.conversionFactor = 2 * Math.PI;
             kControllerConstants.real.homePosition = Units.degreesToRadians(0);
-            kControllerConstants.real.positionGoalTolerance = Units.degreesToRadians(7);
+            kControllerConstants.real.positionGoalTolerance = Units.degreesToRadians(3);
 
             /* Soft Limits */
     //        kIntakeAngleControllerConstants.real.maxSoftLimit = Units.degreesToRadians(90);
@@ -279,10 +279,10 @@ public class Constants {
         }
 
         public enum Positions {
-            LOOK_DOWN(-23 - 35 - 14 + 5),
-            LOOK_AT_L1(60 - 35 - 14),
-            LOOK_AT_ARM(65),
-            CLOSE(65);
+            LOOK_DOWN(-23 - 35 - 14 + 5 - 0.5),
+            LOOK_AT_L1(60 - 35 - 14 - 0.5),
+            LOOK_AT_ARM(65 - 0.5),
+            CLOSE(65 - 0.5);
 
             final double degrees;
 
@@ -375,6 +375,7 @@ public class Constants {
             kSwerveConstants.limits.rotationSpeedLimit = Double.MAX_VALUE;
             kSwerveConstants.limits.accelerationLimit = Double.MAX_VALUE;
             kSwerveConstants.limits.rotationAccelerationLimit = Double.MAX_VALUE;
+//            kSwerveConstants.limits.maxSkidAcceleration = 70;
             kSwerveConstants.limits.maxSkidAcceleration = Double.MAX_VALUE;
 
             /* Modules */
@@ -441,7 +442,7 @@ public class Constants {
         static {
             kSwerveControllerConstants.swerveConstants = kSwerveConstants;
             kSwerveControllerConstants.drivePIDConstants = ControlConstants.createPID(6, 0, 0.2, 0);
-            kSwerveControllerConstants.rotationPIDConstants = ControlConstants.createPID(3, 0.5, 0.2, Units.degreesToRadians(15));
+            kSwerveControllerConstants.rotationPIDConstants = ControlConstants.createPID(6, 0.5, 0, Units.degreesToRadians(5));
             kSwerveControllerConstants.rotationPIDContinuousConnections = Pair.of(-Math.PI, Math.PI);
         }
 
@@ -463,9 +464,9 @@ public class Constants {
         public static final VisionConstants kVisionConstants = new VisionConstants();
         static {
             kVisionConstants.cameras = Map.of(
-        //            "FrontRight", Pair.of(new Transform3d(0.0815 + 0.1054, -0.0745, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(-7.5 - 1.5))), VisionConstants.CameraType.PhotonVision),
-        //            "FrontLeft", Pair.of(new Transform3d(0.0815 + 0.1054, 0.0755, -0.191, new Rotation3d(0, 0, Units.degreesToRadians(7.5 - 1.5))), VisionConstants.CameraType.PhotonVision)
-            "Right", Pair.of(new Transform3d(0.735 / 2, -0.03, 0, new Rotation3d(0, 0, 0)), VisionConstants.CameraType.PhotonVision)
+//            "Front", Pair.of(new Transform3d(0.21927, 0.7833, 0.14844, new Rotation3d(Units.degreesToRadians(11.46), Units.degreesToRadians(52.63), Units.degreesToRadians(19.1))), VisionConstants.CameraType.PhotonVision)
+            "Front", Pair.of(new Transform3d(0.735 / 2, 0.03, 0.16, new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(0))), VisionConstants.CameraType.PhotonVision)
+//            "Back", Pair.of(new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0)), VisionConstants.CameraType.PhotonVision)
         );
 
             kVisionConstants.fieldLayoutGetter = Constants.Field::getFieldLayoutWithIgnored;
@@ -508,8 +509,16 @@ public class Constants {
                 kRedFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025ReefscapeWelded.m_resourceFile);
                 kRedFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
 
-                kBlueFieldLayout.getTags().set(14 + 1, kBlueFieldLayout.getTags().get(18 - 1));
-                kRedFieldLayout.getTags().set(14 + 1, kRedFieldLayout.getTags().get(18 - 1));
+                // Switch tag 14 to be 18 for testing. REMOVE BEFORE COMP
+                List<AprilTag> blueTags = kBlueFieldLayout.getTags();
+                blueTags.set(14 + 1, new AprilTag(14, blueTags.get(18 - 1).pose));
+                kBlueFieldLayout = new AprilTagFieldLayout(blueTags, kBlueFieldLayout.getFieldLength(), kBlueFieldLayout.getFieldWidth());
+                kBlueFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
+
+                List<AprilTag> redTags = kRedFieldLayout.getTags();
+                redTags.set(14 + 1, new AprilTag(14, redTags.get(18 - 1).pose));
+                kRedFieldLayout = new AprilTagFieldLayout(redTags, kRedFieldLayout.getFieldLength(), kRedFieldLayout.getFieldWidth());
+                kRedFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
             } catch (IOException e) {
                 throw new RuntimeException("Unable to load field layout");
             }
@@ -552,9 +561,10 @@ public class Constants {
     }
 
     public static class AutoDrive {
-        public static final double kAutoDriveDistFromReef = 0.5;
-        public static final double kAutoDriveRightSideOffset = 0.25;
-        public static final double kAutoDriveLeftSideOffset = 0.25;
-        public static final double kAutoDriveDistThreshold = 0.3;
+        public static final double kAutoDriveDistFromReef = 0.68 - 0.03 - 0.02 - 0.01 - 0.02;
+        public static final double kAutoDriveRightSideOffset = 0.05 - 0.02 - 0.02 - 0.015 - 0.01;
+        public static final double kAutoDriveLeftSideOffset = 0.2;
+        public static final double kAutoDriveDistThreshold = 0.02;
+        public static final Rotation2d kAutoDriveAngleThreshold = Rotation2d.fromDegrees(2);
     }
 }
