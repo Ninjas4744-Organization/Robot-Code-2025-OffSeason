@@ -174,8 +174,8 @@ public class RobotContainer {
         ));
 
         driverController.triangle().onTrue(Commands.either(
-                Commands.runOnce(() -> stateMachine.changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1)),
-                Commands.runOnce(() -> stateMachine.changeRobotState(States.PREPARE_CORAL_OUTTAKE)),
+                Commands.runOnce(() -> stateMachine.changeRobotState(States.CORAL_OUTTAKE_L1)),
+                Commands.runOnce(() -> stateMachine.changeRobotState(States.CORAL_OUTTAKE)),
                 () -> RobotState.getL() == 1
         ));
 
@@ -211,8 +211,9 @@ public class RobotContainer {
         driverController.square().onTrue(Commands.runOnce(() ->
 //                RobotState.getInstance().setRobotPose(lastVisionPose)
 //                StateMachine.getInstance().changeRobotState(States.TRANSFER_CORAL_TO_OUTTAKE)
-                StateMachine.getInstance().changeRobotState(States.INTAKE_ALGAE_LOW)
+//                StateMachine.getInstance().changeRobotState(States.INTAKE_ALGAE_LOW)
 //                StateMachine.getInstance().changeRobotState(States.CORAL_OUTTAKE)
+                RobotState.getInstance().setRobotPose(visionSubsystem.getLastVisionPose())
         ));
 
 //        operatorController.square().onTrue(Commands.runOnce(() ->
@@ -269,7 +270,6 @@ public class RobotContainer {
     }
     //endregion
 
-    private Pose2d lastVisionPose = new Pose2d();
     public void periodic() {
         swerveSubsystem.swerveDrive(
                 () -> driverController.getLeftX(),

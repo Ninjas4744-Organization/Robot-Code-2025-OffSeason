@@ -2,10 +2,12 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -65,43 +67,63 @@ public class SwerveSubsystem extends SubsystemBase {
                 )), "Driver");
     }
 
+    private ProfiledPIDController autoReefAnglePID = new ProfiledPIDController(6, 0, 0.1, new TrapezoidProfile.Constraints(6, 12));
     double f(double error){
-        double a = 3;//2.5;
-        double b = 4;//2.5;
+        double a = 4.5;
+        double b = 3;
+        if(surpassedFirstThreshold()) {
+            a = 1.5;
+            b = 1.5;
+        }
         return Math.pow(a * error, 1 / b);
     }
 
     public Command autoDriveToReef(BooleanSupplier isRightSide){
-        driveToReefCommand = Commands.sequence(
-            Commands.runOnce(() -> {
-                SwerveController.getInstance().setChannel("AutoReef");
-                target = RobotState.getInstance().getRobotPose().nearest(reefAprilTags);
-                target = new Pose2d(target.getTranslation(), target.getRotation().rotateBy(Rotation2d.k180deg));
-                target = target.transformBy(new Transform2d(-Constants.AutoDrive.kAutoDriveDistFromReef, isRightSide.getAsBoolean() ? -Constants.AutoDrive.kAutoDriveRightSideOffset : Constants.AutoDrive.kAutoDriveLeftSideOffset, Rotation2d.kZero));
-
+//        return new DeferredCommand(() -> {
+            driveToReefCommand = Commands.sequence(
+                    Commands.runOnce(() -> {
+                        SwerveController.getInstance().setChannel("AutoReef");
+                        target = RobotState.getInstance().getRobotPose().nearest(reefAprilTags);
+                        target = new Pose2d(target.getTranslation(), target.getRotation().rotateBy(Rotation2d.k180deg));
+                        target = target.transformBy(new Transform2d(-Constants.AutoDrive.kAutoDriveDistFromReef, isRightSide.getAsBoolean() ? -Constants.AutoDrive.kAutoDriveRightSideOffset : Constants.AutoDrive.kAutoDriveLeftSideOffset, Rotation2d.kZero));
+                        autoReefAnglePID.reset(RobotState.getInstance().getRobotPose().getRotation().getRadians());
 //                pidRotation.reset(RobotState.getInstance().getRobotPose().getRotation().getRadians());
-            }),
-            Commands.run(() -> {
-                Translation2d translation = RobotState.getInstance().getTranslation(target);
-                Translation2d dir = translation.div(translation.getNorm());
-                double velocity = f(translation.getNorm());
-                double anglePID = SwerveController.getInstance().lookAt(target.getRotation().getRadians());
-                Pose2d robotPose = RobotState.getInstance().getRobotPose();
-                Logger.recordOutput("dir", new Pose2d(robotPose.getX() + dir.getX() / 2, robotPose.getY() + dir.getY() / 2, new Rotation2d(dir.getX(), dir.getY())));
-                Logger.recordOutput("vel", velocity);
-                Logger.recordOutput("anglePID", anglePID);
+                    }),
+                    Commands.run(() -> {
+                        Translation2d translation = RobotState.getInstance().getTranslation(target);
+                        Translation2d dir = translation.div(translation.getNorm());
+                        double velocity = f(translation.getNorm());
+                        double anglePID = autoReefAnglePID.calculate(RobotState.getInstance().getRobotPose().getRotation().getRadians(), target.getRotation().getRadians());//SwerveController.getInstance().lookAt(target.getRotation().getRadians());
+                        Pose2d robotPose = RobotState.getInstance().getRobotPose();
+//                Logger.recordOutput("dir", new Pose2d(robotPose.getX() + dir.getX() / 2, robotPose.getY() + dir.getY() / 2, new Rotation2d(dir.getX(), dir.getY())));
+//                Logger.recordOutput("vel", velocity);
+//                Logger.recordOutput("anglePID", anglePID);
 
-                SwerveController.getInstance().setControl(
-                    new SwerveInput(
-                        velocity * dir.getX(),
-                        velocity * dir.getY(),
-                        anglePID,
-                        true
-                    ), "AutoReef"
-                );
-            })/*.until(this::atGoal)*/.andThen(Commands.runOnce(() -> SwerveController.getInstance().setControl(new SwerveInput(0, 0, 0, false), "AutoReef")))
-        );
-        return driveToReefCommand;
+                        SwerveController.getInstance().setControl(
+                                new SwerveInput(
+                                        velocity * dir.getX(),
+                                        velocity * dir.getY(),
+                                        anglePID,
+                                        true
+                                ), "AutoReef"
+                        );
+                    })/*.until(this::atGoal)*/.andThen(Commands.runOnce(() -> SwerveController.getInstance().setControl(new SwerveInput(0, 0, 0, false), "AutoReef")))
+            );
+            return driveToReefCommand;
+//        }, Set.of());
+    }
+
+    public double distFromGoal() {
+        return Math.abs(RobotState.getInstance().getDistance(target));
+    }
+
+    public boolean atGoal() {
+        return Math.abs(RobotState.getInstance().getDistance(target)) < Constants.AutoDrive.kAutoDriveDistThreshold
+                && Math.abs(target.getRotation().minus(RobotState.getInstance().getRobotPose().getRotation()).getRadians()) < Constants.AutoDrive.kAutoDriveAngleThreshold.getRadians();
+    }
+
+    private boolean surpassedFirstThreshold() {
+        return Math.abs(RobotState.getInstance().getDistance(target)) < Constants.AutoDrive.kAutoDriveDistFirstThreshold;
     }
 
     private Timer noCoralTimer = new Timer();
@@ -157,11 +179,6 @@ public class SwerveSubsystem extends SubsystemBase {
             driveToCoralCommand.cancel();
     }
 
-    public boolean atGoal() {
-        return Math.abs(RobotState.getInstance().getDistance(target)) < Constants.AutoDrive.kAutoDriveDistThreshold
-                && Math.abs(target.getRotation().minus(RobotState.getInstance().getRobotPose().getRotation()).getRadians()) < Constants.AutoDrive.kAutoDriveAngleThreshold.getRadians();
-    }
-
     public Command close() {
         if (!enabled)
             return Commands.none();
@@ -196,7 +213,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
         SwerveController.getInstance().periodic();
         Logger.recordOutput("Swerve/Coral Command", driveToCoralCommand.isScheduled() && !driveToCoralCommand.isFinished());
-        Logger.recordOutput("Swerve/Reef Command", driveToReefCommand.isScheduled() && !driveToReefCommand.isFinished());
+        if (driveToReefCommand != null)
+            Logger.recordOutput("Swerve/Reef Command", driveToReefCommand.isScheduled() && !driveToReefCommand.isFinished());
         Logger.recordOutput("Swerve/Reef Target", target);
     }
 }

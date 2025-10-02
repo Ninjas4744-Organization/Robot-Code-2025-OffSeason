@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -15,6 +16,7 @@ import org.littletonrobotics.junction.Logger;
 public class VisionSubsystem extends SubsystemBase {
     private double odometryDrift = 0;
     private boolean crashed;
+    private Pose2d lastVisionPose = new Pose2d();
 
     public VisionSubsystem() {
         Vision.setInstance(new Vision(Constants.Vision.kVisionConstants));
@@ -54,6 +56,7 @@ public class VisionSubsystem extends SubsystemBase {
             Logger.recordOutput("Vision/" + estimation.cameraName + "/Passed Filters", passedFilters);
             if (passedFilters) {
                 RobotState.getInstance().updateRobotPose(estimation, std);
+                lastVisionPose = estimation.robotPose;
 
                 double P = odometryDrift * odometryDrift;
                 double R = std.get(0, 0) * std.get(0, 0);
@@ -66,5 +69,9 @@ public class VisionSubsystem extends SubsystemBase {
 
     public double getOdometryDrift() {
         return odometryDrift;
+    }
+
+    public Pose2d getLastVisionPose() {
+        return lastVisionPose;
     }
 }

@@ -100,10 +100,11 @@ public class Constants {
             L2(45),
             L3(45),
             L4(45),
-            IntakeAlgae(200),
+            IntakeAlgae(190),
             Net(70),
             Processor(0),
-            IntakeCoral(-90);
+            IntakeCoral(-90),
+            CoralReady(90);
 
             final double angle;
 
@@ -165,7 +166,8 @@ public class Constants {
             AlgaeReef(7),
             Net(9),
             AlgaeLow(0),
-            Intake(6);
+            Intake(6),
+            CoralReady(1.6);
 
             final double height;
 
@@ -375,8 +377,8 @@ public class Constants {
             kSwerveConstants.limits.rotationSpeedLimit = Double.MAX_VALUE;
             kSwerveConstants.limits.accelerationLimit = Double.MAX_VALUE;
             kSwerveConstants.limits.rotationAccelerationLimit = Double.MAX_VALUE;
-//            kSwerveConstants.limits.maxSkidAcceleration = 70;
-            kSwerveConstants.limits.maxSkidAcceleration = Double.MAX_VALUE;
+            kSwerveConstants.limits.maxSkidAcceleration = 65;
+//            kSwerveConstants.limits.maxSkidAcceleration = Double.MAX_VALUE;
 
             /* Modules */
             double wheelRadius = 0.048;
@@ -465,7 +467,7 @@ public class Constants {
         static {
             kVisionConstants.cameras = Map.of(
 //            "Front", Pair.of(new Transform3d(0.21927, 0.7833, 0.14844, new Rotation3d(Units.degreesToRadians(11.46), Units.degreesToRadians(52.63), Units.degreesToRadians(19.1))), VisionConstants.CameraType.PhotonVision)
-            "Front", Pair.of(new Transform3d(0.735 / 2, 0.03, 0.16, new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(0))), VisionConstants.CameraType.PhotonVision)
+            "Front", Pair.of(new Transform3d(0.31304, 0.13063, 0.16, new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(-25.06))), VisionConstants.CameraType.PhotonVision)
 //            "Back", Pair.of(new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0)), VisionConstants.CameraType.PhotonVision)
         );
 
@@ -561,10 +563,11 @@ public class Constants {
     }
 
     public static class AutoDrive {
-        public static final double kAutoDriveDistFromReef = 0.68 - 0.03 - 0.02 - 0.01 - 0.02;
-        public static final double kAutoDriveRightSideOffset = 0.05 - 0.02 - 0.02 - 0.015 - 0.01;
-        public static final double kAutoDriveLeftSideOffset = 0.2;
-        public static final double kAutoDriveDistThreshold = 0.02;
-        public static final Rotation2d kAutoDriveAngleThreshold = Rotation2d.fromDegrees(2);
+        public static final double kAutoDriveDistFromReef = 0.68 - 0.03 - 0.02 - 0.01 - 0.02 + 0.02 + 0.05 - 0.03 - 0.02 - 0.015 - 0.03 + 0.04 + 0.02;
+        public static final double kAutoDriveRightSideOffset = 0.05 - 0.02 - 0.02 - 0.015 - 0.01 + 0.04 + 0.02 - 0.035 - 0.03 - 0.03;
+        public static final double kAutoDriveLeftSideOffset = 0.05 + 0.32 - 0.02;
+        public static final double kAutoDriveDistThreshold = 0.01;
+        public static final double kAutoDriveDistFirstThreshold = 0.1;
+        public static final Rotation2d kAutoDriveAngleThreshold = Rotation2d.fromDegrees(1.5);
     }
 }
