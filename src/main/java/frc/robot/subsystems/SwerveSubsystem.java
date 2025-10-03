@@ -215,10 +215,12 @@ public class SwerveSubsystem extends SubsystemBase {
 
         SwerveController.getInstance().periodic();
 
-        double accLimitAt0 = 11;
-        double accLimitAt10 = 2.5;
-        double accLimit = (accLimitAt0 - accLimitAt10) / -10 + accLimitAt0;
-//        Swerve.getInstance().setAccelerationLimit(accLimit);
+        // Uncomment to allow dynamic acceleration limit according to elevator height
+        double accLimitAt0 = 65;
+        double accLimitAt10 = 16;
+        double elevatorHeight = RobotContainer.getElevator().getHeight();
+        double accLimit = (accLimitAt0 - accLimitAt10) / -10 * elevatorHeight + accLimitAt0;
+//        Constants.Swerve.kSwerveConstants.limits.maxSkidAcceleration = accLimit;
 
         Logger.recordOutput("Swerve/Coral Command", driveToCoralCommand.isScheduled() && !driveToCoralCommand.isFinished());
         if (driveToReefCommand != null)
