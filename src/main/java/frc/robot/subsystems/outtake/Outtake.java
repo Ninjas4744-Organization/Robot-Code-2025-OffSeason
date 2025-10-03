@@ -85,6 +85,10 @@ public class Outtake extends SubsystemBase {
         return isCoralInside;
     }
 
+    public void forceKnowCoralInside() {
+        isCoralInside = true;
+    }
+
     public boolean isAlgaeInside() {
         if (!enabled)
             return false;
@@ -99,10 +103,11 @@ public class Outtake extends SubsystemBase {
             return Commands.none();
 
         return Commands.sequence(
+                Commands.runOnce(() -> hadObjectInside = false),
                 intake(),
                 Commands.race(
                         Commands.waitUntil(() -> {
-                            if(currentTimer.get() > 0.25)
+                            if(currentTimer.get() > 0.125)
                                 hadObjectInside = true;
                             return hadObjectInside;
                         }),
@@ -110,12 +115,18 @@ public class Outtake extends SubsystemBase {
                 ),
                 stop(),
                 Commands.runOnce(() -> {
-                    if (!hadObjectInside) {
+//                    if (!hadObjectInside) {
+//                        isCoralInside = false;
+//                        isAlgaeInside = false;
+//                    } else if (!isCoralInside && !isAlgaeInside) {
+//                        Command outtake = outtake().andThen(Commands.waitSeconds(0.5)).andThen(stop());
+//                        outtake.schedule();
+//                    }
+                    if(hadObjectInside)
+                        isCoralInside = true;
+                    else {
                         isCoralInside = false;
                         isAlgaeInside = false;
-                    } else if (!isCoralInside && !isAlgaeInside) {
-                        Command outtake = outtake().andThen(Commands.waitSeconds(0.5)).andThen(stop());
-                        outtake.schedule();
                     }
                 })
         );

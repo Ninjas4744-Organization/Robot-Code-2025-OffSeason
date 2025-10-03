@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import frc.lib.NinjasLib.commands.DetachedCommand;
 import frc.lib.NinjasLib.statemachine.StateMachineBase;
 import frc.lib.NinjasLib.swerve.SwerveController;
@@ -185,23 +186,28 @@ public class StateMachine extends StateMachineBase<States> {
         addCommand(States.TRANSFER_CORAL_TO_OUTTAKE, Commands.sequence(
                 intake.intake(),
                 intakeAligner.align(),
-                Commands.either(
-                        Commands.sequence(
-//                                arm.lookAtIntakeHalfWay(),
-                                elevator.setHeight(() -> Constants.Elevator.Positions.Close.get()),
-                                Commands.waitUntil(() -> elevator.getHeight() > 2.5)
-                        ),
-                        Commands.none(),
-                        () -> arm.getAngle().getDegrees() > 0
-                ),
-                intakeAngle.lookAtArm(),
+//                Commands.either(
+//                        Commands.sequence(
+////                                arm.lookAtIntakeHalfWay(),
+//                                elevator.setHeight(() -> Constants.Elevator.Positions.Close.get()),
+//                                Commands.waitUntil(() -> elevator.getHeight() > 2.5)
+//                        ),
+//                        Commands.none(),
+//                        () -> arm.getAngle().getDegrees() > 0
+//                ),
+                elevator.setHeight(Constants.Elevator.Positions.Close::get),
                 arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.IntakeCoral.get())),
-                Commands.waitUntil(() -> elevator.atGoal() && intakeAngle.getAngle().getRadians() > 0.35 && arm.atGoal()),
-                elevator.setHeight(() -> Constants.Elevator.Positions.Intake.get()),
-                Commands.waitUntil(() -> elevator.atGoal() && intakeAngle.atGoal() && arm.atGoal()),
+                Commands.waitUntil(() -> elevator.atGoal() && arm.atGoal()),
+                intakeAngle.lookAtArm(),
+                Commands.waitUntil(() -> intakeAngle.getAngle().getRadians() > 0.35),
+                elevator.setHeight(Constants.Elevator.Positions.Intake::get),
+                Commands.waitUntil(elevator::atGoal),
                 outtake.intake(),
                 intake.outtake(),
-                Commands.waitUntil(outtake::isCoralInside),
+//                Commands.waitUntil(outtake::isCoralInside),
+                Commands.waitUntil(() -> !intake.isCoralInside()),
+                Commands.waitSeconds(0.1),
+                Commands.runOnce(outtake::forceKnowCoralInside),
 //                Commands.waitUntil(() -> !intake.isCoralInside()),
 //                Commands.waitSeconds(0.125),
 //                elevator.setHeight(() -> Constants.Elevator.Positions.Close),
@@ -222,7 +228,7 @@ public class StateMachine extends StateMachineBase<States> {
         ));
 
         addCommand(States.DRIVE_LEFT_REEF, Commands.sequence(
-                new DetachedCommand(swerve.autoDriveToReef(() -> false)),
+                new DeferredCommand(() -> new DetachedCommand(swerve.autoDriveToReef(() -> false).get()), Set.of()),
                 Commands.waitUntil(() -> swerve.distFromGoal() < 1.5),
                 Commands.either(
                         Commands.runOnce(() -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1)),
@@ -231,7 +237,7 @@ public class StateMachine extends StateMachineBase<States> {
                 )
         ));
         addCommand(States.DRIVE_RIGHT_REEF, Commands.sequence(
-                new DetachedCommand(swerve.autoDriveToReef(() -> true)),
+                new DeferredCommand(() -> new DetachedCommand(swerve.autoDriveToReef(() -> true).get()), Set.of()),
                 Commands.waitUntil(() -> swerve.distFromGoal() < 1.5),
                 Commands.either(
                         Commands.runOnce(() -> StateMachine.getInstance().changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1)),
@@ -244,21 +250,24 @@ public class StateMachine extends StateMachineBase<States> {
                 elevator.setHeight(() -> Constants.Elevator.LPositions[RobotState.getL() - 1]),
                 arm.setAngle(() -> Constants.Arm.LPositions[RobotState.getL() - 1]),
                 Commands.waitUntil(() -> elevator.atGoal() && arm.atGoal() && swerve.atGoal()),
-                Commands.waitSeconds(0.2),
+//                Commands.waitSeconds(0.2),
                 Commands.runOnce(() -> changeRobotState(States.CORAL_OUTTAKE))
         ));
 
         addCommand(States.CORAL_OUTTAKE, Commands.sequence(
                 arm.setAngle(() -> Constants.Arm.LPositionsDown[RobotState.getL() - 1]),
                 elevator.setHeight(() -> Constants.Elevator.LPositionsDown[RobotState.getL() - 1]),
-                Commands.waitUntil(() -> arm.getAngle().getDegrees() < Constants.Arm.LPositions[RobotState.getL() - 1].minus(Rotation2d.fromDegrees(15)).getDegrees()),
+//                Commands.waitUntil(() -> arm.getAngle().getDegrees() < Constants.Arm.LPositions[RobotState.getL() - 1].minus(Rotation2d.fromDegrees(15)).getDegrees()),
+                Commands.waitUntil(() -> elevator.atGoal() && arm.atGoal()),
                 outtake.outtake(),
                 swerve.close(),
                 Commands.runOnce(() -> {
                     SwerveController.getInstance().setChannel("BackReef");
                     SwerveController.getInstance().setControl(new SwerveInput(-1, 0, 0, false), "BackReef");
                 }),
-                Commands.waitSeconds(0.35),
+                new DetachedCommand(arm.setAngleSmart(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get()))),
+                elevator.setHeight(Constants.Elevator.Positions.Close::get),
+                Commands.waitSeconds(0.4),
                 Commands.runOnce(()-> changeRobotState(States.CLOSE))
         ));
         //endregion
@@ -377,22 +386,28 @@ public class StateMachine extends StateMachineBase<States> {
                                     arm.reset(),
                                     intakeAngle.reset(),
                                     elevator.specialReset(),
-                                    intakeAngle.lookDown(),
-                                    Commands.waitUntil(intakeAngle::atGoal),
-                                    arm.setAngle(() -> {
+                                    new DetachedCommand(arm.setAngleSmart(() -> {
                                         double rawDelta = 90 - arm.getAngle().getDegrees();
                                         double delta = ((rawDelta % 360.0) + 540.0) % 360.0 - 180.0;
                                         return Rotation2d.fromDegrees(arm.getAngle().getDegrees() + delta);
-                                    }),
+                                    })),
+                                    intakeAngle.lookDown(),
+//                                    Commands.waitUntil(intakeAngle::atGoal),
+//                                    arm.setAngle(() -> {
+//                                        double rawDelta = 90 - arm.getAngle().getDegrees();
+//                                        double delta = ((rawDelta % 360.0) + 540.0) % 360.0 - 180.0;
+//                                        return Rotation2d.fromDegrees(arm.getAngle().getDegrees() + delta);
+//                                    }),
                                     Commands.waitUntil(arm::atGoal),
                                     Commands.parallel(
                                         elevator.reset(),
                                         intakeAngle.close()
                                     ),
                                     Commands.waitUntil(elevator::isReset),
+                                    new DetachedCommand(arm.setAngleSmart(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get()))),
                                     elevator.setHeight(Constants.Elevator.Positions.Close::get),
-                                    Commands.waitUntil(elevator::atGoal),
-                                    arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get()))
+                                    Commands.waitUntil(elevator::atGoal)
+//                                    arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get()))
                             ),
                             elevator::isReset
                     )

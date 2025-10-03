@@ -22,6 +22,7 @@ import org.littletonrobotics.junction.Logger;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 public class SwerveSubsystem extends SubsystemBase {
     private boolean enabled;
@@ -69,17 +70,18 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private ProfiledPIDController autoReefAnglePID = new ProfiledPIDController(6, 0, 0.1, new TrapezoidProfile.Constraints(6, 12));
     double f(double error){
-        double a = 4.5;
-        double b = 3;
-        if(surpassedFirstThreshold()) {
-            a = 1.5;
-            b = 1.5;
-        }
+        double a = 2;
+        double b = 2;
+//        if(surpassedFirstThreshold()) {
+//            a = 1.5;
+//            b = 1.5;
+//        }
         return Math.pow(a * error, 1 / b);
     }
 
-    public Command autoDriveToReef(BooleanSupplier isRightSide){
-//        return new DeferredCommand(() -> {
+    public Supplier<Command> autoDriveToReef(BooleanSupplier isRightSide){
+        return () -> {
+            System.out.println("Creating a new drive command for " + (isRightSide.getAsBoolean() ? "right" : "left"));
             driveToReefCommand = Commands.sequence(
                     Commands.runOnce(() -> {
                         SwerveController.getInstance().setChannel("AutoReef");
@@ -94,7 +96,7 @@ public class SwerveSubsystem extends SubsystemBase {
                         Translation2d dir = translation.div(translation.getNorm());
                         double velocity = f(translation.getNorm());
                         double anglePID = autoReefAnglePID.calculate(RobotState.getInstance().getRobotPose().getRotation().getRadians(), target.getRotation().getRadians());//SwerveController.getInstance().lookAt(target.getRotation().getRadians());
-                        Pose2d robotPose = RobotState.getInstance().getRobotPose();
+//                        Pose2d robotPose = RobotState.getInstance().getRobotPose();
 //                Logger.recordOutput("dir", new Pose2d(robotPose.getX() + dir.getX() / 2, robotPose.getY() + dir.getY() / 2, new Rotation2d(dir.getX(), dir.getY())));
 //                Logger.recordOutput("vel", velocity);
 //                Logger.recordOutput("anglePID", anglePID);
@@ -110,7 +112,7 @@ public class SwerveSubsystem extends SubsystemBase {
                     })/*.until(this::atGoal)*/.andThen(Commands.runOnce(() -> SwerveController.getInstance().setControl(new SwerveInput(0, 0, 0, false), "AutoReef")))
             );
             return driveToReefCommand;
-//        }, Set.of());
+        };
     }
 
     public double distFromGoal() {
@@ -212,9 +214,16 @@ public class SwerveSubsystem extends SubsystemBase {
             return;
 
         SwerveController.getInstance().periodic();
+
+        double accLimitAt0 = 11;
+        double accLimitAt10 = 2.5;
+        double accLimit = (accLimitAt0 - accLimitAt10) / -10 + accLimitAt0;
+//        Swerve.getInstance().setAccelerationLimit(accLimit);
+
         Logger.recordOutput("Swerve/Coral Command", driveToCoralCommand.isScheduled() && !driveToCoralCommand.isFinished());
         if (driveToReefCommand != null)
             Logger.recordOutput("Swerve/Reef Command", driveToReefCommand.isScheduled() && !driveToReefCommand.isFinished());
         Logger.recordOutput("Swerve/Reef Target", target);
+        Logger.recordOutput("Swerve/Acceleration Limit", accLimit);
     }
 }

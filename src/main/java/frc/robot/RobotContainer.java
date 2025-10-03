@@ -211,9 +211,9 @@ public class RobotContainer {
         driverController.square().onTrue(Commands.runOnce(() ->
 //                RobotState.getInstance().setRobotPose(lastVisionPose)
 //                StateMachine.getInstance().changeRobotState(States.TRANSFER_CORAL_TO_OUTTAKE)
-//                StateMachine.getInstance().changeRobotState(States.INTAKE_ALGAE_LOW)
+                StateMachine.getInstance().changeRobotState(States.INTAKE_ALGAE_LOW)
 //                StateMachine.getInstance().changeRobotState(States.CORAL_OUTTAKE)
-                RobotState.getInstance().setRobotPose(visionSubsystem.getLastVisionPose())
+//                RobotState.getInstance().setRobotPose(visionSubsystem.getLastVisionPose())
         ));
 
 //        operatorController.square().onTrue(Commands.runOnce(() ->

@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import org.littletonrobotics.junction.Logger;
 
@@ -70,7 +71,7 @@ public class Arm extends SubsystemBase {
         }
         return Commands.run(() -> {
             double elevatorHeight = RobotContainer.getElevator().getHeight();
-            Rotation2d intakeAngle = RobotContainer.getIntakeAngle().getAngle();
+            Rotation2d intakeAngle = RobotContainer.getIntakeAngle().getAngle().rotateBy(Rotation2d.fromRadians(1.33));
 
             double armLength = 0.661302;
             double baseArmToChassisDist = 0.36339;
@@ -95,7 +96,7 @@ public class Arm extends SubsystemBase {
                 double targetAngle = Math.asin((targetArmHeight - elevatorHeight - baseArmToChassisDist) / armLength);
                 io.setPosition(Rotation2d.fromRadians(targetAngle));
             }
-        });
+        }).until(() -> Math.abs(angle.get().getRotations() - inputs.Position) < Constants.Arm.kControllerConstants.real.positionGoalTolerance);
     }
 
     public Rotation2d getAngle(){

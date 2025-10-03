@@ -60,7 +60,7 @@ public class Constants {
     //region Subsystems
     public static class Arm {
         public static final int kCanCoderID = 42;
-        public static final double kCanCoderOffset = 1.010498;
+        public static final double kCanCoderOffset = 1.010498 - Units.degreesToRotations(2);
         public static final SensorDirectionValue kCanCoderReversed = SensorDirectionValue.CounterClockwise_Positive;
 
         public static final ControllerConstants kControllerConstants = new ControllerConstants();
@@ -75,31 +75,32 @@ public class Constants {
             kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(6, 0, 0, 0, 1, 2, 0, 10, 0, 0.3, GravityTypeValue.Arm_Cosine);
             kControllerConstants.real.gearRatio = 86.4;
 //            kControllerConstants.real.conversionFactor = 2 * Math.PI;
-            kControllerConstants.real.homePosition = Units.degreesToRotations(90);
-            kControllerConstants.real.positionGoalTolerance = Units.degreesToRotations(10);
+            kControllerConstants.real.homePosition = Units.degreesToRotations(-90);
+            kControllerConstants.real.positionGoalTolerance = Units.degreesToRotations(4);
 
             /* Soft Limits */
-            kControllerConstants.real.maxSoftLimit = Units.degreesToRadians(360);
-            kControllerConstants.real.minSoftLimit = Units.degreesToRadians(-360);
+            kControllerConstants.real.maxSoftLimit = Units.degreesToRotations(360);
+            kControllerConstants.real.minSoftLimit = Units.degreesToRotations(-360);
 
             /* Hard Limit */
-            kControllerConstants.real.isLimitSwitch = true;
-            kControllerConstants.real.limitSwitchID = 1;
-            kControllerConstants.real.limitSwitchDirection = -1;
-            kControllerConstants.real.limitSwitchAutoStopReset = true;
-            kControllerConstants.real.limitSwitchInverted = true;
+//            kControllerConstants.real.isLimitSwitch = true;
+//            kControllerConstants.real.limitSwitchID = 1;
+//            kControllerConstants.real.limitSwitchDirection = -1;
+//            kControllerConstants.real.limitSwitchAutoStopReset = true;
+//            kControllerConstants.real.limitSwitchInverted = true;
 
             /* Simulation */
-            kControllerConstants.motorType = DCMotor.getKrakenX60(2);
+            kControllerConstants.motorType = DCMotor.getKrakenX60(1);
         }
 
+        private static final double DownAngle = -45;
         public static final Rotation2d[] LPositions = { Rotation2d.fromDegrees(Arm.Positions.Close.get()), Rotation2d.fromDegrees(Arm.Positions.L2.get()), Rotation2d.fromDegrees(Arm.Positions.L3.get()), Rotation2d.fromDegrees(Arm.Positions.L4.get()) };
-        public static final Rotation2d[] LPositionsDown = { Rotation2d.fromDegrees(Arm.Positions.Close.get()), Rotation2d.fromDegrees(Arm.Positions.L2.get() - 30), Rotation2d.fromDegrees(Arm.Positions.L3.get() - 30), Rotation2d.fromDegrees(Arm.Positions.L4.get() - 30) };
+        public static final Rotation2d[] LPositionsDown = { Rotation2d.fromDegrees(Arm.Positions.Close.get()), Rotation2d.fromDegrees(Arm.Positions.L2.get() + DownAngle), Rotation2d.fromDegrees(Arm.Positions.L3.get() + DownAngle), Rotation2d.fromDegrees(Arm.Positions.L4.get() + DownAngle) };
         public enum Positions {
             Close(-90),
-            L2(45),
-            L3(45),
-            L4(45),
+            L2(-315),
+            L3(-315),
+            L4(-315),
             IntakeAlgae(190),
             Net(70),
             Processor(0),
@@ -182,7 +183,7 @@ public class Constants {
     }
 
      public static class Outtake {
-        public static final double kCurrentThreshold = 50;
+        public static final double kCurrentThreshold = 40;
 
         public static final ControllerConstants kControllerConstants = new ControllerConstants();
         static {
@@ -197,8 +198,8 @@ public class Constants {
         }
 
         public enum Speeds {
-            Intake(-1),
-            Outtake(0.25),
+            Intake(-0.8),
+            Outtake(0.8),
             OuttakeAlgae(1);
 
             final double speed;
@@ -467,7 +468,7 @@ public class Constants {
         static {
             kVisionConstants.cameras = Map.of(
 //            "Front", Pair.of(new Transform3d(0.21927, 0.7833, 0.14844, new Rotation3d(Units.degreesToRadians(11.46), Units.degreesToRadians(52.63), Units.degreesToRadians(19.1))), VisionConstants.CameraType.PhotonVision)
-            "Front", Pair.of(new Transform3d(0.31304, 0.13063, 0.16, new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(-25.06))), VisionConstants.CameraType.PhotonVision)
+            "Front", Pair.of(new Transform3d(0.28286, 0.12995, 0.152, new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(-7.5))), VisionConstants.CameraType.PhotonVision)
 //            "Back", Pair.of(new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0)), VisionConstants.CameraType.PhotonVision)
         );
 
@@ -563,7 +564,7 @@ public class Constants {
     }
 
     public static class AutoDrive {
-        public static final double kAutoDriveDistFromReef = 0.68 - 0.03 - 0.02 - 0.01 - 0.02 + 0.02 + 0.05 - 0.03 - 0.02 - 0.015 - 0.03 + 0.04 + 0.02;
+        public static final double kAutoDriveDistFromReef = 0.68 - 0.03 - 0.02 - 0.01 - 0.02 + 0.02 + 0.05 - 0.03 - 0.02 - 0.015 - 0.03 + 0.04 + 0.02 - 0.03;
         public static final double kAutoDriveRightSideOffset = 0.05 - 0.02 - 0.02 - 0.015 - 0.01 + 0.04 + 0.02 - 0.035 - 0.03 - 0.03;
         public static final double kAutoDriveLeftSideOffset = 0.05 + 0.32 - 0.02;
         public static final double kAutoDriveDistThreshold = 0.01;
