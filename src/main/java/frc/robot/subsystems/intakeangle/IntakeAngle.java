@@ -7,8 +7,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.function.DoubleSupplier;
-
 public class IntakeAngle extends SubsystemBase {
     private IntakeAngleIO io;
     private final IntakeAngleIOInputsAutoLogged inputs = new IntakeAngleIOInputsAutoLogged();
@@ -33,14 +31,14 @@ public class IntakeAngle extends SubsystemBase {
         Logger.processInputs("Intake Angle", inputs);
     }
 
-    public Command setPercent(DoubleSupplier percent) {
-        if (!enabled) {
-            return Commands.none();
-        }
-        return Commands.runOnce(
-            () -> io.setPercent(percent.getAsDouble())
-        );
-    }
+//    public Command setPercent(DoubleSupplier percent) {
+//        if (!enabled) {
+//            return Commands.none();
+//        }
+//        return Commands.runOnce(
+//            () -> io.setPercent(percent.getAsDouble())
+//        );
+//    }
 
     public Command setAngle(Rotation2d angle) {
         if (!enabled) {

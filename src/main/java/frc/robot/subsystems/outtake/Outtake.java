@@ -15,7 +15,8 @@ public class Outtake extends SubsystemBase {
     private boolean enabled;
     private boolean isCoralInside = false;
     private boolean isAlgaeInside = false;
-    private Timer currentTimer = new Timer();
+    private Timer yesAlgaeTimer = new Timer();
+    private Timer noAlgaeTimer = new Timer();
 
     public Outtake(boolean enabled, OuttakeIO io) {
         if (enabled) {
@@ -31,18 +32,28 @@ public class Outtake extends SubsystemBase {
             return;
 
         if (Math.abs(inputs.Current) > Constants.Outtake.kCurrentThreshold && inputs.Output < 0) {
-            if (!currentTimer.isRunning())
-                currentTimer.restart();
+            if (!yesAlgaeTimer.isRunning())
+                yesAlgaeTimer.restart();
         } else {
-            currentTimer.stop();
-            currentTimer.reset();
+            yesAlgaeTimer.stop();
+            yesAlgaeTimer.reset();
         }
 
-        if(currentTimer.get() > 0.125){
-            if (RobotState.getInstance().getRobotState() == States.TRANSFER_CORAL_TO_OUTTAKE)
-                isCoralInside = true;
-            else if (RobotState.getInstance().getRobotState() == States.INTAKE_ALGAE_HIGH || RobotState.getInstance().getRobotState() == States.INTAKE_ALGAE_LOW)
+        if (Math.abs(inputs.Current) < Constants.Outtake.kCurrentThreshold && inputs.Output < 0) {
+            if (!noAlgaeTimer.isRunning())
+                noAlgaeTimer.restart();
+        } else {
+            noAlgaeTimer.stop();
+            noAlgaeTimer.reset();
+        }
+
+        if(yesAlgaeTimer.get() > 0.25) {
+            if (RobotState.getInstance().getRobotState() == States.INTAKE_ALGAE_HIGH || RobotState.getInstance().getRobotState() == States.INTAKE_ALGAE_LOW)
                 isAlgaeInside = true;
+        }
+
+        if(noAlgaeTimer.get() > 0.25) {
+            isAlgaeInside = false;
         }
 
         io.periodic();
@@ -78,6 +89,17 @@ public class Outtake extends SubsystemBase {
         });
     }
 
+    public Command outtakeAlgae() {
+        if (!enabled)
+            return Commands.none();
+
+        return Commands.runOnce(() -> {
+            io.setPercent(Constants.Outtake.Speeds.OuttakeAlgae.get());
+            isAlgaeInside = false;
+            isCoralInside = false;
+        });
+    }
+
     public boolean isCoralInside() {
         if (!enabled)
             return false;
@@ -85,8 +107,8 @@ public class Outtake extends SubsystemBase {
         return isCoralInside;
     }
 
-    public void forceKnowCoralInside() {
-        isCoralInside = true;
+    public void forceKnowCoralInside(boolean inside) {
+        isCoralInside = inside;
     }
 
     public boolean isAlgaeInside() {
@@ -97,38 +119,46 @@ public class Outtake extends SubsystemBase {
     }
 
     private boolean hadObjectInside = false;
-
+    private boolean isReset = false;
     public Command reset() {
         if (!enabled)
             return Commands.none();
 
         return Commands.sequence(
-                Commands.runOnce(() -> hadObjectInside = false),
-                intake(),
-                Commands.race(
-                        Commands.waitUntil(() -> {
-                            if(currentTimer.get() > 0.125)
-                                hadObjectInside = true;
-                            return hadObjectInside;
-                        }),
-                        Commands.waitSeconds(0.4)
-                ),
-                stop(),
-                Commands.runOnce(() -> {
-//                    if (!hadObjectInside) {
+//                Commands.runOnce(() -> {
+//                    hadObjectInside = false;
+//                    isReset = false;
+//                }),
+//                intake(),
+//                Commands.race(
+//                        Commands.waitUntil(() -> {
+//                            if(currentTimer.get() > 0.125)
+//                                hadObjectInside = true;
+//                            return hadObjectInside;
+//                        }),
+//                        Commands.waitSeconds(0.4)
+//                ),
+//                stop(),
+//                Commands.runOnce(() -> {
+////                    if (!hadObjectInside) {
+////                        isCoralInside = false;
+////                        isAlgaeInside = false;
+////                    } else if (!isCoralInside && !isAlgaeInside) {
+////                        Command outtake = outtake().andThen(Commands.waitSeconds(0.5)).andThen(stop());
+////                        outtake.schedule();
+////                    }
+//                    if(hadObjectInside)
+//                        isCoralInside = true;
+//                    else {
 //                        isCoralInside = false;
 //                        isAlgaeInside = false;
-//                    } else if (!isCoralInside && !isAlgaeInside) {
-//                        Command outtake = outtake().andThen(Commands.waitSeconds(0.5)).andThen(stop());
-//                        outtake.schedule();
 //                    }
-                    if(hadObjectInside)
-                        isCoralInside = true;
-                    else {
-                        isCoralInside = false;
-                        isAlgaeInside = false;
-                    }
-                })
+//                    isReset = true;
+//                })
         );
+    }
+
+    public boolean isReset() {
+        return true;//isReset;
     }
 }

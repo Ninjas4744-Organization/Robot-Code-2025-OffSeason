@@ -158,6 +158,7 @@ public class RobotContainer {
         return Commands.runOnce(() -> RobotState.getInstance().setL(L));
     }
 
+//    public static boolean finishOuttake = false;
     private void configureBindings() {
         StateMachine stateMachine = StateMachine.getInstance();
 
@@ -208,27 +209,21 @@ public class RobotContainer {
 //                CSVWriter.writeCsv("Robot Speed", "Delay Meters", robotSpeed, delayMeters, "Vision Delay test 1, FPS=25.csv")
 //        ));
 
-        driverController.square().onTrue(Commands.runOnce(() ->
-//                RobotState.getInstance().setRobotPose(lastVisionPose)
-//                StateMachine.getInstance().changeRobotState(States.TRANSFER_CORAL_TO_OUTTAKE)
-                StateMachine.getInstance().changeRobotState(States.INTAKE_ALGAE_LOW)
-//                StateMachine.getInstance().changeRobotState(States.CORAL_OUTTAKE)
+        driverController.square().onTrue(Commands.runOnce(() -> {
+            StateMachine.getInstance().changeRobotState(States.ALGAE_OUTTAKE);
+            StateMachine.getInstance().changeRobotState(States.PREPARE_ALGAE_OUTTAKE);
+            StateMachine.getInstance().changeRobotState(States.INTAKE_ALGAE_LOW);
 //                RobotState.getInstance().setRobotPose(visionSubsystem.getLastVisionPose())
-        ));
-
-//        operatorController.square().onTrue(Commands.runOnce(() ->
-//                stateMachine.changeRobotState(States.INTAKE_ALGAE_LOW)
-//        ));
+//                finishOuttake = true
+        }));
 
         driverController.povDown().onTrue(Commands.runOnce(
                 () -> stateMachine.changeRobotState(States.RESET)
         ));
 
-//        operatorController.povUp().onTrue(Commands.either(
-//                Commands.runOnce(() -> stateMachine.changeRobotState(States.CLIMB)),
-//                Commands.runOnce(() -> stateMachine.changeRobotState(States.PREPARE_CLIMB)),
-//                () -> RobotState.getInstance().getRobotState() == States.PREPARE_CLIMB
-//        ));
+        driverController.povUp().onTrue(Commands.runOnce(() -> {
+            outtake.forceKnowCoralInside(!outtake.isCoralInside());
+        }));
         //endregion
     }
 

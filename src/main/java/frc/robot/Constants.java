@@ -72,7 +72,7 @@ public class Constants {
             kControllerConstants.real.isBrakeMode = true;
 
             /* Control */
-            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(6, 0, 0, 0, 1, 2, 0, 10, 0, 0.3, GravityTypeValue.Arm_Cosine);
+            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(120, 0, 0, 0, 2, 2.5, 0, 0, 0, 0.3, GravityTypeValue.Arm_Cosine);
             kControllerConstants.real.gearRatio = 86.4;
 //            kControllerConstants.real.conversionFactor = 2 * Math.PI;
             kControllerConstants.real.homePosition = Units.degreesToRotations(-90);
@@ -93,7 +93,7 @@ public class Constants {
             kControllerConstants.motorType = DCMotor.getKrakenX60(1);
         }
 
-        private static final double DownAngle = -45;
+        private static final double DownAngle = -30;
         public static final Rotation2d[] LPositions = { Rotation2d.fromDegrees(Arm.Positions.Close.get()), Rotation2d.fromDegrees(Arm.Positions.L2.get()), Rotation2d.fromDegrees(Arm.Positions.L3.get()), Rotation2d.fromDegrees(Arm.Positions.L4.get()) };
         public static final Rotation2d[] LPositionsDown = { Rotation2d.fromDegrees(Arm.Positions.Close.get()), Rotation2d.fromDegrees(Arm.Positions.L2.get() + DownAngle), Rotation2d.fromDegrees(Arm.Positions.L3.get() + DownAngle), Rotation2d.fromDegrees(Arm.Positions.L4.get() + DownAngle) };
         public enum Positions {
@@ -101,7 +101,7 @@ public class Constants {
             L2(-315),
             L3(-315),
             L4(-315),
-            IntakeAlgae(190),
+            IntakeAlgae(-13),
             Net(70),
             Processor(0),
             IntakeCoral(-90),
@@ -135,7 +135,7 @@ public class Constants {
             kControllerConstants.real.followers[0].inverted = true;
 
             /* Control */
-            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(0.8, 0, 0, 0, 30, 40, 0, 0.7, 0.3, 0.3, GravityTypeValue.Elevator_Static);
+            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(0.8, 0, 0, 0, 40, 60, 0, 0.7, 0.3, 0.3, GravityTypeValue.Elevator_Static);
             kControllerConstants.real.gearRatio = 6;
 //            kControllerConstants.real.conversionFactor = Math.PI * 0.05; // Fix
             kControllerConstants.real.homePosition = 0;
@@ -165,7 +165,7 @@ public class Constants {
             L3(7),
             L4(10.7),
             AlgaeReef(7),
-            Net(9),
+            Net(10),
             AlgaeLow(0),
             Intake(6),
             CoralReady(1.6);
@@ -183,7 +183,7 @@ public class Constants {
     }
 
      public static class Outtake {
-        public static final double kCurrentThreshold = 40;
+        public static final double kCurrentThreshold = 50;
 
         public static final ControllerConstants kControllerConstants = new ControllerConstants();
         static {
@@ -199,7 +199,7 @@ public class Constants {
 
         public enum Speeds {
             Intake(-0.8),
-            Outtake(0.8),
+            Outtake(0.5),
             OuttakeAlgae(1);
 
             final double speed;
@@ -261,7 +261,7 @@ public class Constants {
             kControllerConstants.real.isBrakeMode = true;
 
             /* Control */
-            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(45, 0, 0, 0, 20, 25, 0, 0, 0, 0, GravityTypeValue.Arm_Cosine);
+            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(80, 0, 0, 0, 20, 25, 0, 0, 0, 0, GravityTypeValue.Arm_Cosine);
             kControllerConstants.real.gearRatio = 65 + 1 / 3.0;
             kControllerConstants.real.conversionFactor = 2 * Math.PI;
             kControllerConstants.real.homePosition = Units.degreesToRadians(0);
@@ -564,7 +564,7 @@ public class Constants {
     }
 
     public static class AutoDrive {
-        public static final double kAutoDriveDistFromReef = 0.68 - 0.03 - 0.02 - 0.01 - 0.02 + 0.02 + 0.05 - 0.03 - 0.02 - 0.015 - 0.03 + 0.04 + 0.02 - 0.03;
+        public static final double kAutoDriveDistFromReef = 0.68 - 0.03 - 0.02 - 0.01 - 0.02 + 0.02 + 0.05 - 0.03 - 0.02 - 0.015 - 0.03 + 0.04 + 0.02 - 0.03 - 0.01 - 0.01;
         public static final double kAutoDriveRightSideOffset = 0.05 - 0.02 - 0.02 - 0.015 - 0.01 + 0.04 + 0.02 - 0.035 - 0.03 - 0.03;
         public static final double kAutoDriveLeftSideOffset = 0.05 + 0.32 - 0.02;
         public static final double kAutoDriveDistThreshold = 0.01;

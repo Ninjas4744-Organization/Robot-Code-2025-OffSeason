@@ -10,7 +10,6 @@ public class IntakeAngleIOController implements IntakeAngleIO {
     private Controller controller;
     private CANcoder canCoder;
 
-
     @Override
     public void setup() {
         controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.IntakeAngle.kControllerConstants);
