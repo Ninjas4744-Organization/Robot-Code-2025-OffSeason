@@ -105,7 +105,8 @@ public class Constants {
             Net(110),
             NetInverse(70),
             Processor(0),
-            IntakeCoral(-90);
+            IntakeCoral(-90),
+            CoralReady(-270);
 
             final double angle;
 
@@ -458,7 +459,7 @@ public class Constants {
     }
 
     public static class Vision {
-        public static final double kMaxDistanceFilter = 3;
+        public static final double kMaxDistanceFilter = 2;//3;
         public static final double kMaxSpeedFilter = 3;
         public static final double kMaxAngularSpeedFilter = 7;
         public static final double kMaxAmbiguityFilter = 0.2;
@@ -480,11 +481,11 @@ public class Constants {
         }
 
         public static Matrix<N3, N1> getVisionSTD(VisionOutput output) {
-            double distStd = Math.pow(0.8 * output.closestTargetDist, 2) + 0.3;
+            double distStd = Math.pow(0.5/*0.8*/ * output.closestTargetDist, 2) + 0.3;
 
             ChassisSpeeds speed = frc.lib.NinjasLib.swerve.Swerve.getInstance().getChassisSpeeds(false);
-            double xySpeedStd = 6 * output.latency * Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond);
-            double angleSpeedStd = 6 * output.latency * speed.omegaRadiansPerSecond;
+            double xySpeedStd = 4/*6*/ * output.latency * Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond);
+            double angleSpeedStd = 4/*6*/ * output.latency * speed.omegaRadiansPerSecond;
 
             double xyStd = distStd + xySpeedStd;
             double angleStd = distStd + angleSpeedStd;
@@ -566,22 +567,24 @@ public class Constants {
     }
 
     public static class AutoDrive {
-        public static double kAutoDriveDistFromReef = 0.585 + 0.05 - 0.02 - 0.01 - 0.015 - 0.02 - 0.005;
-        public static double kAutoDriveDistFromReefL4 = 0.585 + 0.05 - 0.02 - 0.01;
-        public static double kAutoDriveRightSideOffset = -0.05 + 0.05;
-        public static double kAutoDriveLeftSideOffset = 0.35 - 0.01;
-        public static double kAutoDriveDistThreshold = 0.01;
-        public static double kAutoDriveDistFirstThreshold = 0.1;
-        public static Rotation2d kAutoDriveAngleThreshold = Rotation2d.fromDegrees(1.5);
+        public static double kDistFromReef = 0.585 + 0.05 - 0.02 - 0.01 - 0.015 - 0.02 - 0.005;
+        public static double kDistFromReefL4 = 0.585 + 0.05 - 0.02 - 0.01;
+        public static double kRightSideOffset = -0.05 + 0.05;
+        public static double kLeftSideOffset = 0.35 - 0.01;
+        public static double kDistThreshold = 0.01;
+        public static Rotation2d kAngleThreshold = Rotation2d.fromDegrees(1.5);
+
+        public static double kDistBackFirstTarget = 0.2;
+        public static double kFirstDistThreshold = 0.08;
 
         static {
             boolean isSadna = false;
 
             if(isSadna) {
-                kAutoDriveDistFromReef = 0.585 - 0.015 - 0.02 - 0.005;
-                kAutoDriveDistFromReefL4 = 0.585;
-                kAutoDriveRightSideOffset = -0.05;
-                kAutoDriveLeftSideOffset = 0.35;
+                kDistFromReef = 0.585 - 0.015 - 0.02 - 0.005;
+                kDistFromReefL4 = 0.585;
+                kRightSideOffset = -0.05;
+                kLeftSideOffset = 0.35;
             }
         }
     }

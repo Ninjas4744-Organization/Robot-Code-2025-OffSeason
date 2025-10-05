@@ -27,6 +27,7 @@ import java.util.function.Supplier;
 public class SwerveSubsystem extends SubsystemBase {
     private boolean enabled;
     private List<Pose2d> reefAprilTags;
+    private Pose2d finalTarget;
     private Pose2d target;
     private Command driveToReefCommand;
     private Command driveToCoralCommand;
@@ -54,7 +55,7 @@ public class SwerveSubsystem extends SubsystemBase {
                     layout.getTagPose(21).get().toPose2d(),
                     layout.getTagPose(22).get().toPose2d()
             );
-            target = Pose2d.kZero;
+            finalTarget = Pose2d.kZero;
         }
     }
 
@@ -79,19 +80,25 @@ public class SwerveSubsystem extends SubsystemBase {
         return Math.pow(a * error, 1 / b);
     }
 
-    public Supplier<Command> autoDriveToReef(BooleanSupplier isRightSide){
+    private boolean isAutoDriveReefStage1 = true;
+    public Supplier<Command> autoDriveToReef(BooleanSupplier isRightSide) {
         return () -> {
-            System.out.println("Creating a new drive command for " + (isRightSide.getAsBoolean() ? "right" : "left"));
             driveToReefCommand = Commands.sequence(
                     Commands.runOnce(() -> {
                         SwerveController.getInstance().setChannel("AutoReef");
-                        target = RobotState.getInstance().getRobotPose().nearest(reefAprilTags);
-                        target = new Pose2d(target.getTranslation(), target.getRotation().rotateBy(Rotation2d.k180deg));
-                        target = target.transformBy(new Transform2d(RobotState.getL() == 4 ? -Constants.AutoDrive.kAutoDriveDistFromReefL4 : -Constants.AutoDrive.kAutoDriveDistFromReef, isRightSide.getAsBoolean() ? -Constants.AutoDrive.kAutoDriveRightSideOffset : Constants.AutoDrive.kAutoDriveLeftSideOffset, Rotation2d.kZero));
+                        finalTarget = RobotState.getInstance().getRobotPose().nearest(reefAprilTags);
+                        finalTarget = new Pose2d(finalTarget.getTranslation(), finalTarget.getRotation().rotateBy(Rotation2d.k180deg));
+                        finalTarget = finalTarget.transformBy(new Transform2d(RobotState.getL() == 4 ? -Constants.AutoDrive.kDistFromReefL4 : -Constants.AutoDrive.kDistFromReef, isRightSide.getAsBoolean() ? -Constants.AutoDrive.kRightSideOffset : Constants.AutoDrive.kLeftSideOffset, Rotation2d.kZero));
+                        target = finalTarget.transformBy(new Transform2d(-Constants.AutoDrive.kDistBackFirstTarget, 0, Rotation2d.kZero));
                         autoReefAnglePID.reset(RobotState.getInstance().getRobotPose().getRotation().getRadians());
 //                pidRotation.reset(RobotState.getInstance().getRobotPose().getRotation().getRadians());
                     }),
                     Commands.run(() -> {
+                        if (atFirstTarget(target) && isAutoDriveReefStage1) {
+                            target = finalTarget;
+                            isAutoDriveReefStage1 = false;
+                        }
+
                         Translation2d translation = RobotState.getInstance().getTranslation(target);
                         Translation2d dir = translation.div(translation.getNorm());
                         double velocity = f(translation.getNorm());
@@ -116,17 +123,21 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public double distFromGoal() {
-        return Math.abs(RobotState.getInstance().getDistance(target));
+        return Math.abs(RobotState.getInstance().getDistance(finalTarget));
+    }
+
+    private boolean atFirstTarget(Pose2d target) {
+        return Math.abs(RobotState.getInstance().getDistance(target)) < Constants.AutoDrive.kFirstDistThreshold;
     }
 
     public boolean atGoal() {
-        return Math.abs(RobotState.getInstance().getDistance(target)) < Constants.AutoDrive.kAutoDriveDistThreshold
-                && Math.abs(target.getRotation().minus(RobotState.getInstance().getRobotPose().getRotation()).getRadians()) < Constants.AutoDrive.kAutoDriveAngleThreshold.getRadians();
+        return Math.abs(RobotState.getInstance().getDistance(finalTarget)) < Constants.AutoDrive.kDistThreshold
+                && Math.abs(finalTarget.getRotation().minus(RobotState.getInstance().getRobotPose().getRotation()).getRadians()) < Constants.AutoDrive.kAngleThreshold.getRadians();
     }
 
-    private boolean surpassedFirstThreshold() {
-        return Math.abs(RobotState.getInstance().getDistance(target)) < Constants.AutoDrive.kAutoDriveDistFirstThreshold;
-    }
+//    private boolean surpassedFirstThreshold() {
+//        return Math.abs(RobotState.getInstance().getDistance(finalTarget)) < Constants.AutoDrive.kAutoDriveDistFirstThreshold;
+//    }
 
     private Timer noCoralTimer = new Timer();
     public Command driveToCoral() {
@@ -186,6 +197,7 @@ public class SwerveSubsystem extends SubsystemBase {
             return Commands.none();
 
         return Commands.runOnce(() -> {
+            isAutoDriveReefStage1 = true;
             stopAutoDriving();
             if (DriverStation.isAutonomous()){
                 SwerveController.getInstance().setChannel("Auto");
@@ -215,7 +227,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
         SwerveController.getInstance().periodic();
 
-        // Uncomment to allow dynamic acceleration limit according to elevator height
         double accLimitAt0 = 65;
         double accLimitAt10 = 24;
         double elevatorHeight = RobotContainer.getElevator().getHeight();
