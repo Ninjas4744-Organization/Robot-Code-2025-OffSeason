@@ -164,8 +164,8 @@ public class RobotContainer {
     private void configureBindings() {
         StateMachine stateMachine = StateMachine.getInstance();
 
-//        driverController.R1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(Rotation2d.kZero)));
-//        driverController.L1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(RobotState.getInstance().getRobotPose().getRotation())));
+        driverController.R1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(Rotation2d.kZero)));
+        driverController.L1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(RobotState.getInstance().getRobotPose().getRotation())));
 
         driverController.R2().onTrue(Commands.runOnce(
                 () -> stateMachine.changeRobotState(States.DRIVE_RIGHT_REEF)
@@ -191,12 +191,12 @@ public class RobotContainer {
                 () -> stateMachine.changeRobotState(States.CLOSE)
         ));
 
-        driverController.R1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() + 1)));
-        driverController.L1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() - 1)));
-//        operatorController.cross().onTrue(Commands.runOnce(() -> RobotState.setL(4)));
-//        operatorController.circle().onTrue(Commands.runOnce(() -> RobotState.setL(3)));
-//        operatorController.triangle().onTrue(Commands.runOnce(() -> RobotState.setL(2)));
-//        operatorController.square().onTrue(Commands.runOnce(() -> RobotState.setL(1)));
+//        driverController.R1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() + 1)));
+//        driverController.L1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() - 1)));
+        operatorController.cross().onTrue(Commands.runOnce(() -> RobotState.setL(4)));
+        operatorController.circle().onTrue(Commands.runOnce(() -> RobotState.setL(3)));
+        operatorController.triangle().onTrue(Commands.runOnce(() -> RobotState.setL(2)));
+        operatorController.square().onTrue(Commands.runOnce(() -> RobotState.setL(1)));
 
         new Trigger(() -> RobotState.getL() > 1 && RobotState.getInstance().getRobotState() == States.CORAL_IN_INTAKE)
                 .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_TO_OUTTAKE)));

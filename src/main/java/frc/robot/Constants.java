@@ -136,7 +136,7 @@ public class Constants {
             kControllerConstants.real.followers[0].inverted = true;
 
             /* Control */
-            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(0.8, 0, 0, 0, 40, 60, 0, 0.7, 0.3, 0.3, GravityTypeValue.Elevator_Static);
+            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(0.8, 0, 0, 0, 14, 100, 0, 0.7, 0.3, 0.3, GravityTypeValue.Elevator_Static);
             kControllerConstants.real.gearRatio = 6;
 //            kControllerConstants.real.conversionFactor = Math.PI * 0.05; // Fix
             kControllerConstants.real.homePosition = 0;
@@ -416,10 +416,10 @@ public class Constants {
                 );
             }
 
-            kSwerveConstants.modules.moduleConstants[0].CANCoderOffset = -0.292480;
-            kSwerveConstants.modules.moduleConstants[1].CANCoderOffset = -0.270996;
-            kSwerveConstants.modules.moduleConstants[2].CANCoderOffset = -0.266602;
-            kSwerveConstants.modules.moduleConstants[3].CANCoderOffset = 0.280029;
+            kSwerveConstants.modules.moduleConstants[0].CANCoderOffset = -0.290283;
+            kSwerveConstants.modules.moduleConstants[1].CANCoderOffset = -0.269287;
+            kSwerveConstants.modules.moduleConstants[2].CANCoderOffset = -0.269775;
+            kSwerveConstants.modules.moduleConstants[3].CANCoderOffset = 0.279297;
 
             /* Gyro */
             kSwerveConstants.gyro.gyroID = 45;
@@ -481,7 +481,8 @@ public class Constants {
         }
 
         public static Matrix<N3, N1> getVisionSTD(VisionOutput output) {
-            double distStd = Math.pow(0.5/*0.8*/ * output.closestTargetDist, 2) + 0.3;
+//            double distStd = Math.pow(0.5/*0.8*/ * output.closestTargetDist, 2) + 0.3;
+            double distStd = 0.185185 * Math.pow(output.closestTargetDist, 2);
 
             ChassisSpeeds speed = frc.lib.NinjasLib.swerve.Swerve.getInstance().getChassisSpeeds(false);
             double xySpeedStd = 4/*6*/ * output.latency * Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond);
@@ -578,7 +579,7 @@ public class Constants {
         public static double kFirstDistThreshold = 0.08;
 
         static {
-            boolean isSadna = false;
+            boolean isSadna = true;
 
             if(isSadna) {
                 kDistFromReef = 0.585 - 0.015 - 0.02 - 0.005;
