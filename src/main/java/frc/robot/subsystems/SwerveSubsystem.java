@@ -87,7 +87,7 @@ public class SwerveSubsystem extends SubsystemBase {
                         SwerveController.getInstance().setChannel("AutoReef");
                         target = RobotState.getInstance().getRobotPose().nearest(reefAprilTags);
                         target = new Pose2d(target.getTranslation(), target.getRotation().rotateBy(Rotation2d.k180deg));
-                        target = target.transformBy(new Transform2d(-Constants.AutoDrive.kAutoDriveDistFromReef, isRightSide.getAsBoolean() ? -Constants.AutoDrive.kAutoDriveRightSideOffset : Constants.AutoDrive.kAutoDriveLeftSideOffset, Rotation2d.kZero));
+                        target = target.transformBy(new Transform2d(RobotState.getL() == 4 ? -Constants.AutoDrive.kAutoDriveDistFromReefL4 : -Constants.AutoDrive.kAutoDriveDistFromReef, isRightSide.getAsBoolean() ? -Constants.AutoDrive.kAutoDriveRightSideOffset : Constants.AutoDrive.kAutoDriveLeftSideOffset, Rotation2d.kZero));
                         autoReefAnglePID.reset(RobotState.getInstance().getRobotPose().getRotation().getRadians());
 //                pidRotation.reset(RobotState.getInstance().getRobotPose().getRotation().getRadians());
                     }),

@@ -72,7 +72,7 @@ public class Constants {
             kControllerConstants.real.isBrakeMode = true;
 
             /* Control */
-            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(120, 0, 0, 0, 2, 2.5, 0, 0, 0, 0.3, GravityTypeValue.Arm_Cosine);
+            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(120, 0, 0, 0, 2, 2, 0, 0, 0, 0.3, GravityTypeValue.Arm_Cosine);
             kControllerConstants.real.gearRatio = 86.4;
 //            kControllerConstants.real.conversionFactor = 2 * Math.PI;
             kControllerConstants.real.homePosition = Units.degreesToRotations(-90);
@@ -101,11 +101,11 @@ public class Constants {
             L2(-315),
             L3(-315),
             L4(-315),
-            IntakeAlgae(-13),
-            Net(70),
+            IntakeAlgae(-15),
+            Net(110),
+            NetInverse(70),
             Processor(0),
-            IntakeCoral(-90),
-            CoralReady(90);
+            IntakeCoral(-90);
 
             final double angle;
 
@@ -161,11 +161,11 @@ public class Constants {
         public static final double[] LPositionsDown = { Elevator.Positions.Close.get(), Elevator.Positions.L2.get() - 1, Elevator.Positions.L3.get() - 1, Elevator.Positions.L4.get() - 1 };
         public enum Positions {
             Close(6.5),
-            L2(5),
-            L3(7),
+            L2(2.25),
+            L3(5.5),
             L4(10.7),
             AlgaeReef(7),
-            Net(10),
+            Net(10.7),
             AlgaeLow(0),
             Intake(6),
             CoralReady(1.6);
@@ -200,6 +200,7 @@ public class Constants {
         public enum Speeds {
             Intake(-0.8),
             Outtake(0.5),
+            IntakeAlgae(-1),
             OuttakeAlgae(1);
 
             final double speed;
@@ -282,12 +283,13 @@ public class Constants {
         }
 
         public enum Positions {
-            LOOK_DOWN(-23 - 35 - 14 + 5 - 0.5),
-            LOOK_AT_L1(60 - 35 - 14 - 0.5),
-            LOOK_AT_ARM(65 - 0.5),
-            CLOSE(65 - 0.5);
+            Intake(-23 - 35 - 14 + 5 - 0.5),
+            L1(60 - 35 - 14 - 0.5),
+            Arm(65 - 0.5),
+            Close(65 - 0.5),
+            Algae(0);
 
-            final double degrees;
+            private final double degrees;
 
             Positions(double degrees) {
                 this.degrees = degrees;
@@ -316,7 +318,7 @@ public class Constants {
         }
 
         public enum Speeds {
-            Align(85);
+            Align(100);
 
             final double speed;
 
@@ -564,11 +566,23 @@ public class Constants {
     }
 
     public static class AutoDrive {
-        public static final double kAutoDriveDistFromReef = 0.68 - 0.03 - 0.02 - 0.01 - 0.02 + 0.02 + 0.05 - 0.03 - 0.02 - 0.015 - 0.03 + 0.04 + 0.02 - 0.03 - 0.01 - 0.01;
-        public static final double kAutoDriveRightSideOffset = 0.05 - 0.02 - 0.02 - 0.015 - 0.01 + 0.04 + 0.02 - 0.035 - 0.03 - 0.03;
-        public static final double kAutoDriveLeftSideOffset = 0.05 + 0.32 - 0.02;
-        public static final double kAutoDriveDistThreshold = 0.01;
-        public static final double kAutoDriveDistFirstThreshold = 0.1;
-        public static final Rotation2d kAutoDriveAngleThreshold = Rotation2d.fromDegrees(1.5);
+        public static double kAutoDriveDistFromReef = 0.585 + 0.05 - 0.02 - 0.01 - 0.015 - 0.02 - 0.005;
+        public static double kAutoDriveDistFromReefL4 = 0.585 + 0.05 - 0.02 - 0.01;
+        public static double kAutoDriveRightSideOffset = -0.05 + 0.05;
+        public static double kAutoDriveLeftSideOffset = 0.35 - 0.01;
+        public static double kAutoDriveDistThreshold = 0.01;
+        public static double kAutoDriveDistFirstThreshold = 0.1;
+        public static Rotation2d kAutoDriveAngleThreshold = Rotation2d.fromDegrees(1.5);
+
+        static {
+            boolean isSadna = false;
+
+            if(isSadna) {
+                kAutoDriveDistFromReef = 0.585 - 0.015 - 0.02 - 0.005;
+                kAutoDriveDistFromReefL4 = 0.585;
+                kAutoDriveRightSideOffset = -0.05;
+                kAutoDriveLeftSideOffset = 0.35;
+            }
+        }
     }
 }

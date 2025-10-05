@@ -39,7 +39,7 @@ public class Outtake extends SubsystemBase {
             yesAlgaeTimer.reset();
         }
 
-        if (Math.abs(inputs.Current) < Constants.Outtake.kCurrentThreshold && inputs.Output < 0) {
+        if (Math.abs(inputs.Current) < Constants.Outtake.kCurrentThreshold) {
             if (!noAlgaeTimer.isRunning())
                 noAlgaeTimer.restart();
         } else {
@@ -76,6 +76,13 @@ public class Outtake extends SubsystemBase {
             return Commands.none();
 
         return Commands.runOnce(() -> io.setPercent(Constants.Outtake.Speeds.Intake.get()));
+    }
+
+    public Command intakeAlgae() {
+        if (!enabled)
+            return Commands.none();
+
+        return Commands.runOnce(() -> io.setPercent(Constants.Outtake.Speeds.IntakeAlgae.get()));
     }
 
     public Command outtake() {
@@ -118,13 +125,17 @@ public class Outtake extends SubsystemBase {
         return isAlgaeInside;
     }
 
-    private boolean hadObjectInside = false;
-    private boolean isReset = false;
+//    private boolean hadObjectInside = false;
+//    private boolean isReset = false;
     public Command reset() {
         if (!enabled)
             return Commands.none();
 
-        return Commands.sequence(
+        return Commands.runOnce(() -> {
+            isCoralInside = false;
+            isAlgaeInside = false;
+        });
+                //Commands.sequence(
 //                Commands.runOnce(() -> {
 //                    hadObjectInside = false;
 //                    isReset = false;
@@ -155,7 +166,7 @@ public class Outtake extends SubsystemBase {
 //                    }
 //                    isReset = true;
 //                })
-        );
+//        );
     }
 
     public boolean isReset() {

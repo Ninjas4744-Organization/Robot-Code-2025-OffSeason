@@ -24,6 +24,6 @@ public class RobotState extends RobotStateWithSwerve<States> {
 
     public static void setL(int L) {
         RobotState.L = MathUtils.clamp(L, 1, 4);
-        Logger.recordOutput("Reef Level", L);
+        Logger.recordOutput("Reef Level", RobotState.L);
     }
 }

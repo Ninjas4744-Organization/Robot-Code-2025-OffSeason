@@ -53,7 +53,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
     private LoggedCommandController driverController;
-//    private CommandPS5Controller operatorController;
+    private LoggedCommandController operatorController;
 
     private static Elevator elevator;
     private static Arm arm;
@@ -84,7 +84,8 @@ public class RobotContainer {
                     intake = new Intake(true, new IntakeIOController(), new LoggedDigitalInputIOSim(() -> driverController.options().getAsBoolean()), Constants.Intake.kBeamBreakerPort);
 
                 coralDetection = new CoralDetection(new CoralDetectionIOCamera());
-                driverController = new LoggedCommandController(new LoggedCommandControllerIOPS5(Constants.General.kDriverControllerPort));
+                driverController = new LoggedCommandController("Driver", new LoggedCommandControllerIOPS5(Constants.General.kDriverControllerPort));
+                operatorController = new LoggedCommandController("Operator", new LoggedCommandControllerIOPS5(Constants.General.kOperatorControllerPort));
                 break;
 
             case REPLAY:
@@ -97,7 +98,8 @@ public class RobotContainer {
                 climber = new Climber(false, new ClimberIO() {});
 
                 coralDetection = new CoralDetection(new CoralDetectionIO() {});
-                driverController = new LoggedCommandController(new LoggedCommandControllerIO() {});
+                driverController = new LoggedCommandController("Driver", new LoggedCommandControllerIO() {});
+                operatorController = new LoggedCommandController("Operator", new LoggedCommandControllerIO() {});
                 break;
         }
 
@@ -158,13 +160,13 @@ public class RobotContainer {
         return Commands.runOnce(() -> RobotState.getInstance().setL(L));
     }
 
-//    public static boolean finishOuttake = false;
+    public static boolean finishOuttake = false;
     private void configureBindings() {
         StateMachine stateMachine = StateMachine.getInstance();
 
         //region Driver buttons
-        driverController.povLeft().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(Rotation2d.kZero)));
-        driverController.povRight().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(RobotState.getInstance().getRobotPose().getRotation())));
+        driverController.R1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(Rotation2d.kZero)));
+        driverController.L1().onTrue(Commands.runOnce(() -> Swerve.getInstance().getGyro().resetYaw(RobotState.getInstance().getRobotPose().getRotation())));
 
         driverController.R2().onTrue(Commands.runOnce(
                 () -> stateMachine.changeRobotState(States.DRIVE_RIGHT_REEF)
@@ -184,45 +186,40 @@ public class RobotContainer {
                 () -> stateMachine.changeRobotState(States.INTAKE_CORAL)
         ));
 
-//        driverController.square().onTrue(Commands.runOnce(() -> RobotState.getInstance().setRobotPose(lastVisionPose)));
-//        driverController.square().onTrue(Commands.either(
-//                Commands.runOnce(() ->  stateMachine.changeRobotState(States.PREPARE_ALGAE_OUTTAKE)),
-//                Commands.runOnce(() -> stateMachine.changeRobotState(States.INTAKE_ALGAE_HIGH)) ,
-//                () -> RobotState.getInstance().getRobotState() == States.ALGAE_IN_OUTTAKE
-//        ));
-
         driverController.circle().onTrue(Commands.runOnce(
                 () -> stateMachine.changeRobotState(States.CLOSE)
         ));
         //endregion
 
         //region Operator Buttons
-        driverController.R1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() + 1)));
-        driverController.L1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() - 1)));
+//        operatorController.R1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() + 1)));
+//        operatorController.L1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() - 1)));
+        operatorController.cross().onTrue(Commands.runOnce(() -> RobotState.setL(4)));
+        operatorController.circle().onTrue(Commands.runOnce(() -> RobotState.setL(3)));
+        operatorController.triangle().onTrue(Commands.runOnce(() -> RobotState.setL(2)));
+        operatorController.square().onTrue(Commands.runOnce(() -> RobotState.setL(1)));
 
         new Trigger(() -> RobotState.getL() > 1 && RobotState.getInstance().getRobotState() == States.CORAL_IN_INTAKE)
                 .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_TO_OUTTAKE)));
         new Trigger(() -> RobotState.getL() == 1 && RobotState.getInstance().getRobotState() == States.CORAL_IN_OUTTAKE)
                 .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_TO_INTAKE)));
 
-//        driverController.square().onTrue(Commands.runOnce(() ->
-//                CSVWriter.writeCsv("Robot Speed", "Delay Meters", robotSpeed, delayMeters, "Vision Delay test 1, FPS=25.csv")
-//        ));
-
         driverController.square().onTrue(Commands.runOnce(() -> {
             StateMachine.getInstance().changeRobotState(States.ALGAE_OUTTAKE);
             StateMachine.getInstance().changeRobotState(States.PREPARE_ALGAE_OUTTAKE);
             StateMachine.getInstance().changeRobotState(States.INTAKE_ALGAE_LOW);
+//            finishOuttake = true;
 //                RobotState.getInstance().setRobotPose(visionSubsystem.getLastVisionPose())
-//                finishOuttake = true
+//                finishOuttake = true;
         }));
 
-        driverController.povDown().onTrue(Commands.runOnce(
+        operatorController.povDown().onTrue(Commands.runOnce(
                 () -> stateMachine.changeRobotState(States.RESET)
         ));
 
         driverController.povUp().onTrue(Commands.runOnce(() -> {
             outtake.forceKnowCoralInside(!outtake.isCoralInside());
+            stateMachine.changeRobotState(States.CLOSE);
         }));
         //endregion
     }
@@ -286,6 +283,7 @@ public class RobotContainer {
         Logger.recordOutput("Odometry Pose", RobotState.getInstance().getOnlyOdometryRobotPose());
 
         driverController.periodic();
+        operatorController.periodic();
 
         if (Robot.isSimulation()) {
             Logger.recordOutput("Simulation Field/Corals", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));

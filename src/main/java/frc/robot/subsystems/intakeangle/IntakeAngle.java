@@ -58,19 +58,19 @@ public class IntakeAngle extends SubsystemBase {
     }
 
     public Command lookDown() {
-        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.Positions.LOOK_DOWN.get()));
+        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.Positions.Intake.get()));
     }
 
     public Command close() {
-        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.Positions.CLOSE.get()));
+        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.Positions.Close.get()));
     }
 
     public Command lookAtL1() {
-        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.Positions.LOOK_AT_L1.get()));
+        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.Positions.L1.get()));
     }
 
     public Command lookAtArm() {
-        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.Positions.LOOK_AT_ARM.get()));
+        return setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.Positions.Arm.get()));
     }
 
     public boolean atGoal(){
