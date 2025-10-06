@@ -141,11 +141,13 @@ public class RobotContainer {
     }
 
     private void registerCommands() {
-        NamedCommands.registerCommand("Intake Coral", new DetachedCommand(swerveSubsystem.driveToCoral()));
-        NamedCommands.registerCommand("Wait Coral", Commands.waitUntil(() -> RobotState.getInstance().getRobotState() == States.CORAL_IN_INTAKE));
-        NamedCommands.registerCommand("Left Reef", changeRobotState(States.DRIVE_LEFT_REEF));
-        NamedCommands.registerCommand("Right Reef", changeRobotState(States.DRIVE_RIGHT_REEF));
-        NamedCommands.registerCommand("Outtake", changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1));
+//        NamedCommands.registerCommand("Intake Coral", changeRobotState(States.INTAKE_CORAL)/*new DetachedCommand(swerveSubsystem.driveToCoral())*/);
+        NamedCommands.registerCommand("Wait Coral", Commands.waitUntil(() -> intake.isCoralInside()));
+//        NamedCommands.registerCommand("Wait Start", Commands.waitUntil(() -> RobotState.getInstance().getRobotState() == States.CORAL_IN_OUTTAKE));
+        NamedCommands.registerCommand("Wait Intake Coral", Commands.waitUntil(() -> RobotState.getInstance().getRobotState() == States.INTAKE_CORAL));
+        NamedCommands.registerCommand("Left Reef", new DetachedCommand(Commands.waitUntil(() -> RobotState.getInstance().getDistance(new Pose2d(4, 4, Rotation2d.kZero)) < 3.5 && RobotState.getInstance().getRobotState() == States.CORAL_IN_OUTTAKE).andThen(changeRobotState(States.DRIVE_LEFT_REEF))));
+        NamedCommands.registerCommand("Right Reef", new DetachedCommand(Commands.waitUntil(() -> RobotState.getInstance().getDistance(new Pose2d(4, 4, Rotation2d.kZero)) < 3.5 && RobotState.getInstance().getRobotState() == States.CORAL_IN_OUTTAKE).andThen(changeRobotState(States.DRIVE_RIGHT_REEF))));
+        NamedCommands.registerCommand("Outtake L1", changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1));
         NamedCommands.registerCommand("L1", setL(1));
         NamedCommands.registerCommand("L2", setL(2));
         NamedCommands.registerCommand("L3", setL(3));
@@ -212,7 +214,7 @@ public class RobotContainer {
 //                finishOuttake = true;
         }));
 
-        operatorController.povDown().onTrue(Commands.runOnce(
+        driverController.povDown().onTrue(Commands.runOnce(
                 () -> stateMachine.changeRobotState(States.RESET)
         ));
 
@@ -295,6 +297,12 @@ public class RobotContainer {
         Swerve.getInstance().resetModulesToAbsolute();
         SwerveController.getInstance().setChannel(DriverStation.isAutonomous() ? "Auto" : "Driver");
         SwerveController.getInstance().setControl(new SwerveInput(), DriverStation.isAutonomous() ? "Auto" : "Driver");
-        StateMachine.getInstance().changeRobotState(States.RESET);
+        if (DriverStation.isAutonomous())
+            StateMachine.getInstance().changeRobotState(States.CORAL_IN_OUTTAKE);
+        else if (Robot.transferredFromAuto)
+            StateMachine.getInstance().changeRobotState(States.CLOSE);
+        else
+            StateMachine.getInstance().changeRobotState(States.RESET);
+        Robot.transferredFromAuto = false;
     }
 }

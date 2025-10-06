@@ -233,7 +233,8 @@ public class SwerveSubsystem extends SubsystemBase {
         double accLimit = (accLimitAt0 - accLimitAt10) / -10 * elevatorHeight + accLimitAt0;
         Constants.Swerve.kSwerveConstants.limits.maxSkidAcceleration = accLimit;
 
-        Logger.recordOutput("Swerve/Coral Command", driveToCoralCommand.isScheduled() && !driveToCoralCommand.isFinished());
+        if (driveToCoralCommand != null)
+            Logger.recordOutput("Swerve/Coral Command", driveToCoralCommand.isScheduled() && !driveToCoralCommand.isFinished());
         if (driveToReefCommand != null)
             Logger.recordOutput("Swerve/Reef Command", driveToReefCommand.isScheduled() && !driveToReefCommand.isFinished());
         Logger.recordOutput("Swerve/Reef Target", target);

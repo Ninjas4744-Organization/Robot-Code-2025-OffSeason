@@ -6,7 +6,7 @@ import frc.lib.NinjasLib.statemachine.RobotStateWithSwerve;
 import org.littletonrobotics.junction.Logger;
 
 public class RobotState extends RobotStateWithSwerve<States> {
-    private static int L = 1;
+    private static int L = 4;
 
     public static RobotState getInstance() {
         return (RobotState) RobotStateWithSwerve.getInstance();
@@ -15,7 +15,7 @@ public class RobotState extends RobotStateWithSwerve<States> {
     public RobotState(SwerveDriveKinematics kinematics) {
         super(kinematics);
         robotState = States.IDLE;
-        setL(1);
+        setL(4);
     }
 
     public static int getL() {

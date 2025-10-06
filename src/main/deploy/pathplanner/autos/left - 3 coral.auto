@@ -1,0 +1,99 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Left Reef"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "start left - back left"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Wait Intake Coral"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "back left - source left"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Wait Coral"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Left Reef"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "source left - front left"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Wait Intake Coral"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "front left - source left"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Wait Coral"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Right Reef"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "source left - front left"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": false,
+  "folder": null,
+  "choreoAuto": false
+}

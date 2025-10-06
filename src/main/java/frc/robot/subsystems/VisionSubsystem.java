@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.NinjasLib.localization.vision.Vision;
 import frc.lib.NinjasLib.localization.vision.VisionOutput;
@@ -51,10 +52,11 @@ public class VisionSubsystem extends SubsystemBase {
             boolean passedFilters = Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond) <= Constants.Vision.kMaxSpeedFilter
                 && speed.omegaRadiansPerSecond <= Constants.Vision.kMaxAngularSpeedFilter
                 && estimation.closestTargetDist <= Constants.Vision.kMaxDistanceFilter
+                && estimation.closestTargetDist >= Constants.Vision.kMinDistanceFilter
                 && estimation.ambiguity <= Constants.Vision.kMaxAmbiguityFilter;
 
             Logger.recordOutput("Vision/" + estimation.cameraName + "/Passed Filters", passedFilters);
-            if (passedFilters) {
+            if (passedFilters || DriverStation.isDisabled()) {
                 RobotState.getInstance().updateRobotPose(estimation, std);
                 lastVisionPose = estimation.robotPose;
 

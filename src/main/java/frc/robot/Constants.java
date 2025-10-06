@@ -263,7 +263,7 @@ public class Constants {
             kControllerConstants.real.isBrakeMode = true;
 
             /* Control */
-            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(80, 0, 0, 0, 20, 25, 0, 0, 0, 0, GravityTypeValue.Arm_Cosine);
+            kControllerConstants.real.controlConstants = ControlConstants.createProfiledPID(40, 0, 0, 0, 7, 35, 0, 0, 0, 0, GravityTypeValue.Arm_Cosine);
             kControllerConstants.real.gearRatio = 65 + 1 / 3.0;
             kControllerConstants.real.conversionFactor = 2 * Math.PI;
             kControllerConstants.real.homePosition = Units.degreesToRadians(0);
@@ -416,10 +416,10 @@ public class Constants {
                 );
             }
 
-            kSwerveConstants.modules.moduleConstants[0].CANCoderOffset = -0.290283;
-            kSwerveConstants.modules.moduleConstants[1].CANCoderOffset = -0.269287;
-            kSwerveConstants.modules.moduleConstants[2].CANCoderOffset = -0.269775;
-            kSwerveConstants.modules.moduleConstants[3].CANCoderOffset = 0.279297;
+            kSwerveConstants.modules.moduleConstants[0].CANCoderOffset = -0.291260;
+            kSwerveConstants.modules.moduleConstants[1].CANCoderOffset = -0.268799;
+            kSwerveConstants.modules.moduleConstants[2].CANCoderOffset = -0.267334;
+            kSwerveConstants.modules.moduleConstants[3].CANCoderOffset = 0.279541;
 
             /* Gyro */
             kSwerveConstants.gyro.gyroID = 45;
@@ -447,7 +447,7 @@ public class Constants {
         public static final SwerveControllerConstants kSwerveControllerConstants = new SwerveControllerConstants();
         static {
             kSwerveControllerConstants.swerveConstants = kSwerveConstants;
-            kSwerveControllerConstants.drivePIDConstants = ControlConstants.createPID(6, 0, 0.2, 0);
+            kSwerveControllerConstants.drivePIDConstants = ControlConstants.createPID(10, 0, 0.3, 0);
             kSwerveControllerConstants.rotationPIDConstants = ControlConstants.createPID(6, 0.5, 0, Units.degreesToRadians(5));
             kSwerveControllerConstants.rotationPIDContinuousConnections = Pair.of(-Math.PI, Math.PI);
         }
@@ -459,7 +459,8 @@ public class Constants {
     }
 
     public static class Vision {
-        public static final double kMaxDistanceFilter = 2;//3;
+        public static final double kMaxDistanceFilter = 2;
+        public static final double kMinDistanceFilter = 0.6;
         public static final double kMaxSpeedFilter = 3;
         public static final double kMaxAngularSpeedFilter = 7;
         public static final double kMaxAmbiguityFilter = 0.2;
@@ -568,8 +569,8 @@ public class Constants {
     }
 
     public static class AutoDrive {
-        public static double kDistFromReef = 0.585 + 0.05 - 0.02 - 0.01 - 0.015 - 0.02 - 0.005;
-        public static double kDistFromReefL4 = 0.585 + 0.05 - 0.02 - 0.01;
+        public static double kDistFromReef = 0.585 + 0.05 - 0.02 - 0.01 - 0.015 - 0.02 - 0.005 - 0.005;
+        public static double kDistFromReefL4 = 0.585 + 0.05 - 0.02 - 0.01 - 0.005;
         public static double kRightSideOffset = -0.05 + 0.05;
         public static double kLeftSideOffset = 0.35 - 0.01;
         public static double kDistThreshold = 0.01;
@@ -579,7 +580,7 @@ public class Constants {
         public static double kFirstDistThreshold = 0.08;
 
         static {
-            boolean isSadna = true;
+            boolean isSadna = false;
 
             if(isSadna) {
                 kDistFromReef = 0.585 - 0.015 - 0.02 - 0.005;

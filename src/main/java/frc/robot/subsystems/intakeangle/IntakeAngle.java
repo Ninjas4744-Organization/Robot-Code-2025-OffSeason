@@ -85,7 +85,10 @@ public class IntakeAngle extends SubsystemBase {
             return Commands.none();
         }
 
-        return Commands.runOnce(() -> io.setEncoder(inputs.AbsoluteAngle.getRadians()));
+        return Commands.runOnce(() -> {
+            System.out.println("Resetting IntakeAngle!");
+            io.setEncoder(inputs.AbsoluteAngle.getRadians());
+        });
     }
 
     public boolean isReset() {

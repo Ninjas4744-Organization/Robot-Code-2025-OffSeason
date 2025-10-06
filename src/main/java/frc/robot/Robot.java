@@ -17,6 +17,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
+    public static boolean transferredFromAuto = false;
 
     public Robot() {
         // Record metadata
@@ -90,6 +91,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
+        transferredFromAuto = true;
         robotContainer.reset();
         autonomousCommand = robotContainer.getAutonomousCommand();
 
