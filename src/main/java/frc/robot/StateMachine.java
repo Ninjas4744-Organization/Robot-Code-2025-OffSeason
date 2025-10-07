@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import frc.lib.NinjasLib.commands.DetachedCommand;
@@ -301,7 +302,7 @@ public class StateMachine extends StateMachineBase<States> {
         addCommand(States.INTAKE_ALGAE_LOW, Commands.sequence(
                 intakeAngle.setAngle(Rotation2d.fromDegrees(Constants.IntakeAngle.Positions.Algae.get())),
                 Commands.waitUntil(() -> intakeAngle.getAngle().getRadians() < 0.35),
-                arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.IntakeAlgae.get())),
+                arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.IntakeAlgaeLow.get())),
                 Commands.waitUntil(arm::atGoal),
                 elevator.setHeight(Constants.Elevator.Positions.AlgaeLow::get),
                 Commands.waitUntil(elevator::atGoal),
@@ -311,11 +312,14 @@ public class StateMachine extends StateMachineBase<States> {
         ));
 
         addCommand(States.INTAKE_ALGAE_HIGH, Commands.sequence(
-                //TODO: - There's 2 different heights for Algae in reef, and we need to distinguish the 2 heights. thoughts Eitan?
-//                arm.lookAtAlgaeReef(),
-//                elevator.goToAlgaeReefHeight(),
-                Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal()),
+                arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.IntakeAlgaeHigh.get())),
+                elevator.setHeight(() -> {
+                    if (RobotState.getAlliance() == DriverStation.Alliance.Blue)
+                        return Constants.Field.nearestReef().ID % 2 == 0 ? Constants.Elevator.Positions.AlgaeReefHigh.get() : Constants.Elevator.Positions.AlgaeReefLow.get();
+                    return Constants.Field.nearestReef().ID % 2 == 1 ? Constants.Elevator.Positions.AlgaeReefHigh.get() : Constants.Elevator.Positions.AlgaeReefLow.get();
+                }),
                 outtake.intakeAlgae(),
+                Commands.waitUntil(() -> arm.atGoal() && elevator.atGoal()),
                 Commands.waitUntil(outtake::isAlgaeInside),
                 Commands.runOnce(()-> changeRobotState(States.ALGAE_IN_OUTTAKE))
         ));

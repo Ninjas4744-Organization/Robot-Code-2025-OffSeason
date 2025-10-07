@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -19,14 +18,12 @@ import frc.lib.NinjasLib.swerve.SwerveInput;
 import frc.robot.*;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 public class SwerveSubsystem extends SubsystemBase {
     private boolean enabled;
-    private List<Pose2d> reefAprilTags;
     private Pose2d finalTarget;
     private Pose2d target;
     private Command driveToReefCommand;
@@ -40,21 +37,6 @@ public class SwerveSubsystem extends SubsystemBase {
             SwerveController.setInstance(new SwerveController(Constants.Swerve.kSwerveControllerConstants));
             SwerveController.getInstance().setChannel("Driver");
 
-            AprilTagFieldLayout layout = Constants.Field.getFieldLayout();
-            reefAprilTags = List.of(
-                    layout.getTagPose(6).get().toPose2d(),
-                    layout.getTagPose(7).get().toPose2d(),
-                    layout.getTagPose(8).get().toPose2d(),
-                    layout.getTagPose(9).get().toPose2d(),
-                    layout.getTagPose(10).get().toPose2d(),
-                    layout.getTagPose(11).get().toPose2d(),
-                    layout.getTagPose(17).get().toPose2d(),
-                    layout.getTagPose(18).get().toPose2d(),
-                    layout.getTagPose(19).get().toPose2d(),
-                    layout.getTagPose(20).get().toPose2d(),
-                    layout.getTagPose(21).get().toPose2d(),
-                    layout.getTagPose(22).get().toPose2d()
-            );
             finalTarget = Pose2d.kZero;
         }
     }
@@ -86,7 +68,7 @@ public class SwerveSubsystem extends SubsystemBase {
             driveToReefCommand = Commands.sequence(
                     Commands.runOnce(() -> {
                         SwerveController.getInstance().setChannel("AutoReef");
-                        finalTarget = RobotState.getInstance().getRobotPose().nearest(reefAprilTags);
+                        finalTarget = Constants.Field.nearestReef().pose.toPose2d();
                         finalTarget = new Pose2d(finalTarget.getTranslation(), finalTarget.getRotation().rotateBy(Rotation2d.k180deg));
                         finalTarget = finalTarget.transformBy(new Transform2d(RobotState.getL() == 4 ? -Constants.AutoDrive.kDistFromReefL4 : -Constants.AutoDrive.kDistFromReef, isRightSide.getAsBoolean() ? -Constants.AutoDrive.kRightSideOffset : Constants.AutoDrive.kLeftSideOffset, Rotation2d.kZero));
                         target = finalTarget.transformBy(new Transform2d(-Constants.AutoDrive.kDistBackFirstTarget, 0, Rotation2d.kZero));

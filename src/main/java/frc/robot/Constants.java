@@ -101,7 +101,8 @@ public class Constants {
             L2(-315),
             L3(-315),
             L4(-315),
-            IntakeAlgae(-15),
+            IntakeAlgaeLow(-15),
+            IntakeAlgaeHigh(0),
             Net(110),
             NetInverse(70),
             Processor(0),
@@ -165,7 +166,8 @@ public class Constants {
             L2(2.25),
             L3(5.5),
             L4(10.7),
-            AlgaeReef(7),
+            AlgaeReefHigh(7),
+            AlgaeReefLow(5),
             Net(10.7),
             AlgaeLow(0),
             Intake(6),
@@ -508,6 +510,7 @@ public class Constants {
     public static class Field {
         public static AprilTagFieldLayout kBlueFieldLayout;
         public static AprilTagFieldLayout kRedFieldLayout;
+        private static List<Pose2d> reefAprilTags;
 
         static {
             try {
@@ -530,6 +533,22 @@ public class Constants {
             } catch (IOException e) {
                 throw new RuntimeException("Unable to load field layout");
             }
+
+            AprilTagFieldLayout layout = Constants.Field.getFieldLayout();
+            reefAprilTags = List.of(
+                layout.getTagPose(6).get().toPose2d(),
+                layout.getTagPose(7).get().toPose2d(),
+                layout.getTagPose(8).get().toPose2d(),
+                layout.getTagPose(9).get().toPose2d(),
+                layout.getTagPose(10).get().toPose2d(),
+                layout.getTagPose(11).get().toPose2d(),
+                layout.getTagPose(17).get().toPose2d(),
+                layout.getTagPose(18).get().toPose2d(),
+                layout.getTagPose(19).get().toPose2d(),
+                layout.getTagPose(20).get().toPose2d(),
+                layout.getTagPose(21).get().toPose2d(),
+                layout.getTagPose(22).get().toPose2d()
+            );
         }
 
         public static AprilTagFieldLayout getFieldLayoutWithIgnored(List<Integer> ignoredTags) {
@@ -565,6 +584,19 @@ public class Constants {
 
         public static Pose3d getTagPose(int id) {
             return getFieldLayout().getTagPose(id).get();
+        }
+
+        public static AprilTag nearestReef() {
+            AprilTagFieldLayout layout = Constants.Field.getFieldLayout();
+            List<Integer> reefAprilTagsIds = List.of(6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22);
+            Pose2d nearest = RobotState.getInstance().getRobotPose().nearest(reefAprilTags);
+
+            for (int id : reefAprilTagsIds) {
+                if (Math.abs(getTagPose(id).toPose2d().getX() - nearest.getX()) < 0.01 && Math.abs(getTagPose(id).toPose2d().getY() - nearest.getY()) < 0.01)
+                    return new AprilTag(id, getTagPose(id));
+            }
+
+            return layout.getTags().get(0);
         }
     }
 

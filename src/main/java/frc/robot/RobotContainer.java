@@ -214,6 +214,10 @@ public class RobotContainer {
 //                finishOuttake = true;
         }));
 
+        operatorController.square().onTrue(Commands.runOnce(() -> {
+
+        }));
+
         driverController.povDown().onTrue(Commands.runOnce(
                 () -> stateMachine.changeRobotState(States.RESET)
         ));
