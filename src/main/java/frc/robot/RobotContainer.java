@@ -162,7 +162,6 @@ public class RobotContainer {
         return Commands.runOnce(() -> RobotState.getInstance().setL(L));
     }
 
-    public static boolean finishOuttake = false;
     private void configureBindings() {
         StateMachine stateMachine = StateMachine.getInstance();
 
@@ -178,7 +177,10 @@ public class RobotContainer {
         ));
 
         driverController.triangle().onTrue(Commands.either(
-                Commands.runOnce(() -> stateMachine.changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1)),
+                Commands.runOnce(() -> {
+                    stateMachine.changeRobotState(States.CORAL_OUTTAKE_L1);
+                    stateMachine.changeRobotState(States.PREPARE_CORAL_OUTTAKE_L1);
+                }),
                 Commands.runOnce(() -> stateMachine.changeRobotState(States.CORAL_OUTTAKE)),
                 () -> RobotState.getL() == 1
         ));
@@ -193,18 +195,6 @@ public class RobotContainer {
                 () -> stateMachine.changeRobotState(States.CLOSE)
         ));
 
-//        driverController.R1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() + 1)));
-//        driverController.L1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() - 1)));
-        operatorController.cross().onTrue(Commands.runOnce(() -> RobotState.setL(4)));
-        operatorController.circle().onTrue(Commands.runOnce(() -> RobotState.setL(3)));
-        operatorController.triangle().onTrue(Commands.runOnce(() -> RobotState.setL(2)));
-        operatorController.square().onTrue(Commands.runOnce(() -> RobotState.setL(1)));
-
-        new Trigger(() -> RobotState.getL() > 1 && RobotState.getInstance().getRobotState() == States.CORAL_IN_INTAKE)
-                .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_TO_OUTTAKE)));
-        new Trigger(() -> RobotState.getL() == 1 && RobotState.getInstance().getRobotState() == States.CORAL_IN_OUTTAKE)
-                .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_TO_INTAKE)));
-
         driverController.square().onTrue(Commands.runOnce(() -> {
             StateMachine.getInstance().changeRobotState(States.ALGAE_OUTTAKE);
             StateMachine.getInstance().changeRobotState(States.PREPARE_ALGAE_OUTTAKE);
@@ -214,18 +204,37 @@ public class RobotContainer {
 //                finishOuttake = true;
         }));
 
-        operatorController.square().onTrue(Commands.runOnce(() -> {
-
-        }));
-
-        driverController.povDown().onTrue(Commands.runOnce(
-                () -> stateMachine.changeRobotState(States.RESET)
-        ));
-
         driverController.povUp().onTrue(Commands.runOnce(() -> {
             outtake.forceKnowCoralInside(true);
             stateMachine.changeRobotState(States.CORAL_IN_OUTTAKE);
         }));
+
+//        driverController.R1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() + 1)));
+//        driverController.L1().onTrue(Commands.runOnce(() -> RobotState.setL(RobotState.getL() - 1)));
+        operatorController.cross().onTrue(Commands.runOnce(() -> RobotState.setL(4)));
+        operatorController.circle().onTrue(Commands.runOnce(() -> RobotState.setL(3)));
+        operatorController.triangle().onTrue(Commands.runOnce(() -> RobotState.setL(2)));
+        operatorController.square().onTrue(Commands.runOnce(() -> RobotState.setL(1)));
+
+        operatorController.R1().onTrue(Commands.runOnce(() -> {
+//            if (StateMachine.getInstance().canChangeRobotState(RobotState.getInstance().getRobotState(), States.INTAKE_ALGAE_HIGH))
+                StateMachine.getInstance().changeRobotState(States.INTAKE_ALGAE_HIGH);
+//            else
+//                StateMachine.getInstance().setSuperCycle(true);
+        }));
+
+//        operatorController.L1().onTrue(Commands.runOnce(() -> {
+//            StateMachine.getInstance().setSuperCycle(false);
+//        }));
+
+        new Trigger(() -> RobotState.getL() > 1 && RobotState.getInstance().getRobotState() == States.CORAL_IN_INTAKE)
+                .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_TO_OUTTAKE)));
+        new Trigger(() -> RobotState.getL() == 1 && RobotState.getInstance().getRobotState() == States.CORAL_IN_OUTTAKE)
+                .onTrue(Commands.runOnce(() -> stateMachine.changeRobotState(States.TRANSFER_CORAL_TO_INTAKE)));
+
+        operatorController.povDown().onTrue(Commands.runOnce(
+                () -> stateMachine.changeRobotState(States.RESET)
+        ));
     }
 
     public static Elevator getElevator() {

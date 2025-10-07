@@ -64,9 +64,12 @@ public class Intake extends SubsystemBase {
 
     public Command outtake() {
         return Commands.sequence(
-//                Commands.runOnce(() -> isCoralInside = false),
                 setVelocity(Constants.Intake.Speeds.Outtake::get)
         );
+    }
+
+    public Command outtakeL1() {
+        return setVelocity(Constants.Intake.Speeds.OuttakeL1::get);
     }
 
     public Command stop() {

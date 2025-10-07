@@ -5,6 +5,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.NinjasLib.controllers.Controller;
 import frc.robot.Constants;
+import frc.robot.Robot;
 
 public class ArmIOController implements ArmIO {
     private Controller controller;
@@ -14,18 +15,23 @@ public class ArmIOController implements ArmIO {
     public void setup() {
         controller = Controller.createController(Controller.ControllerType.TalonFX, Constants.Arm.kControllerConstants);
 
-        canCoder = new CANcoder(Constants.Arm.kCanCoderID);
-        CANcoderConfiguration config = new CANcoderConfiguration();
-        config.MagnetSensor.MagnetOffset = Constants.Arm.kCanCoderOffset;
-        config.MagnetSensor.SensorDirection = Constants.Arm.kCanCoderReversed;
-        canCoder.getConfigurator().apply(config);
+        if (Robot.isReal()) {
+            canCoder = new CANcoder(Constants.Arm.kCanCoderID);
+            CANcoderConfiguration config = new CANcoderConfiguration();
+            config.MagnetSensor.MagnetOffset = Constants.Arm.kCanCoderOffset;
+            config.MagnetSensor.SensorDirection = Constants.Arm.kCanCoderReversed;
+            canCoder.getConfigurator().apply(config);
+        }
     }
 
     @Override
     public void updateInputs(ArmIOInputsAutoLogged inputs) {
         controller.updateInputs(inputs);
-        inputs.AbsoluteAngle = Rotation2d.fromRotations(canCoder.getAbsolutePosition().getValueAsDouble() * 2);
-        inputs.AtGoal = controller.atGoal();
+
+        if (Robot.isReal())
+            inputs.AbsoluteAngle = Rotation2d.fromRotations(canCoder.getAbsolutePosition().getValueAsDouble() * 2);
+        else
+            inputs.AbsoluteAngle = Rotation2d.fromRotations(controller.getPosition());
     }
 
     @Override

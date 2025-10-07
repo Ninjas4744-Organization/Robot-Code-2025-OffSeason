@@ -96,11 +96,17 @@ public class Constants {
         private static final double DownAngle = -30;
         public static final Rotation2d[] LPositions = { Rotation2d.fromDegrees(Arm.Positions.Close.get()), Rotation2d.fromDegrees(Arm.Positions.L2.get()), Rotation2d.fromDegrees(Arm.Positions.L3.get()), Rotation2d.fromDegrees(Arm.Positions.L4.get()) };
         public static final Rotation2d[] LPositionsDown = { Rotation2d.fromDegrees(Arm.Positions.Close.get()), Rotation2d.fromDegrees(Arm.Positions.L2.get() + DownAngle), Rotation2d.fromDegrees(Arm.Positions.L3.get() + DownAngle), Rotation2d.fromDegrees(Arm.Positions.L4.get() + DownAngle) };
+        public static final Rotation2d[] LPositionsInverse = { Rotation2d.fromDegrees(Arm.Positions.Close.get()), Rotation2d.fromDegrees(Arm.Positions.L2Inverse.get()), Rotation2d.fromDegrees(Arm.Positions.L3Inverse.get()), Rotation2d.fromDegrees(Arm.Positions.L4Inverse.get()) };
+        public static final Rotation2d[] LPositionsDownInverse = { Rotation2d.fromDegrees(Arm.Positions.Close.get()), Rotation2d.fromDegrees(Arm.Positions.L2Inverse.get() - DownAngle), Rotation2d.fromDegrees(Arm.Positions.L3Inverse.get() - DownAngle), Rotation2d.fromDegrees(Arm.Positions.L4Inverse.get() - DownAngle) };
         public enum Positions {
             Close(-90),
             L2(-315),
             L3(-315),
             L4(-315),
+            L2Inverse(-225),
+            L3Inverse(-225),
+            L4Inverse(-225),
+            IntakeAlgae(-15),
             IntakeAlgaeLow(-15),
             IntakeAlgaeHigh(0),
             Net(110),
@@ -166,8 +172,8 @@ public class Constants {
             L2(2.25),
             L3(5.5),
             L4(10.7),
-            AlgaeReefHigh(7),
-            AlgaeReefLow(5),
+            AlgaeReefHigh(7.5),
+            AlgaeReefLow(4.3),
             Net(10.7),
             AlgaeLow(0),
             Intake(6),
@@ -203,7 +209,7 @@ public class Constants {
         public enum Speeds {
             Intake(-0.8),
             Outtake(0.5),
-            IntakeAlgae(-1),
+            IntakeAlgae(-0.9),
             OuttakeAlgae(1);
 
             final double speed;
@@ -237,7 +243,8 @@ public class Constants {
 
         public enum Speeds {
             Intake(-70),
-            Outtake(60);
+            Outtake(60),
+            OuttakeL1(26);
 
             final double speed;
 
@@ -287,7 +294,7 @@ public class Constants {
 
         public enum Positions {
             Intake(-23 - 35 - 14 + 5 - 0.5),
-            L1(60 - 35 - 14 - 0.5),
+            L1(34),
             Arm(65 - 0.5),
             Close(65 - 0.5),
             Algae(0);
@@ -377,7 +384,7 @@ public class Constants {
             );
 
             /* Limits */
-            kSwerveConstants.limits.maxSpeed = 4.5;
+            kSwerveConstants.limits.maxSpeed = 4;
             kSwerveConstants.limits.maxAngularVelocity = 9.2;
             kSwerveConstants.limits.speedLimit = Double.MAX_VALUE;
             kSwerveConstants.limits.rotationSpeedLimit = Double.MAX_VALUE;
@@ -388,12 +395,12 @@ public class Constants {
 
             /* Modules */
             double wheelRadius = 0.048;
-            kSwerveConstants.modules.openLoop = true;
+            kSwerveConstants.modules.openLoop = false;
             kSwerveConstants.modules.driveMotorConstants = new ControllerConstants();
             kSwerveConstants.modules.driveMotorConstants.real.currentLimit = 100;
             kSwerveConstants.modules.driveMotorConstants.real.gearRatio = 5.9;
             kSwerveConstants.modules.driveMotorConstants.real.conversionFactor = wheelRadius * 2 * Math.PI;
-            kSwerveConstants.modules.driveMotorConstants.real.controlConstants = ControlConstants.createTorqueCurrent(90, 0.19);
+            kSwerveConstants.modules.driveMotorConstants.real.controlConstants = ControlConstants.createTorqueCurrent(90, 6);
 
             kSwerveConstants.modules.steerMotorConstants = new ControllerConstants();
             kSwerveConstants.modules.steerMotorConstants.real.currentLimit = 60;
@@ -449,7 +456,7 @@ public class Constants {
         public static final SwerveControllerConstants kSwerveControllerConstants = new SwerveControllerConstants();
         static {
             kSwerveControllerConstants.swerveConstants = kSwerveConstants;
-            kSwerveControllerConstants.drivePIDConstants = ControlConstants.createPID(10, 0, 0.3, 0);
+            kSwerveControllerConstants.drivePIDConstants = ControlConstants.createPID(5, 0, 0, 0);
             kSwerveControllerConstants.rotationPIDConstants = ControlConstants.createPID(6, 0.5, 0, Units.degreesToRadians(5));
             kSwerveControllerConstants.rotationPIDContinuousConnections = Pair.of(-Math.PI, Math.PI);
         }
@@ -473,9 +480,8 @@ public class Constants {
         public static final VisionConstants kVisionConstants = new VisionConstants();
         static {
             kVisionConstants.cameras = Map.of(
-//            "Front", Pair.of(new Transform3d(0.21927, 0.7833, 0.14844, new Rotation3d(Units.degreesToRadians(11.46), Units.degreesToRadians(52.63), Units.degreesToRadians(19.1))), VisionConstants.CameraType.PhotonVision)
-            "Front", Pair.of(new Transform3d(0.28286, 0.12995, 0.152, new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(-7.5))), VisionConstants.CameraType.PhotonVision)
-//            "Back", Pair.of(new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0)), VisionConstants.CameraType.PhotonVision)
+            "Front", Pair.of(new Transform3d(0.28286, 0.12995, 0.152, new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(-7.5))), VisionConstants.CameraType.PhotonVision),
+            "Back", Pair.of(new Transform3d(-0.28286 - 0.05, 0.12995, 0.152, new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(187.5))), VisionConstants.CameraType.PhotonVision)
         );
 
             kVisionConstants.fieldLayoutGetter = Constants.Field::getFieldLayoutWithIgnored;
@@ -522,12 +528,14 @@ public class Constants {
 
                 // Switch tag 14 to be 18 for testing. REMOVE BEFORE COMP
                 List<AprilTag> blueTags = kBlueFieldLayout.getTags();
-                blueTags.set(14 + 1, new AprilTag(14, blueTags.get(18 - 1).pose));
+                blueTags.set(14 - 1, new AprilTag(14, blueTags.get(18 - 1).pose));
+                blueTags.set(9 - 1, new AprilTag(9, blueTags.get(18 - 1).pose));
                 kBlueFieldLayout = new AprilTagFieldLayout(blueTags, kBlueFieldLayout.getFieldLength(), kBlueFieldLayout.getFieldWidth());
                 kBlueFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
 
                 List<AprilTag> redTags = kRedFieldLayout.getTags();
-                redTags.set(14 + 1, new AprilTag(14, redTags.get(18 - 1).pose));
+                redTags.set(14 - 1, new AprilTag(14, redTags.get(18 - 1).pose));
+                redTags.set(9 - 1, new AprilTag(9, redTags.get(18 - 1).pose));
                 kRedFieldLayout = new AprilTagFieldLayout(redTags, kRedFieldLayout.getFieldLength(), kRedFieldLayout.getFieldWidth());
                 kRedFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
             } catch (IOException e) {
@@ -601,10 +609,17 @@ public class Constants {
     }
 
     public static class AutoDrive {
-        public static double kDistFromReef = 0.585 + 0.05 - 0.02 - 0.01 - 0.015 - 0.02 - 0.005 - 0.005;
-        public static double kDistFromReefL4 = 0.585 + 0.05 - 0.02 - 0.01 - 0.005;
-        public static double kRightSideOffset = -0.05 + 0.05;
-        public static double kLeftSideOffset = 0.35 - 0.01;
+        public static double kReefRodOffset = 0.3302 / 2;
+
+        public static double kDistFromReef = 0.56 - 0.005 - 0.01;
+        public static double kDistFromReefInverse = 0.56 - 0.005;
+        public static double kDistFromReefL4 = 0.6 - 0.005;
+
+        public static double kRightSideOffset = 0 - 0.1651;
+        public static double kLeftSideOffset = 0.34 - 0.1651;
+        public static double kRightSideInverseOffset = 0 - 0.1651 + 0.40 - 0.005;
+        public static double kLeftSideInverseOffset = 0 + 0.1651 - 0.40 + 0.33 - 0.36 + 0.03 + 0.005;
+
         public static double kDistThreshold = 0.01;
         public static Rotation2d kAngleThreshold = Rotation2d.fromDegrees(1.5);
 
@@ -615,10 +630,12 @@ public class Constants {
             boolean isSadna = false;
 
             if(isSadna) {
-                kDistFromReef = 0.585 - 0.015 - 0.02 - 0.005;
+                kDistFromReef = 0.545;
                 kDistFromReefL4 = 0.585;
-                kRightSideOffset = -0.05;
-                kLeftSideOffset = 0.35;
+                kRightSideOffset = -0.05 - 16.51;
+                kLeftSideOffset = 0.35 - 16.51;
+                kRightSideInverseOffset = -0.05 - 16.51;
+                kLeftSideInverseOffset = 0.35 - 16.51;
             }
         }
     }
