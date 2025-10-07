@@ -526,18 +526,18 @@ public class Constants {
                 kRedFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025ReefscapeWelded.m_resourceFile);
                 kRedFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
 
-                // Switch tag 14 to be 18 for testing. REMOVE BEFORE COMP
-                List<AprilTag> blueTags = kBlueFieldLayout.getTags();
-                blueTags.set(14 - 1, new AprilTag(14, blueTags.get(18 - 1).pose));
-                blueTags.set(9 - 1, new AprilTag(9, blueTags.get(18 - 1).pose));
-                kBlueFieldLayout = new AprilTagFieldLayout(blueTags, kBlueFieldLayout.getFieldLength(), kBlueFieldLayout.getFieldWidth());
-                kBlueFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
-
-                List<AprilTag> redTags = kRedFieldLayout.getTags();
-                redTags.set(14 - 1, new AprilTag(14, redTags.get(18 - 1).pose));
-                redTags.set(9 - 1, new AprilTag(9, redTags.get(18 - 1).pose));
-                kRedFieldLayout = new AprilTagFieldLayout(redTags, kRedFieldLayout.getFieldLength(), kRedFieldLayout.getFieldWidth());
-                kRedFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
+//                // Switch tag 14 to be 18 for testing. REMOVE BEFORE COMP
+//                List<AprilTag> blueTags = kBlueFieldLayout.getTags();
+//                blueTags.set(14 - 1, new AprilTag(14, blueTags.get(18 - 1).pose));
+//                blueTags.set(9 - 1, new AprilTag(9, blueTags.get(18 - 1).pose));
+//                kBlueFieldLayout = new AprilTagFieldLayout(blueTags, kBlueFieldLayout.getFieldLength(), kBlueFieldLayout.getFieldWidth());
+//                kBlueFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
+//
+//                List<AprilTag> redTags = kRedFieldLayout.getTags();
+//                redTags.set(14 - 1, new AprilTag(14, redTags.get(18 - 1).pose));
+//                redTags.set(9 - 1, new AprilTag(9, redTags.get(18 - 1).pose));
+//                kRedFieldLayout = new AprilTagFieldLayout(redTags, kRedFieldLayout.getFieldLength(), kRedFieldLayout.getFieldWidth());
+//                kRedFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
             } catch (IOException e) {
                 throw new RuntimeException("Unable to load field layout");
             }
