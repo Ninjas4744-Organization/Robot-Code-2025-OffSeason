@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -40,6 +41,14 @@ public class SwerveSubsystem extends SubsystemBase {
             finalTarget = Pose2d.kZero;
             target = Pose2d.kZero;
             autoReefAnglePID.enableContinuousInput(-Math.PI, Math.PI);
+
+            SmartDashboard.putNumber("Dist Offset", 0);
+            SmartDashboard.putNumber("Dist Inverse Offset", 0);
+            SmartDashboard.putNumber("Dist L4 Offset", 0);
+            SmartDashboard.putNumber("Right Offset", 0);
+            SmartDashboard.putNumber("Left Offset", 0);
+            SmartDashboard.putNumber("Right Inverse Offset", 0);
+            SmartDashboard.putNumber("Left Inverse Offset", 0);
         }
     }
 
@@ -57,10 +66,6 @@ public class SwerveSubsystem extends SubsystemBase {
     double f(double error){
         double a = 2;
         double b = 2;
-//        if(surpassedFirstThreshold()) {
-//            a = 1.5;
-//            b = 1.5;
-//        }
         return Math.pow(a * error, 1 / b);
     }
 
@@ -75,9 +80,17 @@ public class SwerveSubsystem extends SubsystemBase {
                         finalTarget = Constants.Field.nearestReef().pose.toPose2d();
                         finalTarget = new Pose2d(finalTarget.getTranslation(), finalTarget.getRotation().rotateBy(Rotation2d.k180deg));
 
+                        double distOffset         = Math.round(SmartDashboard.getNumber("Dist Offset", 0) * 100) / 100.0;
+                        double distInverseOffset  = Math.round(SmartDashboard.getNumber("Dist Inverse Offset", 0) * 100) / 100.0;
+                        double distL4Offset       = Math.round(SmartDashboard.getNumber("Dist L4 Offset", 0) * 100) / 100.0;
+                        double rightOffset        = Math.round(SmartDashboard.getNumber("Right Offset", 0) * 100) / 100.0;
+                        double leftOffset         = Math.round(SmartDashboard.getNumber("Left Offset", 0) * 100) / 100.0;
+                        double rightInverseOffset = Math.round(SmartDashboard.getNumber("Right Inverse Offset", 0) * 100) / 100.0;
+                        double leftInverseOffset  = Math.round(SmartDashboard.getNumber("Left Inverse Offset", 0) * 100) / 100.0;
+
                         boolean invertTarget = invertRobotOuttake();
-                        finalTarget = finalTarget.transformBy(new Transform2d(RobotState.getL() == 4 ? -Constants.AutoDrive.kDistFromReefL4 : (invertTarget ? -Constants.AutoDrive.kDistFromReefInverse : -Constants.AutoDrive.kDistFromReef),
-                                isRightSide.getAsBoolean() ? ((invertTarget ? -Constants.AutoDrive.kRightSideInverseOffset : -Constants.AutoDrive.kRightSideOffset) - Constants.AutoDrive.kReefRodOffset) : ((invertTarget ? Constants.AutoDrive.kLeftSideInverseOffset : Constants.AutoDrive.kLeftSideOffset) + Constants.AutoDrive.kReefRodOffset),
+                        finalTarget = finalTarget.transformBy(new Transform2d(RobotState.getL() == 4 ? (-Constants.AutoDrive.kDistFromReefL4 - distL4Offset) : (invertTarget ? (-Constants.AutoDrive.kDistFromReefInverse - distInverseOffset) : (-Constants.AutoDrive.kDistFromReef - distOffset)),
+                                isRightSide.getAsBoolean() ? ((invertTarget ? (-Constants.AutoDrive.kRightSideInverseOffset - rightInverseOffset + (RobotState.getL() == 2 ? -Constants.AutoDrive.kRightSideInverseL2ExtraOffset : 0)) : (-Constants.AutoDrive.kRightSideOffset - rightOffset + (RobotState.getL() == 2 ? -Constants.AutoDrive.kRightSideL2ExtraOffset : 0))) - Constants.AutoDrive.kReefRodOffset) : ((invertTarget ? (Constants.AutoDrive.kLeftSideInverseOffset + leftInverseOffset + (RobotState.getL() == 2 ? Constants.AutoDrive.kLeftSideInverseL2ExtraOffset : 0)) : (Constants.AutoDrive.kLeftSideOffset + leftOffset + (RobotState.getL() == 2 ? Constants.AutoDrive.kLeftSideL2ExtraOffset : 0))) + Constants.AutoDrive.kReefRodOffset),
                                 Rotation2d.kZero));
                         target = finalTarget.transformBy(new Transform2d(-Constants.AutoDrive.kDistBackFirstTarget, 0, Rotation2d.kZero));
 

@@ -18,6 +18,7 @@ public class VisionSubsystem extends SubsystemBase {
     private double odometryDrift = 0;
     private boolean crashed;
     private Pose2d lastVisionPose = new Pose2d();
+    private boolean resettedGyro = false;
 
     public VisionSubsystem() {
         Vision.setInstance(new Vision(Constants.Vision.kVisionConstants));
@@ -56,6 +57,12 @@ public class VisionSubsystem extends SubsystemBase {
                 && estimation.ambiguity <= Constants.Vision.kMaxAmbiguityFilter;
 
             Logger.recordOutput("Vision/" + estimation.cameraName + "/Passed Filters", passedFilters);
+
+            if(DriverStation.isDisabled() && !resettedGyro) {
+                Swerve.getInstance().getGyro().resetYaw(estimation.robotPose.getRotation());
+                resettedGyro = true;
+            }
+
             if (passedFilters || DriverStation.isDisabled()) {
                 RobotState.getInstance().updateRobotPose(estimation, std);
                 lastVisionPose = estimation.robotPose;

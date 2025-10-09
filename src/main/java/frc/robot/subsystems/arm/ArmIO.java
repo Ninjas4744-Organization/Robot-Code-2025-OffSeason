@@ -7,7 +7,7 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ArmIO {
     @AutoLog
     class ArmIOInputs extends Controller.ControllerIOInputs {
-        Rotation2d AbsoluteAngle;
+        Rotation2d AbsoluteAngle = Rotation2d.fromDegrees(90);
     }
 
     default void setup() {

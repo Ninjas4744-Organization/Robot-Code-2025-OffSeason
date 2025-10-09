@@ -51,7 +51,7 @@ public class Constants {
     }
 
     public static class General {
-        public static final RobotMode kSimMode = RobotMode.SIM;
+        public static final RobotMode kSimMode = RobotMode.REPLAY;
         public static final RobotMode kRobotMode = Robot.isReal() ? RobotMode.REAL : kSimMode;
         public static final int kDriverControllerPort = 0;
         public static final int kOperatorControllerPort = 1;
@@ -175,7 +175,7 @@ public class Constants {
             AlgaeReefHigh(7.5),
             AlgaeReefLow(4.3),
             Net(10.7),
-            AlgaeLow(0),
+            AlgaeLow(0.3),
             Intake(6),
             CoralReady(1.6);
 
@@ -209,7 +209,7 @@ public class Constants {
         public enum Speeds {
             Intake(-0.8),
             Outtake(0.5),
-            IntakeAlgae(-0.9),
+            IntakeAlgae(-1),
             OuttakeAlgae(1);
 
             final double speed;
@@ -612,13 +612,18 @@ public class Constants {
         public static double kReefRodOffset = 0.3302 / 2;
 
         public static double kDistFromReef = 0.56 - 0.005 - 0.01;
-        public static double kDistFromReefInverse = 0.56 - 0.005;
-        public static double kDistFromReefL4 = 0.6 - 0.005;
+        public static double kDistFromReefInverse = 0.56 - 0.005 - 0.01;
+        public static double kDistFromReefL4 = 0.6 - 0.005 - 0.01;
 
-        public static double kRightSideOffset = 0 - 0.1651;
+        public static double kRightSideOffset = 0 - 0.1651 - 0.01;
         public static double kLeftSideOffset = 0.34 - 0.1651;
         public static double kRightSideInverseOffset = 0 - 0.1651 + 0.40 - 0.005;
         public static double kLeftSideInverseOffset = 0 + 0.1651 - 0.40 + 0.33 - 0.36 + 0.03 + 0.005;
+
+        public static double kRightSideL2ExtraOffset = 0;
+        public static double kLeftSideL2ExtraOffset = 0;
+        public static double kRightSideInverseL2ExtraOffset = -0.01;
+        public static double kLeftSideInverseL2ExtraOffset = 0.01;
 
         public static double kDistThreshold = 0.01;
         public static Rotation2d kAngleThreshold = Rotation2d.fromDegrees(1.5);

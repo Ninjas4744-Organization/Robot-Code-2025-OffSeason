@@ -131,6 +131,7 @@ public class StateMachine extends StateMachineBase<States> {
 
     private boolean invertRobotOuttake = false;
     private boolean decidedOuttakeInversion = false;
+    private boolean firstCoralInAuto = true;
     @Override
     protected void setCommandMap() {
         Intake intake = RobotContainer.getIntake();
@@ -206,9 +207,15 @@ public class StateMachine extends StateMachineBase<States> {
         ));
 
         addCommand(States.CORAL_IN_OUTTAKE, Commands.sequence(
-                arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.CoralReady.get())),
-                Commands.waitUntil(() -> arm.getAngle().getDegrees() < -180),
-                elevator.setHeight(Constants.Elevator.Positions.CoralReady::get)
+                Commands.either(
+                        Commands.sequence(
+                                arm.setAngle(() -> Rotation2d.fromDegrees(Constants.Arm.Positions.CoralReady.get())),
+                                Commands.waitUntil(() -> arm.getAngle().getDegrees() < -180),
+                                elevator.setHeight(Constants.Elevator.Positions.CoralReady::get)
+                        ),
+                        Commands.runOnce(() -> firstCoralInAuto = false),
+                        () -> !firstCoralInAuto
+                )
         ));
 
         addCommand(States.TRANSFER_CORAL_TO_INTAKE, Commands.sequence(
@@ -256,6 +263,7 @@ public class StateMachine extends StateMachineBase<States> {
                 Commands.either(
                         Commands.sequence(
                             elevator.setHeight(() -> Constants.Elevator.LPositions[RobotState.getL() - 1]),
+                            Commands.waitUntil(() -> elevator.getHeight() > 6),
                             arm.setAngle(() -> {
 //                                double angle = Constants.Arm.LPositions[RobotState.getL() - 1].getDegrees();
 //                                if(!swerve.invertRobotOuttake())
@@ -311,6 +319,7 @@ public class StateMachine extends StateMachineBase<States> {
                         swerve.close()
                 )),
 
+                intakeAngle.reset(),
                 Commands.runOnce(() -> {
 //                    if (enableSuperCycle)
 //                        changeRobotState(States.INTAKE_ALGAE_HIGH);
@@ -345,7 +354,7 @@ public class StateMachine extends StateMachineBase<States> {
                 arm.setAngle(() -> Rotation2d.fromDegrees(90)),
                 Commands.runOnce(() -> {
                     SwerveController.getInstance().setChannel("BackReef");
-                    SwerveController.getInstance().setControl(new SwerveInput(-1, 0, 0, false), "BackReef");
+                    SwerveController.getInstance().setControl(new SwerveInput(-0.5, 0, 0, false), "BackReef");
                 }),
                 Commands.waitSeconds(0.4),
                 swerve.close(),

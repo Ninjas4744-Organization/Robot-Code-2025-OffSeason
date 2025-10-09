@@ -117,7 +117,10 @@ public class Arm extends SubsystemBase {
         if (!enabled){
             return Commands.none();
         }
-        return Commands.runOnce(() -> io.setEncoder(inputs.AbsoluteAngle.getRotations()));//.andThen(setAngle(Rotation2d.fromDegrees(Constants.Arm.Positions.Close.get())));
+        return Commands.runOnce(() -> {
+            System.out.println("RESETTING ARMMMM");
+            io.setEncoder(inputs.AbsoluteAngle.getRotations());
+        });
     }
 
     public boolean isReset(){
