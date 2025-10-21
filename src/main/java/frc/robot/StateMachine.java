@@ -198,10 +198,11 @@ public class StateMachine extends StateMachineBase<States> {
                 Commands.waitUntil(() -> intakeAngle.getAngle().getRadians() > 0.35),
                 elevator.setHeight(Constants.Elevator.Positions.Intake::get),
                 Commands.waitUntil(elevator::atGoal),
+                Commands.waitSeconds(0.254),
                 outtake.intake(),
                 intake.outtake(),
                 Commands.waitUntil(() -> !intake.isCoralInside()),
-                Commands.waitSeconds(0.2),
+                Commands.waitSeconds(0.26),
                 Commands.runOnce(() -> outtake.forceKnowCoralInside(true)),
                 Commands.runOnce(() -> changeRobotState(States.CLOSE))
         ));
@@ -286,6 +287,7 @@ public class StateMachine extends StateMachineBase<States> {
                         () -> Constants.Elevator.LPositions[RobotState.getL() - 1] > 6
                 ),
                 Commands.waitUntil(() -> elevator.atGoal() && arm.atGoal() && swerve.atGoal()),
+                Commands.waitSeconds(0.254),
                 Commands.runOnce(() -> changeRobotState(States.CORAL_OUTTAKE))
         ));
 
@@ -319,7 +321,15 @@ public class StateMachine extends StateMachineBase<States> {
                         swerve.close()
                 )),
 
-                intakeAngle.reset(),
+                Commands.sequence(
+                        intakeAngle.reset(),
+                        intakeAngle.close(),
+                        Commands.waitUntil(intakeAngle::atGoal),
+                        new DetachedCommand(Commands.sequence(
+                                Commands.waitSeconds(0.1),
+                                intakeAngle.reset()
+                        ))
+                ),
                 Commands.runOnce(() -> {
 //                    if (enableSuperCycle)
 //                        changeRobotState(States.INTAKE_ALGAE_HIGH);

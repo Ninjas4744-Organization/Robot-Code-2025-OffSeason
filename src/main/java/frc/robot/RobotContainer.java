@@ -141,6 +141,7 @@ public class RobotContainer {
     }
 
     private void registerCommands() {
+        NamedCommands.registerCommand("Intake Coral", changeRobotState(States.INTAKE_CORAL));
         NamedCommands.registerCommand("Wait Coral", Commands.waitUntil(() -> intake.isCoralInside()));
         NamedCommands.registerCommand("Wait Intake Coral", Commands.waitUntil(() -> RobotState.getInstance().getRobotState() == States.INTAKE_CORAL));
         NamedCommands.registerCommand("Left Reef", new DetachedCommand(Commands.waitUntil(() -> RobotState.getInstance().getDistance(new Pose2d(4, 4, Rotation2d.kZero)) < 3.5 && RobotState.getInstance().getRobotState() == States.CORAL_IN_OUTTAKE).andThen(changeRobotState(States.DRIVE_LEFT_REEF))));
@@ -313,7 +314,15 @@ public class RobotContainer {
         SwerveController.getInstance().setControl(new SwerveInput(), DriverStation.isAutonomous() ? "Auto" : "Driver");
         if (DriverStation.isAutonomous()) {
             arm.reset().schedule();
-            intakeAngle.reset().schedule();
+            Commands.sequence(
+                    intakeAngle.reset(),
+                    intakeAngle.close(),
+                    Commands.waitUntil(intakeAngle::atGoal),
+                    new DetachedCommand(Commands.sequence(
+                            Commands.waitSeconds(0.1),
+                            intakeAngle.reset()
+                    ))
+            ).schedule();
             StateMachine.getInstance().changeRobotState(States.CORAL_IN_OUTTAKE);
         }
         else if (Robot.transferredFromAuto)

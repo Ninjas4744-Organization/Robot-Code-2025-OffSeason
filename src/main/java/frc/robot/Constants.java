@@ -260,7 +260,7 @@ public class Constants {
 
      public static class IntakeAngle {
         public static final int kCanCoderID = 23;
-        public static final double kCanCoderOffset = 1.322266 - 0.268311;
+        public static final double kCanCoderOffset = 1.115479;
         public static final SensorDirectionValue kCanCoderReversed = SensorDirectionValue.CounterClockwise_Positive;
 
         public static final ControllerConstants kControllerConstants = new ControllerConstants();
@@ -293,11 +293,11 @@ public class Constants {
         }
 
         public enum Positions {
-            Intake(-23 - 35 - 14 + 5 - 0.5),
-            L1(34),
-            Arm(65 - 0.5),
-            Close(65 - 0.5),
-            Algae(0);
+            Intake(-23 - 35 - 14 + 5 - 0.5 - 15 + 3.5 + 1.5 + 1.5 + 1.5 + 1),
+            L1(34 - 15 + 3.5 + 1.5 + 1.5),
+            Arm(65),
+            Close(65),
+            Algae(0 - 15 + 3.5 + 1.5);
 
             private final double degrees;
 
@@ -611,12 +611,12 @@ public class Constants {
     public static class AutoDrive {
         public static double kReefRodOffset = 0.3302 / 2;
 
-        public static double kDistFromReef = 0.56 - 0.005 - 0.01;
+        public static double kDistFromReef = 0.56 - 0.005 - 0.01 - 0.005 - 0.005;
         public static double kDistFromReefInverse = 0.56 - 0.005 - 0.01;
         public static double kDistFromReefL4 = 0.6 - 0.005 - 0.01;
 
         public static double kRightSideOffset = 0 - 0.1651 - 0.01;
-        public static double kLeftSideOffset = 0.34 - 0.1651;
+        public static double kLeftSideOffset = 0.34 - 0.1651 - 0.005;
         public static double kRightSideInverseOffset = 0 - 0.1651 + 0.40 - 0.005;
         public static double kLeftSideInverseOffset = 0 + 0.1651 - 0.40 + 0.33 - 0.36 + 0.03 + 0.005;
 
